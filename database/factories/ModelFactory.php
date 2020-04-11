@@ -2,8 +2,11 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
+use App\Project;
+use App\Sprint;
 use App\Ticket;
 use App\User;
+use Carbon\Carbon;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 
@@ -28,6 +31,33 @@ $factory->define(User::class, function (Faker $faker) {
     ];
 });
 
+$factory->define(Project::class, function (Faker $faker) {
+    return [
+        'name' => 'Test Project',
+        'code' => 'TPJ',
+    ];
+});
+
+
 $factory->define(Ticket::class, function (Faker $faker) {
-    return [];
+    return [
+        'project_id' => function () {
+            return factory(App\Project::class)->create()->id;
+        },
+        'name' => 'TIC-1234',
+        'status' => 'Accepted',
+        'created_at' => Carbon::now(),
+    ];
+});
+
+$factory->define(Sprint::class, function (Faker $faker) {
+    return [
+        'name' => 'Sprint 1',
+    ];
+});
+
+$factory->state(Ticket::class, 'completed', function () {
+    return [
+        'completed_at' => Carbon::parse('+1 week')
+    ];
 });
