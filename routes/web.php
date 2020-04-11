@@ -17,6 +17,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/sprints', 'SprintsController@index')->name('sprints.index')->middleware('auth');
+Route::get('/sprints/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
