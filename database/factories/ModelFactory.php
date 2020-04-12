@@ -53,6 +53,8 @@ $factory->define(Ticket::class, function (Faker $faker) {
 $factory->define(Sprint::class, function (Faker $faker) {
     return [
         'name' => 'Sprint 1',
+        'start_date' => Carbon::parse('4 days ago'),
+        'end_date' => Carbon::parse('+5 days'),
     ];
 });
 
