@@ -16,16 +16,15 @@ class ViewSprintListingTest extends TestCase
 
 
     /** @test */
-    public function guests_cannot_view_a_sprint_list_page()
+    public function guest_cannot_view_a_sprint_list_page()
     {
-
         $response = $this->get('/sprints');
         $response->assertStatus(302);
         $response->assertRedirect('/login');
     }
 
     /** @test */
-    public function guests_cannot_view_a_sprint_page()
+    public function guest_cannot_view_a_sprint_page()
     {
 
         $sprint =  factory(Sprint::class)->create([

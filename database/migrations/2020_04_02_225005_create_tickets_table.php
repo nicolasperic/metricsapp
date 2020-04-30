@@ -17,7 +17,13 @@ class CreateTicketsTable extends Migration
             $table->id();
             $table->unsignedInteger('project_id');
             $table->string('name');
+            $table->unsignedInteger('number');
             $table->string('status');
+            $table->boolean('state')->default(1);
+            $table->string('ticket_assembla_id')->nullable();
+            $table->boolean('is_story');
+            $table->unsignedFloat('worked_hours')->default(0);
+            $table->unsignedFloat('total_invested_hours')->default(0);
             $table->datetime('started_at')->nullable();
             $table->datetime('completed_at')->nullable();
             $table->integer('story_points')->nullable();

@@ -5,6 +5,8 @@
 use App\Project;
 use App\Sprint;
 use App\Ticket;
+use App\AssemblaUser;
+use App\TicketTime;
 use App\User;
 use Carbon\Carbon;
 use Faker\Generator as Faker;
@@ -31,10 +33,22 @@ $factory->define(User::class, function (Faker $faker) {
     ];
 });
 
+$factory->define(AssemblaUser::class, function (Faker $faker) {
+    return [
+        'user_assembla_id' => 'TESTID1234',
+        'login' => 'johndoe',
+        'name' => 'John Doe',
+        'email' => 'johndoe@example.com',
+    ];
+});
+
 $factory->define(Project::class, function (Faker $faker) {
     return [
         'name' => 'Test Project',
         'code' => 'TPJ',
+        'wikiname' => 'test-project',
+        'project_assembla_id' => 'TESTID1234',
+        'status' => 1,
     ];
 });
 
@@ -44,9 +58,24 @@ $factory->define(Ticket::class, function (Faker $faker) {
         'project_id' => function () {
             return factory(App\Project::class)->create()->id;
         },
-        'name' => 'TIC-1234',
+        'name' => 'TIC-1234: ticket name',
+        'number' => 1234,
         'status' => 'Accepted',
+        'is_story' => true,
         'created_at' => Carbon::now(),
+    ];
+});
+
+$factory->define(TicketTime::class, function(Faker $faker) {
+    return [
+        'description' => 'Tracking time test',
+        'hours' => 1.5,
+        'begin_at' => Carbon::parse('-1 hour'),
+        'end_at' => Carbon::parse('+1 hour'),
+        'ticket_number' => 1122,
+        'ticket_assembla_id' => '1234abcd',
+        'project_assembla_id' => '12345abcde',
+        'user_assembla_id' => '001abcf',
     ];
 });
 
@@ -60,6 +89,7 @@ $factory->define(Sprint::class, function (Faker $faker) {
 
 $factory->state(Ticket::class, 'completed', function () {
     return [
-        'completed_at' => Carbon::parse('+1 week')
+        'completed_at' => Carbon::parse('+1 week'),
+        'state' => Ticket::CLOSED_STATE
     ];
 });

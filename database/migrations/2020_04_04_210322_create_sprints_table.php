@@ -17,10 +17,12 @@ class CreateSprintsTable extends Migration
             $table->id();
             $table->string('name');
             $table->boolean('is_active')->default(true);
-            $table->timestamp('start_date');
-            $table->timestamp('end_date');
+            $table->string('sprint_assembla_id')->nullable();
+            $table->string('project_assembla_id')->nullable();
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
             $table->timestamps();
-        });
+        });//TODO update seeder for start and end dates
     }
 
     /**

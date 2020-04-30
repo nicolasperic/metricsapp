@@ -11,7 +11,10 @@
                         <ul>
                             @forelse ($sprints as $sprint)
                                 <li>
-                                    <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>
+                                    @foreach ($sprint->projects as $project)
+                                        {{$project->name}}
+                                    @endforeach
+                                    > <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>
                                 </li>
 
 

@@ -34,11 +34,26 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        'email_verified0_at' => 'datetime',
+        'email_verified_at' => 'datetime',
     ];
 
     public function sprints()
     {
         return $this->belongsToMany(Sprint::class);
+    }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class);
+    }
+
+    public function hasProject($projectAssemblaId)
+    {
+        return $this->projects()->where('project_assembla_id', $projectAssemblaId)->count() > 0;
+    }
+
+    public function hasSprint($sprintAssemblaId)
+    {
+        return $this->sprints()->where('sprint_assembla_id', $sprintAssemblaId)->count() > 0;
     }
 }

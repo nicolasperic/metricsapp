@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Arrow Functions</title>
+</head>
+<body>
+<ul>
+    <li data-time="5:17">Flexbox Video</li>
+    <li data-time="8:22">Flexbox Video</li>
+    <li data-time="3:34">Redux Video</li>
+    <li data-time="5:23">Flexbox Video</li>
+    <li data-time="7:12">Flexbox Video</li>
+    <li data-time="7:24">Redux Video</li>
+    <li data-time="6:46">Flexbox Video</li>
+    <li data-time="4:45">Flexbox Video</li>
+    <li data-time="4:40">Flexbox Video</li>
+    <li data-time="7:58">Redux Video</li>
+    <li data-time="11:51">Flexbox Video</li>
+    <li data-time="9:13">Flexbox Video</li>
+    <li data-time="11:51">Flexbox Video</li>
+</ul>
+<script>
+    const items = Array.from(document.querySelectorAll('[data-time]'));
+    const filtered = items.filter(item => item.textContent.includes('Flexbox'))
+    .map(item => item.dataset.time)
+    .map(timecode => {
+        console.log(timecode);
+        const parts = timecode.split(':').map(part => parseFloat(part));
+        return (parts[0] * 60) + parts[1];
+    }).reduce((runningTotal, seconds) => runningTotal + seconds, 0);
+    console.log(filtered);
+
+
+    const numbers = [3, 62, 234, 7, 23, 74, 23, 76, 92];
+    const large = numbers.filter(number => number > 70);
+    console.log(large);
+
+
+    //Destructuring Object
+    const settings = { width: 300, color: 'black'};//height, fontSize
+
+    const { width = 100, height = 100, color = 'blue', fontSize = 25} = settings;
+
+    //Desctructuring Array
+
+    const details = ['Wes Bos', 123, 'wesbos.com'];
+    const [name, id, website] = details;
+    console.log(name, id, website);
+    const data = 'Basketball,Sports,90210,23';
+    const [itemName, category, sku, inventory] = data.split(',');
+    console.log(itemName, category, sku, inventory);
+
+    const team = ['Wes', 'Harry', 'Sarah', 'Keegan', 'Riker'];
+
+    //...players toma el resto, por el operador "rest" ...
+    const [captain, assistant, ...players] = team;
+</script>
+</body>
+</html>

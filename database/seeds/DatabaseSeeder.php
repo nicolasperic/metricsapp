@@ -43,11 +43,14 @@ class DatabaseSeeder extends Seeder
             'email' => 'eperez@summasolutions.com',
             'password' => bcrypt('Magento02'),
         ]);
+        return;
 
 
-        list($sommierSprint, $sommierTickets) = $this->_createProjectAndSprint('SommierCenter', 'SC');
-        list($rexSprint, $rexTickets)= $this->_createProjectAndSprint('Somos Rex', 'REX');
-        list($cemacoSprint, $cemacoTickets)= $this->_createProjectAndSprint('Cemaco' , 'CEM');
+
+
+        list($sommier, $sommierSprint, $sommierTickets) = $this->_createProjectAndSprint('SommierCenter', 'SC');
+        list($rex, $rexSprint, $rexTickets)= $this->_createProjectAndSprint('Somos Rex', 'REX');
+        list($cemaco, $cemacoSprint, $cemacoTickets)= $this->_createProjectAndSprint('Cemaco' , 'CEM');
 
         $multiProjectSprint = factory(Sprint::class)->create([
             'name' => 'Rex & SC Abril 2020',
@@ -58,6 +61,16 @@ class DatabaseSeeder extends Seeder
 
         $nperic->sprints()->saveMany([$sommierSprint, $rexSprint, $multiProjectSprint]);
         $eperez->sprints()->saveMany([$sommierSprint, $cemacoSprint]);
+
+        $sommier->users()->saveMany([$nperic, $eperez]);
+        $rex->users()->save($nperic);
+        $cemaco->users()->save($eperez);
+
+
+        $tickets = $this->createTickets($sommier, 2);
+        $userstory = $tickets[0];
+        $subtask= $tickets[1];
+        $userstory->subtasks()->save($subtask,['relationship' => 5]);
     }
     
     private function _createProjectAndSprint($projectName, $projectCode)
@@ -73,7 +86,7 @@ class DatabaseSeeder extends Seeder
         $sprint->projects()->save($project);
         $sprint->tickets()->saveMany($tickets);
 
-        return [$sprint, $tickets];
+        return [$project, $sprint, $tickets];
     }
 
     private function createTickets($project, $quantity)

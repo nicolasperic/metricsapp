@@ -1,0 +1,33 @@
+sudo vim /usr/local/etc/php/7.3/php.ini
+max_execution_time
+
+
+- Reporte de tickets
+    - (subtasks > 6hs)
+    - US con más de 15hs >
+        Done- US y subtasks con estados inconsistentes (definir algunas reglas) > ej US con "working_hours" != 0.0 quiere decir que reportaron horas en la US
+        Done- User Stories sin story points
+    - releases
+
+
+Indicadores
+    Done - Tickets inconsistentes (faltan asignaciones ej story points, estados incorrectos)
+    - Feature vs Bug fixing (%, hs, tasks) (pie)
+        % de bugs,hs por proyecto (hs por persona)
+    - Desvíos en hs estimate vs tracked (? con story points)
+    - #cambio de estados (rebotes en staging) [ver si se puede conseguir esto, webhooks?]
+    Done - story points totales, completados
+    - agile metrics (lead time, cycle time, team velocity)
+
+Visualización
+    - Dashboard con métrics (poder ver por sprint, por equipo, por proyecto, etc)
+    - Visualización histórica de métricas
+    - Board multi projects (ver en qué anda cada dev ej in progress)
+
+
+Features
+    - Tracking de horas (por tickets que tenés asignados, timer & send all, send each reporta a Assembla)
+        de todos los spaces importados, definir cuales son los trackable para filtrado.
+        Tenés entonces un dropdown con los spaces y pones el # de ticket a manopla > genera un counter y después submit!
+    - Manejar los sprints, crearlos (armar grupo de tickets)
+        -> tener en cuenta carry over de S1 para crear S2
