@@ -7,17 +7,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class AssemblaRequest extends Model
 {
+    /**
+     * default per_page field value used on the application
+     */
+    const PER_PAGE = 100;
+
+    /**
+     * Assembla API URL used to shorten endpoints
+     */
     const ASSEMBLA_API_URL = 'https://api.assembla.com/v1/';
+    //TODO generate configuration page to allow customer to set the key and secret
     const APPLICATION_KEY = 'a5aa5632989ec768d71d';
     const APPLICATION_SECRET = '497e452c605c29f8971aeb367e6c15a872749efe';
 
     /**
-     * @param string $url
-     * @param bool $assemblaPrefix
+     * This function is used for the GET action on the Assembla API
+     *
+     * @param       $url
+     * @param array $queryParams
+     * @param bool  $assemblaPrefix
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function get($url, $page = 1, $assemblaPrefix = true)
+    public static function get($url, $queryParams = [], $assemblaPrefix = true)
     {
         if ($assemblaPrefix)
             $url = self::ASSEMBLA_API_URL.$url;
@@ -35,20 +47,27 @@ class AssemblaRequest extends Model
                 // 'on_redirect'     => $onRedirect,//callback for a redirect, not used
                 'track_redirects' => true
             ],
-            //TODO validate how to handle query params and iterate a collection with multiple pages
             'query' => [
-                'page' => $page,
-                'per_page' => 100,
-                'ticket_status' => 'all',
-                'sort_by' => 'id',
-                'sort_order' => 'desc',
+                'page' => 1,
+                'per_page' => self::PER_PAGE,
             ]
         ];
+        $requestData['query'] = array_merge($requestData['query'], $queryParams);
 
         $client = new Client();
         return $client->request('GET', $url, $requestData);
     }
 
+    /**
+     * This function is used for POST to the Assembla API
+     * currently used only when tracking time
+     *
+     * @param      $url
+     * @param      $params
+     * @param bool $assemblaPrefix
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     public static function post($url, $params, $assemblaPrefix = true)
     {
         if ($assemblaPrefix)

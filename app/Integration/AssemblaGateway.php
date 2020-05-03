@@ -40,9 +40,9 @@ class AssemblaGateway
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getTicketsForMilestone($space, $milestoneId, $page = 1)
+    public function getTicketsForMilestone($space, $milestoneId, $queryParams = [])
     {
-        return AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $page);
+        return AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $queryParams);
     }
 
     public function getMilestonesForSpace($space)

@@ -4,6 +4,7 @@ namespace App\Importer;
 
 use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
+use App\Integration\AssemblaRequest;
 use App\Project;
 use App\Ticket;
 use Carbon\Carbon;
@@ -18,31 +19,6 @@ class TicketImporter
     }
 
     /**
-     * @param $sprint
-     */
-    public function __importMilestoneTickets($sprint)
-    {
-
-        Log::info('[Ticket Importer] Started');
-
-        $project = Project::getProjectByAssemblaId($sprint->project_assembla_id);
-        $response = $this->assemblaGateway->getTicketsForMilestone($project->wikiname, $sprint->sprint_assembla_id);
-
-        if ($response->getStatusCode() == 200) {
-            Log::info('[Ticket Importer] Response 200');
-            $result = json_decode($response->getBody()->getContents(), 1);
-            foreach ($result as $ticketData) {
-                $ticketDto = new TicketDto($ticketData);
-
-                if (!Ticket::ticketExists($ticketDto->getTicketAssemblaId())) {
-                    Log::info('[Ticket Importer] about to create ticket '.$ticketDto->getNumber());
-                    $this->_createTicketFromDTO($ticketDto, $sprint, $project);
-                }
-            }
-        }
-    }
-
-    /**
      *
      */
     public function importMilestoneTickets($sprint)
@@ -50,12 +26,18 @@ class TicketImporter
         Log::info('[Ticket Importer] Started');
         $project = Project::getProjectByAssemblaId($sprint->project_assembla_id);
         $page = 1;
+        $queryParams = [
+            'page' => $page,
+            'ticket_status' => 'all',
+            'sort_by' => 'id',
+            'sort_order' => 'desc'
+        ];
         do {
-            $response = $this->assemblaGateway->getTicketsForMilestone($project->wikiname, $sprint->sprint_assembla_id, $page);
+            $response = $this->assemblaGateway->getTicketsForMilestone($project->wikiname, $sprint->sprint_assembla_id, $queryParams);
 
             if ($response->getStatusCode() == 200) {
                 Log::info('[Ticket Importer] Response 200 for page '.$page);
-                $page++;
+                $queryParams['page'] = ++$page;
                 $result = json_decode($response->getBody()->getContents(), 1);
                 foreach ($result as $ticketData) {
                     $ticketDto = new TicketDto($ticketData);
@@ -64,8 +46,10 @@ class TicketImporter
                         $this->_createTicketFromDTO($ticketDto, $sprint, $project);
                     }
                 }
+            } else {
+                break;
             }
-        } while(count($result) === 100);//todo avoid hardcoding the page size here
+        } while(count($result) === AssemblaRequest::PER_PAGE);
         Log::info('[Ticket Importer] Ended');
     }
 

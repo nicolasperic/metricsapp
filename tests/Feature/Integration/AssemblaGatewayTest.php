@@ -111,27 +111,39 @@ class AssemblaGatewayTest
 
     }
 
-    /**  TODO assets tarea */
-    function can_get_a_all_pages_of_tickets_for_a_milestone()
+    /**  @test */
+    function can_get_all_pages_of_tickets_for_a_milestone()
     {
         $space = 'sommiercenter';
         $milestoneId = 12982775;
         $assemblaGateway = new AssemblaGateway();
-        $page = 0;
+        $page = 1;
+
+        $queryParams = [
+            'page' => $page,
+            'ticket_status' => 'all',
+            'sort_by' => 'id',
+            'sort_order' => 'desc'
+        ];
 
         do {
-            $response = $assemblaGateway->getTicketsForMilestone($space, $milestoneId, $page);
+            $response = $assemblaGateway->getTicketsForMilestone($space, $milestoneId, $queryParams);
             $result = json_decode($response->getBody()->getContents(), 1);
-            print PHP_EOL.count($result).PHP_EOL;
+
+            $this->assertEquals(200, $response->getStatusCode());
+            if ($response->getStatusCode() !== 200) {
+                break;
+            }
+            /*print PHP_EOL.count($result).PHP_EOL;
             foreach ($result as $ticket) {
                 $isStory = ($ticket['is_story'])? 'US' : 'T';
-                print $isStory.'#'.$ticket['number'].' '.$ticket['summary'].PHP_EOL;
-            }
-            $page++;
-        } while(false && count($result) === 100);
+               print $isStory.'#'.$ticket['number'].' '.$ticket['summary'].PHP_EOL;
+            }*/
 
+            $queryParams['page'] = ++$page;
+        } while(count($result) === AssemblaRequest::PER_PAGE);
 
-        dd($page);
+        $this->assertEquals(4, $page);
     }
 
     //TODO assets tarea
@@ -185,6 +197,7 @@ class AssemblaGatewayTest
 
 
 
+
     function can_retrieve_space_tools()
     {
         //$response = AssemblaRequest::get("spaces/sommiercenter/space_tools");
@@ -207,8 +220,8 @@ class AssemblaGatewayTest
             'end_at' => '2020-04-26T23:37:00.000Z',
         ]];
         //$response = AssemblaRequest::post("tasks", $params);
-        $result = json_decode($response->getBody()->getContents(), 1);
-        dd($result);
+        //$result = json_decode($response->getBody()->getContents(), 1);
+        //dd($result);
     }
     /*
      *
