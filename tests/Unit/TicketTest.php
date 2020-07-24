@@ -230,4 +230,72 @@ class TicketTest extends TestCase
 
         $this->assertEquals(8.5, $ticket->getTotalTrackedTime());
     }
+
+    /** @test */
+    function can_calculate_total_tracked_time_for_a_user_story()
+    {
+        /** @var Ticket $userstory */
+        $userstory = factory(Ticket::class)->create();
+        $subtaskA = factory(Ticket::class)->create([
+            'ticket_assembla_id' => 'subtaska',
+            'name' => 'TIC-1: subtask name A',
+            'is_story' => false,
+            'worked_hours' => 5
+        ]);
+        factory(TicketTime::class)->create([
+            'hours' => 1.5,
+            'ticket_assembla_id' => 'subtaska',
+        ]);
+        factory(TicketTime::class)->create([
+            'hours' => 1.5,
+            'ticket_assembla_id' => 'subtaska',
+        ]);
+        factory(TicketTime::class)->create([
+            'hours' => 2,
+            'ticket_assembla_id' => 'subtaska',
+        ]);
+        $subtaskB = factory(Ticket::class)->create([
+            'ticket_assembla_id' => 'subtaskb',
+            'name' => 'TIC-2: subtask name B',
+            'is_story' => false,
+            'worked_hours' => 3,
+        ]);
+        factory(TicketTime::class)->create([
+            'hours' => 1,
+            'ticket_assembla_id' => 'subtaskb',
+        ]);
+        factory(TicketTime::class)->create([
+            'hours' => 2,
+            'ticket_assembla_id' => 'subtaskb',
+        ]);
+        $subtaskC = factory(Ticket::class)->create([
+            'ticket_assembla_id' => 'subtaskc',
+            'name' => 'TIC-3: subtask name C',
+            'is_story' => false,
+            'worked_hours' => 1,
+        ]);
+        factory(TicketTime::class)->create([
+            'hours' => 1,
+            'ticket_assembla_id' => 'subtaskc',
+        ]);
+
+        $relatedD = factory(Ticket::class)->create([
+            'ticket_assembla_id' => 'relatedd',
+            'name' => 'TIC-4: realted Story D',
+            'is_story' => true,
+            'worked_hours' => 10,
+        ]);
+        factory(TicketTime::class)->create([
+            'hours' => 10,
+            'ticket_assembla_id' => 'relatedd',
+        ]);
+
+        $userstory->subtasks()->save($subtaskA,['relationship' => 5]);
+        $userstory->subtasks()->save($subtaskB,['relationship' => 5]);
+        $userstory->subtasks()->save($subtaskC,['relationship' => 5]);
+        $userstory->subtasks()->save($relatedD,['relationship' => 2]);
+
+        $this->assertEquals(9, $userstory->getSubtasksTotalWorkedHours());
+        $this->assertEquals(9, $userstory->getTotalTrackedTime());
+    }
 }

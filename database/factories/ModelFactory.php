@@ -68,6 +68,7 @@ $factory->define(Ticket::class, function (Faker $faker) {
 
 $factory->define(TicketTime::class, function(Faker $faker) {
     return [
+        'ticket_time_assembla_id' => 1234,
         'description' => 'Tracking time test',
         'hours' => 1.5,
         'begin_at' => Carbon::parse('-1 hour'),

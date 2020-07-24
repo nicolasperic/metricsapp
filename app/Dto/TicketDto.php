@@ -2,8 +2,6 @@
 
 namespace App\Dto;
 
-use Psr\Http\Message\ResponseInterface;
-
 class TicketDto
 {
     /** @var string ticket number */
@@ -53,9 +51,9 @@ class TicketDto
 
     private $responseData;
 
-    public function __construct($responseDataData)
+    public function __construct($responseData)
     {
-        $this->responseData = $responseDataData;
+        $this->responseData = $responseData;
         $this->processInfo();
     }
 

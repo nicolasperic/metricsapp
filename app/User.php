@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,6 +46,17 @@ class User extends Authenticatable
     public function projects()
     {
         return $this->belongsToMany(Project::class);
+    }
+
+    /**
+     * This function will return the created tasks for the logged user
+     * Tasks used to populate the Timer list
+     */
+    public function tasks()
+    {
+        //TODO add userAssemblaId on a configuration table or other suitable place
+        $npericUserAssemblaId = 'cvixt811Gr4PBcacwqjQYw';
+        return TicketTime::where('user_assembla_id', $npericUserAssemblaId)->whereDate('begin_at', Carbon::today())->get();
     }
 
     public function hasProject($projectAssemblaId)

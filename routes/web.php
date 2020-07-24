@@ -17,6 +17,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/tasks-timer', 'TasksTimerController@index')->name('taskstimer.index')->middleware('auth');
+Route::post('/tasks-timer', 'TasksTimerController@store')->middleware('auth');
 Route::get('/projects', 'ProjectsController@index')->name('projects.index')->middleware('auth');
 Route::get('/projects/importProjects', 'ProjectsController@importProjects')->name('projects.import')->middleware('auth');
 Route::get('/projects/{id}', 'ProjectsController@show')->name('projects.show')->middleware('auth');

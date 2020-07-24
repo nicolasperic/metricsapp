@@ -27,9 +27,12 @@
                             </div>
                         @endif
 
+                            ❌: subtasks with invalid status<br/>
+                            ⏱: horas trackeadas en la US<br/>
+                            🚨: US sin story points estimados
                         <table>
                             <thead>
-                                <th>Ticket</th><th>Status</th><th>SP</th><th>Total Hs</th><th>Hs subs</th><th># subtasks</th>
+                                <th>Ticket</th><th>Status</th><th>SP</th><th>Total Hs</th><th>Hs subs</th><th>Hs tracked</th><th># subtasks</th>
                             </thead>
                             @forelse ($sprint->tickets as $ticket)
                                 @if($ticket->is_story)
@@ -60,6 +63,7 @@
                                         <td>{{ $ticket->story_points }}</td>
                                         <td>{{ $ticket->total_invested_hours }}</td>
                                         <td>{{ $ticket->getSubtasksTotalWorkedHours() }}</td>
+                                        <td>{{ $ticket->getTotalTrackedTime() }}</td>
                                         <td>{{ $ticket->subtasks()->count() }}</td>
                                     </tr>
                                 @endif

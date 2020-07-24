@@ -44,6 +44,14 @@ class Ticket extends Model
 
     public function getTotalTrackedTime()
     {
+        if ($this->is_story) {
+            $userStoryHours = TicketTime::where('ticket_assembla_id', $this->ticket_assembla_id)->sum('hours');
+
+            $this->subtasks->each( function ($subtask) use (&$userStoryHours){
+                $userStoryHours += TicketTime::where('ticket_assembla_id', $subtask->ticket_assembla_id)->sum('hours');
+            });
+            return $userStoryHours;
+        }
         return TicketTime::where('ticket_assembla_id', $this->ticket_assembla_id)->sum('hours');
     }
 

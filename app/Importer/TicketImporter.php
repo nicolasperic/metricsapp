@@ -3,10 +3,12 @@
 namespace App\Importer;
 
 use App\Dto\TicketDto;
+use App\Dto\TicketTimeDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use App\Project;
 use App\Ticket;
+use App\TicketTime;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -44,6 +46,7 @@ class TicketImporter
                     if (!Ticket::ticketExists($ticketDto->getTicketAssemblaId())) {
                         Log::info('[Ticket Importer] about to create ticket '.$ticketDto->getNumber());
                         $this->_createTicketFromDTO($ticketDto, $sprint, $project);
+                        $this->_createTrackedTimeFor($ticketDto->getTicketAssemblaId());
                     }
                 }
             } else {
@@ -110,5 +113,32 @@ class TicketImporter
         /** ticket1_id" => 231717985 subtask
         "ticket2_id" => 231438936 story
         "relationship" => 5 */
+    }
+
+    private function _createTrackedTimeFor($ticketId)
+    {
+        Log::info('[Ticket Importer] about to retrieve tracked time for ticket '.$ticketId);
+        $queryParams = ['ticket_ids' => $ticketId];
+        $response = $this->assemblaGateway->getTrackedTimeForTicket($queryParams);
+        if ($response->getStatusCode() == 200) {
+            $result = json_decode($response->getBody()->getContents(), 1);
+            foreach ($result as $trackedTime) {
+                $ticketTimeDto = new TicketTimeDto($trackedTime);
+                Log::info("[Ticket Importer] tracking time {$ticketTimeDto->getTicketNumber()} {$ticketTimeDto->getHours()}");
+                TicketTime::create([
+                    'description' => $ticketTimeDto->getDescription(),
+                    'hours' => $ticketTimeDto->getHours(),
+                    'begin_at' => $this->_getParsedDate($ticketTimeDto->getBeginAt()),
+                    'end_at' => $this->_getParsedDate($ticketTimeDto->getEndAt()),
+                    'ticket_time_assembla_id' => $ticketTimeDto->getTicketTimeAssemblaId(),
+                    'ticket_number' => $ticketTimeDto->getTicketNumber(),
+                    'ticket_assembla_id' => $ticketTimeDto->getTicketAssemblaId(),
+                    'project_assembla_id' => $ticketTimeDto->getProjectAssemblaId(),
+                    'user_assembla_id' => $ticketTimeDto->getUserAssemblaId(),
+                    'created_at' => $this->_getParsedDate($ticketTimeDto->getCreatedAt()),
+                    'updated_at' => $this->_getParsedDate($ticketTimeDto->getUpdatedAt()),
+                ]);
+            }
+        }
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TicketTime extends Model
 {
+    protected $guarded = [];
+
     public function ticket()
     {
         return Ticket::getTicketByAssemblaId($this->ticket_assembla_id);
