@@ -20,7 +20,7 @@ class Sprint extends Model
 
     public function tickets()
     {
-        return $this->BelongsToMany(Ticket::class)->orderBy('story_points', 'DESC');
+        return $this->BelongsToMany(Ticket::class)->orderBy('story_points', 'DESC')->orderBy('number', 'DESC');
     }
 
     public function projects()
