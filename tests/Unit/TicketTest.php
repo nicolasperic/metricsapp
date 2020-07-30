@@ -2,10 +2,12 @@
 
 namespace Tests\Unit;
 
+use App\Integration\AssemblaGateway;
 use App\Ticket;
 use App\TicketTime;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class TicketTest extends TestCase
@@ -87,6 +89,30 @@ class TicketTest extends TestCase
             $this->assertEquals(0,$subtask->is_story);
             $this->assertEquals(5,$subtask->pivot->relationship);
         }
+    }
+
+    /** @test */
+    function can_determine_parent_story()
+    {
+        $userstory = factory(Ticket::class)->create([
+            'number' => 10,
+            'name' =>'IC-1: userstory name',
+        ]);
+        $subtask = factory(Ticket::class)->create([
+            'name' => 'TIC-2: subtask name',
+            'is_story' => false,
+        ]);
+
+
+        $userstory->subtasks()->save($subtask,['relationship' => 5]);
+
+
+        $parentStory = $subtask->parent();
+
+
+        $this->assertEquals('IC-1: userstory name',$parentStory->name);
+        $this->assertEquals(1,$parentStory->is_story);
+
     }
 
 

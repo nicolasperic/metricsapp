@@ -5,6 +5,7 @@ namespace App;
 use App\Integration\AssemblaGateway;
 use DateTime;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Ticket extends Model
 {
@@ -25,6 +26,20 @@ class Ticket extends Model
     public function subtasks()
     {
         return $this->belongsToMany(Ticket::class, 'ticket_associations', 'ticket1_id','ticket2_id')->withPivot('relationship')->where('relationship', AssemblaGateway::STORY_RELATION);
+    }
+
+    public function parent()
+    {
+        $parent = false;
+        $parentRelation = DB::table('ticket_associations')->where('ticket2_id', $this->id)->where('relationship', AssemblaGateway::STORY_RELATION)->get();
+
+
+        if (count($parentRelation)) {
+            $parent = Ticket::where('id', $parentRelation[0]->ticket1_id)->first();
+        }
+
+        return $parent;
+
     }
 
     public function getInvalidStatusSubtasks()

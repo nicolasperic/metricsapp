@@ -90,6 +90,7 @@ $factory->define(Sprint::class, function (Faker $faker) {
 
 $factory->state(Ticket::class, 'completed', function () {
     return [
+        'ticket_assembla_id' => 'ticket123',
         'completed_at' => Carbon::parse('+1 week'),
         'state' => Ticket::CLOSED_STATE
     ];

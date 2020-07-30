@@ -2,11 +2,15 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Sprint extends Model
 {
     protected $guarded = [];
+
+    private $monthlyHours;
+    private $weeklyHours;
 
     public static function sprintExists($assemblaId)
     {
@@ -33,9 +37,9 @@ class Sprint extends Model
         return $this->belongsToMany(User::class);
     }
 
-    public function getTotalInvestedHours()
+    public function getTotalWorkedHours()
     {
-        return $this->tickets()->sum('total_invested_hours');
+        return $this->tickets()->sum('worked_hours');
     }
     public function getTotalTickets()
     {
@@ -118,5 +122,159 @@ class Sprint extends Model
             return number_format($totalCycleTime/$totalTickets, 2);
         }
     }
+
+    public function getTimeReport()
+    {
+        $this->weeklyHours = array();//week => total XXX, users [ foco => hs]
+        $this->monthlyHours = array();//month => total XY, users => [ foco => hs]
+        foreach ($this->tickets as $ticket) {
+            $ticketTimes = TicketTime::where('ticket_assembla_id', $ticket->ticket_assembla_id)->get();
+
+            foreach ($ticketTimes as $ticketTime) {
+                $this->_trackTime($ticketTime);
+            }
+
+
+        }
+
+        ksort($this->weeklyHours);
+        //print print_r($weeklyHours, 1).PHP_EOL;
+        ksort($this->monthlyHours);
+        //print print_r($monthlyHours, 1).PHP_EOL;
+        //dd($this->monthlyHours);
+        return array('weekly_hours' => $this->weeklyHours, 'monthly_hours' => $this->monthlyHours);
+    }
+
+    private function _trackTime($ticketTime)
+    {
+        $date = Carbon::parse($ticketTime->begin_at);
+        $month = $date->month;
+        $monday = $date->startOfWeek()->format('Y-m-d'); // monday
+        $sunday = $date->endOfWeek()->format('Y-m-d');
+        $weekOfYear = $date->weekOfYear;
+
+        if (!array_key_exists($weekOfYear , $this->weeklyHours)) {
+            //week data init
+            $this->weeklyHours[$weekOfYear]['hours'] = 0;
+            $this->weeklyHours[$weekOfYear]['taks'] = 0;
+            $this->weeklyHours[$weekOfYear]['surr_monday'] = $monday;
+            $this->weeklyHours[$weekOfYear]['surr_sunday'] = $sunday;
+            $this->weeklyHours[$weekOfYear]['users'] = array();
+            $this->weeklyHours[$weekOfYear]['tickets'] = array();
+        }
+        if (!array_key_exists($month, $this->monthlyHours)) {
+            //month data init
+            $this->monthlyHours[$month]['hours'] = 0;
+            $this->monthlyHours[$month]['taks'] = 0;
+            $this->monthlyHours[$month]['label'] = $date->format('F');
+            $this->monthlyHours[$month]['users'] = array();
+            $this->monthlyHours[$month]['tickets'] = array();
+        }
+        
+        $this->_trackMonthlyHours($ticketTime, $month);
+        $this->_trackWeeklyHours($ticketTime, $weekOfYear);
+
+    }
+
+    /*
+        ej:
+            4 =>    [
+                hours => 7.25,
+                tasks => 10,
+                label => May,
+                users => ['user_assembla_id' => ['hours'=> 2.25, 'tasks' => 3]],
+                tickets => [
+                        'number' => 1511,
+                        'description'=>,
+                        'hours'=>,
+                        //['user_assembla_id' =>,]//este dato puede ser un array si varias personas trackean en el mismo ticket
+                    ]
+            ]
+        */
+    private function _trackMonthlyHours($ticketTime, $month)
+    {
+        $this->monthlyHours[$month]['hours'] += $ticketTime->hours;
+        $this->monthlyHours[$month]['taks'] += 1;
+
+        if (!array_key_exists($ticketTime->user_assembla_id, $this->monthlyHours[$month]['users'])) {
+            //init user data
+            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['hours'] = 0;
+            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tasks'] = 0;
+            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tickets'] = array();
+        }
+
+        $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['hours'] += $ticketTime->hours;
+        $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tasks'] += 1;
+
+        if (!array_key_exists($ticketTime->ticket_number, $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tickets'])) {
+            //init ticket data
+            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tickets'][$ticketTime->ticket_number] = [
+                'description' => $ticketTime->description,
+                'hours' => 0,
+            ];
+        }
+        if (!array_key_exists($ticketTime->ticket_number, $this->monthlyHours[$month]['tickets'])) {
+            $ticket = Ticket::getTicketByAssemblaId($ticketTime->ticket_assembla_id);
+
+            $parent = $ticket->parent();
+            $parentLabel = '';
+            if ($parent) {
+                $parentLabel = $parent->number.' '.$parent->name;
+            }
+            $this->monthlyHours[$month]['tickets'][$ticketTime->ticket_number] = [
+                'description' => $ticketTime->description,
+                'hours' => 0,
+                'parent' => $parentLabel,
+            ];
+        }
+
+        $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tickets'][$ticketTime->ticket_number]['hours'] += $ticketTime->hours;
+        $this->monthlyHours[$month]['tickets'][$ticketTime->ticket_number]['hours'] += $ticketTime->hours;
+
+    }
+
+    private function _trackWeeklyHours($ticketTime, $weekOfYear)
+    {
+        $this->weeklyHours[$weekOfYear]['hours'] += $ticketTime->hours;
+        $this->weeklyHours[$weekOfYear]['taks'] += 1;
+
+        if (array_key_exists($ticketTime->user_assembla_id, $this->weeklyHours[$weekOfYear])) {
+            $this->weeklyHours[$weekOfYear]['users'][$ticketTime->user_assembla_id]['hours'] += $ticketTime->hours;
+            $this->weeklyHours[$weekOfYear]['users'][$ticketTime->user_assembla_id]['tasks'] += 1;
+        } else {
+            $this->weeklyHours[$weekOfYear]['users'][$ticketTime->user_assembla_id]['hours'] = $ticketTime->hours;
+            $this->weeklyHours[$weekOfYear]['users'][$ticketTime->user_assembla_id]['tasks'] = 1;
+        }
+    }
+
+
+
+
+
+    /*{
+        foreach ($this->tickets as $ticket) {
+
+            $ticketTimes = TicketTime::where('ticket_assembla_id', $ticket->ticket_assembla_id)->get();
+            foreach ($ticketTimes as $ticketTime) {
+                dd($ticketTime->ticket_number . ' ' . $ticketTime->hours . ' ' . $ticketTime->begin_at);
+            }
+            //TODO armar horas por (mes, o semana)
+/*
+ que te muestre las horas insumidas en los tickets por mes. Ej: Julio 34 hs; Junio 210 hs
+> el sprint podría tirar horas por persona; mostrando por semana y abajo el total
+ej:
+            w1(13 al 19)    w2(20 al 26)    w3 (26 a hoy/)
+Foco        28  			27		10
+Jona        40			40		16
+Nico         1			5		2
+            69 (+3% respecto av)			72
+
+             *
+             *
+             */
+            //dd($ticketTimes->count());
+            //dd($ticketTime->number+ ' '+$ticketTime->begin_at);
+        //}
+    //}
 }
 

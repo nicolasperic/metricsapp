@@ -58,7 +58,6 @@ class TicketImporter
 
     private function _createTicketFromDTO(TicketDto $ticketDto, $sprint, $project)
     {
-
         $ticket = Ticket::create([
             'project_id' => $project->id,
             'name' => $ticketDto->getSummary(),
@@ -67,7 +66,7 @@ class TicketImporter
             'state' => $ticketDto->getState(),
             'ticket_assembla_id' => $ticketDto->getTicketAssemblaId(),
             'is_story' => $ticketDto->isStory(),
-            'story_points' => $ticketDto->getComplexity(),
+            'story_points' => $ticketDto->getComplexity(),//TODO this mapping needs to be configurable (story_points)
             'total_invested_hours' => $ticketDto->getTotalInvestedHours(),
             'worked_hours' => $ticketDto->getWorkedHours(),
             'started_at' => $this->_getParsedDate($ticketDto->getCreatedOn()),//todo started on is not real

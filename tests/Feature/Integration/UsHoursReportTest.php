@@ -1,0 +1,344 @@
+<?php
+
+namespace Tests\Feature\Integration;
+
+
+use App\Integration\AssemblaGateway;
+use App\Integration\AssemblaRequest;
+use Illuminate\Support\Facades\Log;
+use Tests\TestCase;
+
+/**
+ * @group integration
+ *        ^any test that will test my integration with another service
+ */
+class UsHoursReportTest extends TestCase
+{
+    private $userStories;//array para agrupar las horas de cada US > ticket_id > description (ticket_number + description ), total hours y total tasks
+    private $noUserStories;//array para agrupar las horas de tickets que no son US ni subtasks; ticket_id => desription, total hours, total tasks
+    private $withoutTicket;//array para agrupar las horas trackeadas sin ticket > user_id > hours y tasks
+    private $ticketAssociations;//array para mapear subtasks con user stories > subtask_id => user_story_id; de ser posible evitar algunas llamadas a la API
+    //^ de no tener asociacion subtask_id -> false
+    private $ticketsApiData;//info solicitada a la API
+
+    private $apicalls = 0;
+    /** @test */
+    function can_get_projects_time_by_user_story()
+    {
+        $this->apicalls = 0;
+        $startTime = time();
+        $users = [
+            'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',
+            'cvixt811Gr4PBcacwqjQYw' => 'Nicolás Peric',
+            'aAbtrS7fKr6y_dcP_HzTya' => 'Barbara Irizaga',
+            'dNWJBO9war45rbacwqjQXA' => 'Elina Perez',
+            'cc2NS0ZTSr4RS_acwqjQYw' => 'Jonatan Mayorano',
+            'dBYqHcg2Cr5PRcdmr6CpXy' => 'Santiago Tolosa',
+            'brVttgsFOr543cdmr6QqzO' => 'Emanuel Arcos',
+            'buOwlo1uer45NdacwqjQWU' => 'Martín Granate',
+            'ajLyFEiVir6A3ccK-zJOy8' => 'Federico Ackerley',
+            'athUCe0pCr5OFcacwqEsg8' => 'Mariano Zunini',
+            'c6u2Cuuu4r6AFdbK8JiBFu' => 'Martin Perrotta',
+            'aW_vfY1FGr6ioeaH8tHBnc' => 'Brenda Herrada',
+            'aVzzeMlw0r6RhdaIC_Qgzw' => 'Nicolas Lavaggi',
+            'aSD9Sgwzqr6OoBaH8tHBnc' => 'Ezequiel Alvian',
+            'aDiA_Cb2Wr6iNcacwqjQYw' => 'Matias Rodriguez',
+            'a5Uwc0GEyr45yTacwqEsg8' => 'Alejandro Borria',
+            'bYoBk2IxKr5PNcdmr6QqzO' => 'Diego Piu',
+            'b_V2Si_JCr6lldaH8tHBnc' => 'Matias Wagner',
+            'dUHuyGkPGr44k-acwqEsg8' => 'Pedro Rigoli',
+            'ddsWca79Wr44oYacwqjQXA' => 'Nicolas Alejandro Gandara',
+            'dzBlqaLhKr5O16acwqEsg8' => 'Esteban Campos',
+        ];
+
+        $this->userStories = [];
+        $this->noUserStories = [];
+        $this->withoutTicket = [];
+        $this->ticketAssociations = [];
+        $this->ticketsApiData = [];
+
+        $projects = [
+            //'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
+            //'canaldeautopartes' => 'dpT43eCVCr54kBacwqjQYw',
+            //'cemaco' => 'dKs4GwzB8r4Pz7acwqjQYw',
+            //'pinturerias-rex' => 'atJlRad84r55JcacwqjQXA',
+            'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
+            //'summa-internal-projects' => 'bPFF_gQfWr4PjCacwqjQWU'
+        ];
+
+
+
+        $totalHours = 0;
+        $totalHoursBasedOnTrackingUs = 0;//TODO remove
+        $totalTasks = 0;
+
+
+        $from = '2020/07/01 00:00';
+        $to = '2020/07/25 23:59';
+        foreach ($projects as $wikiname => $spaceId) {
+
+            $page = 1;
+            do {
+                $queryParams = [
+                    'spaces' => $spaceId,
+                    'from' => $from,
+                    'to' => $to,
+                    'page' => $page,
+                ];
+
+                $response = AssemblaRequest::get("tasks", $queryParams);
+                $this->apicalls++;
+                $result = json_decode($response->getBody()->getContents(), 1);
+                if (!is_array($result)) {
+                    break;
+                }
+
+
+                foreach ($result as $timeTracked) {
+                    $timetracked = false;
+                    if (trim($timeTracked['ticket_id']) != '') {//Tracked time to a ticket
+                        if (!array_key_exists($timeTracked['ticket_id'], $this->ticketsApiData)) {
+                            $this->_retrieveAndSetTicketInformation($wikiname, $timeTracked['ticket_number']);
+                        }
+
+
+
+                        if (array_key_exists($timeTracked['ticket_id'], $this->userStories)) {//it's a user story
+                            $this->userStories[$timeTracked['ticket_id']]['hours'] += $timeTracked['hours'];
+                            $this->userStories[$timeTracked['ticket_id']]['tasks'] += 1;
+                            Log::info('Tracking T1 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$timeTracked['ticket_id']]['hours'].' US tasks '.$this->userStories[$timeTracked['ticket_id']]['tasks']);
+                            $timetracked = true;
+                            $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
+                        } else {//subtask
+
+                            //subtask found on ticketAssociations, we can retrieve the user story ID without calling the API
+                            if (array_key_exists($timeTracked['ticket_id'], $this->ticketAssociations) && $this->ticketAssociations[$timeTracked['ticket_id']] !== false) {
+                                $this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['hours'] += $timeTracked['hours'];
+                                $this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['tasks'] += 1;
+                                $timetracked = true;
+                                $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
+                                Log::info('Tracking T2 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['hours'].' US tasks '.$this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['tasks']);
+                            } else {//subtask not found on ticketAssociations, need to retrieve related US from API if exists
+
+                                $userStoryId = $this->_retrieveTicketAssociation($wikiname, $timeTracked['ticket_number']);
+                                if ($userStoryId !== false) {
+                                    if (!array_key_exists($userStoryId, $this->userStories)) {
+                                        $response = AssemblaRequest::get("spaces/{$wikiname}/tickets/id/{$userStoryId}");
+                                        $this->apicalls++;
+                                        if ($response->getStatusCode() == 200) {
+                                            $bodyContents = json_decode($response->getBody()->getContents(), 1);
+                                            if ($bodyContents['is_story']) {
+                                                $this->userStories[$userStoryId]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
+                                                $this->userStories[$userStoryId]['total_invested_hours'] = $bodyContents['total_invested_hours'];
+                                                $this->userStories[$userStoryId]['status'] = $bodyContents['status'];
+                                                $this->userStories[$userStoryId]['hours'] = $timeTracked['hours'];
+                                                $this->userStories[$userStoryId]['tasks'] = 1;
+
+                                                Log::info('Tracking T3 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
+                                                $timetracked = true;
+                                                $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
+                                            } else {
+                                                dd('hmm it has a subtask but is not a user story??');
+                                            }
+                                        }
+                                    } else {
+                                        $this->userStories[$userStoryId]['hours'] += $timeTracked['hours'];
+                                        $this->userStories[$userStoryId]['tasks'] += 1;
+                                        Log::info('Tracking T4 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
+                                        $timetracked = true;
+                                        $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
+                                    }
+
+                                } else {
+                                    if (!array_key_exists($timeTracked['ticket_id'], $this->noUserStories)) {
+                                        $this->noUserStories[$timeTracked['ticket_id']]['hours'] = 0;
+                                        $this->noUserStories[$timeTracked['ticket_id']]['tasks'] = 0;
+                                    }
+
+                                    $this->noUserStories[$timeTracked['ticket_id']]['hours'] += $timeTracked['hours'];
+                                    $this->noUserStories[$timeTracked['ticket_id']]['tasks'] += 1;
+                                    Log::info('Tracking T5 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->noUserStories[$timeTracked['ticket_id']]['hours'].' US tasks '.$this->noUserStories[$timeTracked['ticket_id']]['tasks']);
+                                    $timetracked = true;
+                                    $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
+                                }
+                            }
+                        }
+                    } else {
+                        //no ticket ID
+                        if (!array_key_exists($timeTracked['user_id'], $this->withoutTicket)) {
+                            $this->withoutTicket[$timeTracked['user_id']]['hours']  = 0;
+                            $this->withoutTicket[$timeTracked['user_id']]['tasks'] = 0;
+                        }
+
+                        $this->withoutTicket[$timeTracked['user_id']]['hours']  += $timeTracked['hours'];
+                        $this->withoutTicket[$timeTracked['user_id']]['tasks'] += 1;
+                        Log::info('Tracking T6 '.$timeTracked['hours'].' US hs '.$this->withoutTicket[$timeTracked['user_id']]['hours'].' US tasks '.$this->withoutTicket[$timeTracked['user_id']]['tasks']);
+                        $timetracked = true;
+                        $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
+                    }
+
+                    if (!$timetracked) {
+                        Log::info('[US time]  time not tracked for entry hs '.$timeTracked['hours'].' '.$timeTracked['ticket_id'].' '.$timeTracked['ticket_number']);
+                    }
+
+                    $totalHours += $timeTracked['hours'];
+                    $totalTasks += 1;
+
+                    Log::info('END Total hours '.$totalHours.' vs '.$totalHoursBasedOnTrackingUs.'< on tracking US | total tasks '.$totalTasks);
+                    Log::info('END Task Data hours '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' user_id '.$timeTracked['user_id'].' id'.$timeTracked['id']);
+                }
+
+
+                $page++;
+
+            } while(count($result) === 100);
+        }
+
+
+
+
+
+        print '======================================================'.PHP_EOL;
+        print "Desde $from hasta $to".PHP_EOL;
+        print '======================================================'.PHP_EOL;
+        print 'Total Hours '.$totalHours.PHP_EOL;
+        print 'Total Tasks '.$totalTasks.PHP_EOL;
+
+
+        print '======================================================'.PHP_EOL;
+        print 'User Stories'.PHP_EOL;
+        print '======================================================'.PHP_EOL;
+
+        ksort($this->userStories);
+        print 'ticket,total_hours, hours, tasks, status'.PHP_EOL;
+        foreach ($this->userStories as $id => $storyData) {
+            print $storyData['description'].', '.$storyData['total_invested_hours'].', '.$storyData['hours'].', '.$storyData['tasks'].', '.$storyData['status'].PHP_EOL;
+        }
+        //print print_r($this->userStories, 1).PHP_EOL;
+        //print print_r($this->noUserStories, 1).PHP_EOL;
+
+        print '======================================================'.PHP_EOL;
+        print 'Tasks (not a User Story)'.PHP_EOL;
+        print '======================================================'.PHP_EOL;
+        ksort($this->noUserStories);
+        print 'ticket,total_hours, hours, tasks, status'.PHP_EOL;
+        foreach ($this->noUserStories as $id => $ticketData) {
+            print $ticketData['description'].', '.$ticketData['total_invested_hours'].', '.$ticketData['hours'].', '.$ticketData['tasks'].', '.$ticketData['status'].PHP_EOL;
+        }
+
+        //print print_r($this->withoutTicket, 1).PHP_EOL;
+
+        print '======================================================'.PHP_EOL;
+        print ' Tracked time without ticket'.PHP_EOL;
+        print '======================================================'.PHP_EOL;
+        print 'username, hours, tasks'.PHP_EOL;
+        foreach ($this->withoutTicket as $userId => $data) {
+            $username = (array_key_exists($userId, $users))?$users[$userId]: $userId;
+            print $username.','.$data['hours'].','.$data['tasks'].PHP_EOL;
+        }
+
+        $endTime = time();
+        $minutes = round(($endTime - $startTime)/60, 2);
+        print "Execution time ". $minutes ." minutes".PHP_EOL;
+        print 'Total APi calls '.$this->apicalls.PHP_EOL;
+    }
+
+
+    /**
+     * This beautiful function will retrieve the ticket information using the API
+     * If the ticket is a subtask it will fetch the associations to try to get the related user story
+     *
+     * @param $space
+     * @param $ticketNumber
+     */
+    private function _retrieveAndSetTicketInformation($space, $ticketNumber)
+    {
+        $assemblaGateway = new AssemblaGateway();
+        $response = $assemblaGateway->getTicketBySpaceAndNumber($space, $ticketNumber);
+        $this->apicalls++;
+
+        if ($response->getStatusCode() == 200) {
+            $bodyContents = json_decode($response->getBody()->getContents(), 1);
+            $this->ticketsApiData[$bodyContents['id']] = [
+                'is_story' => $bodyContents['is_story'],
+                'description' => $bodyContents['number'].' '.$bodyContents['summary'],
+                'total_invested_hours' => $bodyContents['total_invested_hours']
+            ];
+
+            if ($bodyContents['is_story']) {
+                $this->userStories[$bodyContents['id']]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
+                $this->userStories[$bodyContents['id']]['total_invested_hours'] = $bodyContents['total_invested_hours'];
+                $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
+                $this->userStories[$bodyContents['id']]['hours'] = 0;
+                $this->userStories[$bodyContents['id']]['tasks'] = 0;
+            } else {
+                $userStoryId = $this->_retrieveTicketAssociation($space, $ticketNumber);
+                if ($userStoryId !== false) {
+                    if (!array_key_exists($userStoryId, $this->userStories)) {
+                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}");
+                        $this->apicalls++;
+                        if ($response->getStatusCode() == 200) {
+                            $bodyContents = json_decode($response->getBody()->getContents(), 1);
+                            if ($bodyContents['is_story']) {
+                                $this->userStories[$bodyContents['id']]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
+                                $this->userStories[$bodyContents['id']]['total_invested_hours'] = $bodyContents['total_invested_hours'];
+                                $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
+                                $this->userStories[$bodyContents['id']]['hours'] = 0;
+                                $this->userStories[$bodyContents['id']]['tasks'] = 0;
+                            } else {
+                                dd('hmm it has a subtask but is not a user story??');
+                            }
+                        }
+                    }
+
+                } else {
+                    if (!array_key_exists($bodyContents['id'], $this->noUserStories)) {
+                        //the task is not a user story neither a subtask since it has no association as subtask
+                        $this->noUserStories[$bodyContents['id']]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
+                        $this->noUserStories[$bodyContents['id']]['total_invested_hours'] = $bodyContents['total_invested_hours'];
+                        $this->noUserStories[$bodyContents['id']]['status'] = $bodyContents['status'];
+                        $this->noUserStories[$bodyContents['id']]['hours'] = 0;
+                        $this->noUserStories[$bodyContents['id']]['tasks'] = 0;
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    private function _retrieveTicketAssociation($space, $ticketNumber)
+    {
+        $assemblaGateway = new AssemblaGateway();
+        $response = $assemblaGateway->getTicketAssociationsBySpaceAndNumber($space, $ticketNumber);
+        $this->apicalls++;
+        if ($response->getStatusCode() == 200) {
+            $result = json_decode($response->getBody()->getContents(), 1);
+            foreach ($result as $association) {
+                if ($association['relationship'] === AssemblaGateway::STORY_RELATION) {
+                    //$subtaskId = $association['ticket1_id'];
+                    return  $association['ticket2_id'];//returning user story ID
+                }
+            }
+        }
+
+        return false;//the received ticketNumber has no subtask relation
+    }
+
+
+
+/*
+99 => array:12 [
+"id" => 23605573
+"description" => "Category page: left-nav filters"
+"url" => "/spaces/cemaco/tickets/77"
+"hours" => "8.0"
+"begin_at" => "2013-11-07T20:29:29.000Z"
+"end_at" => "2013-11-07T20:29:29.000Z"
+"space_id" => "dKs4GwzB8r4Pz7acwqjQYw"
+"ticket_number" => 77
+"ticket_id" => 69478723
+"user_id" => "dmax02RC4r4OkUacwqjQWU"
+"created_at" => "2013-11-07T20:29:29.000Z"
+"updated_at" => "2013-11-07T20:29:29.000Z"*/
+}
