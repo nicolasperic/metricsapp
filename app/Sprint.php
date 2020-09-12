@@ -46,6 +46,11 @@ class Sprint extends Model
         return $this->tickets()->count();
     }
 
+    public function getTotalSubtasks()
+    {
+        return $this->tickets()->where('is_story', false)->count();
+    }
+
     public function getTotalStories()
     {
         return $this->tickets()->where('is_story', true)->count();
@@ -54,6 +59,16 @@ class Sprint extends Model
     public function getCompletedTickets()
     {
         return $this->tickets()->completed();
+    }
+
+    public function getCompletedStories()
+    {
+        return $this->tickets()->where('is_story', true)->completed()->count();
+    }
+
+    public function getCompletedSubtasks()
+    {
+        return $this->tickets()->where('is_story', false)->completed()->count();
     }
 
     public function getUserStoriesWithoutStoryPoints()
@@ -93,6 +108,23 @@ class Sprint extends Model
             return 0;
 
         return number_format(($this->getCompletedStoryPoints() / $this->getTotalStoryPoints()) * 100, 2);
+    }
+
+    public function getPercentCompletedStories($decimals = 0)
+    {
+        if ($this->getTotalStories() == 0)
+            return 0;
+
+        return number_format(($this->getCompletedStories() / $this->getTotalStories()) * 100, $decimals);
+    }
+
+    public function getPercentCompletedSubtasks($decimals = 0)
+    {
+        if ($this->getTotalSubtasks() == 0)
+            return 0;
+
+        return number_format($this->getCompletedSubtasks()/$this->getTotalSubtasks()*100, $decimals);
+
     }
 
     public function getAverageLeadTime()
