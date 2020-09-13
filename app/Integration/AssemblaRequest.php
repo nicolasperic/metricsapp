@@ -4,6 +4,7 @@ namespace App\Integration;
 
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class AssemblaRequest extends Model
 {
@@ -16,28 +17,21 @@ class AssemblaRequest extends Model
      * Assembla API URL used to shorten endpoints
      */
     const ASSEMBLA_API_URL = 'https://api.assembla.com/v1/';
-    //TODO generate configuration page to allow customer to set the key and secret
-    const APPLICATION_KEY = 'a5aa5632989ec768d71d';//https://app.assembla.com/user/edit/manage_clients
-    const APPLICATION_SECRET = '497e452c605c29f8971aeb367e6c15a872749efe';
 
     /**
      * This function is used for the GET action on the Assembla API
      *
-     * @param       $url
+     * @param       $endpoint
      * @param array $queryParams
-     * @param bool  $assemblaPrefix
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function get($url, $queryParams = [], $assemblaPrefix = true)
+    public static function get($endpoint, $queryParams = [])
     {
-        if ($assemblaPrefix)
-            $url = self::ASSEMBLA_API_URL.$url;
-
         $requestData = [
             'headers' => [
-                'X-Api-Key'    => self::APPLICATION_KEY,
-                'X-Api-Secret' => self::APPLICATION_SECRET
+                'X-Api-Key'    => self::getApplicationKey(),
+                'X-Api-Secret' => self::getApplicationSecret(),
             ],
             'allow_redirects' => [
                 'max'             => 10,        // allow at most 10 redirects.
@@ -55,34 +49,56 @@ class AssemblaRequest extends Model
         $requestData['query'] = array_merge($requestData['query'], $queryParams);
 
         $client = new Client();
-        return $client->request('GET', $url, $requestData);
+        return $client->request('GET', self::ASSEMBLA_API_URL.$endpoint, $requestData);
     }
 
     /**
      * This function is used for POST to the Assembla API
      * currently used only when tracking time
      *
-     * @param      $url
+     * @param      $endpoint
      * @param      $params
-     * @param bool $assemblaPrefix
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function post($url, $params, $assemblaPrefix = true)
+    public static function post($endpoint, $params)
     {
-        if ($assemblaPrefix)
-            $url = self::ASSEMBLA_API_URL.$url;
-
         $requestData = [
             'headers' => [
-                'X-Api-Key'    => self::APPLICATION_KEY,
-                'X-Api-Secret' => self::APPLICATION_SECRET
+                'X-Api-Key'    => self::getApplicationKey(),
+                'X-Api-Secret' => self::getApplicationSecret(),
             ],
             'form_params' => $params,
         ];
 
         $client = new Client();
-
-        return $client->post($url, $requestData);
+        return $client->post(self::ASSEMBLA_API_URL.$endpoint, $requestData);
     }
+
+    /**
+     * This function will return the application key from the logged in user
+     * https://app.assembla.com/user/edit/manage_clients
+     *
+     * @return mixed
+     */
+    private static function getApplicationKey()
+    {
+        if (Auth::check()) {
+            return Auth::user()->assembla_key;
+        }
+    }
+
+    /**
+     * This function will return the application secret from the logged in user
+     * https://app.assembla.com/user/edit/manage_clients
+     *
+     * @return mixed
+     */
+    private static function getApplicationSecret()
+    {
+        if (Auth::check()) {
+            return Auth::user()->assembla_secret;
+        }
+    }
+
 }
