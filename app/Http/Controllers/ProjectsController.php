@@ -24,9 +24,15 @@ class ProjectsController extends Controller
         ]);
     }
 
+    /**
+     * This function is used for importing user projects (assembla spaces)
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function importProjects()
     {
         $projectImporter = new ProjectImporter();
+        //TODO if the key and secret are invalid or not set we will get an exception
         $projectImporter->importAllAssemblaSpacesAsProjects();
 
         return redirect()->route('projects.index');
