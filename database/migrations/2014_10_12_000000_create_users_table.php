@@ -19,6 +19,9 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('assembla_key')->nullable();
+            $table->string('assembla_secret')->nullable();
+            $table->string('assembla_user_image')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

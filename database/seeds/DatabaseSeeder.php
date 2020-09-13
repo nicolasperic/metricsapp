@@ -36,12 +36,16 @@ class DatabaseSeeder extends Seeder
             'name' => 'Nicolás',
             'email' => 'nicolasperic@gmail.com',
             'password' => bcrypt('Magento01'),
+            'assembla_key' => 'a5aa5632989ec768d71d',
+            'assembla_secret' => '497e452c605c29f8971aeb367e6c15a872749efe',
+            'assembla_user_image' => 'https://s3.amazonaws.com/assembla-avatars/1e7f71fc/cvixt811Gr4PBcacwqjQYw:1571509138',
         ]);
 
         $eperez = User::create([
             'name' => 'Elina',
             'email' => 'eperez@summasolutions.com',
             'password' => bcrypt('Magento02'),
+            'assembla_user_image' => 'https://s3.amazonaws.com/assembla-avatars/ac4c96a6/dNWJBO9war45rbacwqjQXA:1550599353',
         ]);
         return;
 
