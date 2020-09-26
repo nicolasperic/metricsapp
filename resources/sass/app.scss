@@ -6,3 +6,15 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+.help {
+    display: block;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+.help.is-danger {
+    color: #ff3860;
+}
+.is-danger.input, .is-danger.textarea {
+    border-color: #ff3860;
+}

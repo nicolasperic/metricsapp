@@ -71,6 +71,60 @@ class SprintTest extends TestCase
     }
 
     /** @test */
+    function can_calculate_sprint_completed_stories()
+    {
+        $sprint = factory(Sprint::class)->create();
+        $ticketA = factory(Ticket::class)->states('completed')->create([
+            'is_story' => true,
+        ]);
+        $ticketB = factory(Ticket::class)->states('completed')->create([
+            'is_story' => true,
+        ]);
+        $ticketC = factory(Ticket::class)->states('completed')->create([
+            'is_story' => false,
+        ]);
+        $ticketD = factory(Ticket::class)->create([
+            'is_story' => false,
+        ]);
+        $ticketE = factory(Ticket::class)->create([
+            'is_story' => true,
+        ]);
+
+
+        $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC, $ticketD, $ticketE]);
+
+        $this->assertEquals(5, $sprint->getTotalTickets());
+        $this->assertEquals(2, $sprint->getCompletedStories());
+    }
+
+    /** @test */
+    function can_calculate_sprint_completed_subtasks()
+    {
+        $sprint = factory(Sprint::class)->create();
+        $ticketA = factory(Ticket::class)->states('completed')->create([
+            'is_story' => true,
+        ]);
+        $ticketB = factory(Ticket::class)->states('completed')->create([
+            'is_story' => true,
+        ]);
+        $ticketC = factory(Ticket::class)->states('completed')->create([
+            'is_story' => false,
+        ]);
+        $ticketD = factory(Ticket::class)->create([
+            'is_story' => false,
+        ]);
+        $ticketE = factory(Ticket::class)->create([
+            'is_story' => true,
+        ]);
+
+
+        $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC, $ticketD, $ticketE]);
+
+        $this->assertEquals(5, $sprint->getTotalTickets());
+        $this->assertEquals(1, $sprint->getCompletedSubtasks());
+    }
+
+    /** @test */
     function can_calculate_sprint_percent_completed_story_points()
     {
         $sprint = factory(Sprint::class)->create();
