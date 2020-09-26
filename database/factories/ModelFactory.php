@@ -66,6 +66,14 @@ $factory->define(Ticket::class, function (Faker $faker) {
     ];
 });
 
+$factory->state(Ticket::class, 'completed', function () {
+    return [
+        'ticket_assembla_id' => 'ticket123',
+        'completed_at' => Carbon::parse('+1 week'),
+        'state' => Ticket::CLOSED_STATE
+    ];
+});
+
 $factory->define(TicketTime::class, function(Faker $faker) {
     return [
         'ticket_time_assembla_id' => 1234,
@@ -88,10 +96,3 @@ $factory->define(Sprint::class, function (Faker $faker) {
     ];
 });
 
-$factory->state(Ticket::class, 'completed', function () {
-    return [
-        'ticket_assembla_id' => 'ticket123',
-        'completed_at' => Carbon::parse('+1 week'),
-        'state' => Ticket::CLOSED_STATE
-    ];
-});

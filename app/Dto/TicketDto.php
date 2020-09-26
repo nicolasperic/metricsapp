@@ -27,6 +27,10 @@ class TicketDto
     private $assignedToId;
     /** @var  int story points */
     private $complexity;
+    /** @var  string type */
+    private $type;
+    /** @var  int estimate (it can be hours, story points based on space configuration) */
+    private $estimate;
     /** @var  boolean 1 if open, 0 if closed */
     private $state;
     /** @var  string status name */
@@ -99,11 +103,13 @@ class TicketDto
         $data = $this->getResponseData();
         $this->setNumber($data['number']);
         $this->setSummary($data['summary']);
+        $this->setEstimate($data['estimate']);
         $this->setPriority($data['priority']);
         $this->setState($data['state']);
         $this->setStatus($data['status']);
         $this->setMilestoneId($data['milestone_id']);
-        $this->setComplexity($data['custom_fields']['Complexity']);
+        $this->setComplexity($this->_validate('Complexity', $data['custom_fields'], 0));
+        $this->setType($this->_validate('Type', $data['custom_fields']));
         $this->setAssignedToId($data['assigned_to_id']);
         $this->setSpaceId($data['space_id']);
         $this->setSpaceName($this->_validate('space_name', $data));
@@ -132,6 +138,37 @@ class TicketDto
         return $this->responseData;
     }
 
+    /**
+     * @return int
+     */
+    public function getEstimate()
+    {
+        return $this->estimate;
+    }
+
+    /**
+     * @param int $estimate
+     */
+    public function setEstimate($estimate)
+    {
+        $this->estimate = $estimate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
 
     /**
      * @return mixed
