@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('container-title', $project->name . ' Milestones')
+
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
@@ -17,7 +19,7 @@
                             </div>
                         @endif
 
-                        Milestones:
+                        Open Milestones:
                         <ul>
                             @forelse ($project->sprints as $sprint)
                                 <li>
@@ -26,7 +28,7 @@
 
 
                             @empty
-                                <p>No sprints assigned to this sprint yet.</p>
+                                <p>No sprints assigned to this project yet.</p>
                             @endforelse
                         </ul>
 
@@ -39,11 +41,10 @@
 
 
                             @empty
-                                <p>No users assigned to this sprint yet.</p>
+                                <p>No users assigned to this project yet.</p>
                             @endforelse
                         </ul>
-
-
+                    </div>
                 </div>
             </div>
         </div>

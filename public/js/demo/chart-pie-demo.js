@@ -12,13 +12,16 @@ let countPercent = [];
 let countTotal = [];
 let hoursPercent = [];
 let hoursTotal = [];
-
+let backgroundColor = [];
+let hoverColor = [];
 jQuery.each( percentages, function( index, value ){
     usTypesLabels.push(value['label']);
     countPercent.push(value['count_percentage']);
     countTotal.push(value['total']);
     hoursPercent.push(value['hours_percentage']);
     hoursTotal.push(value['total_invested_hours']);
+    backgroundColor.push(value['color']['main']);
+    hoverColor.push(value['color']['hover']);
 
     //console.log(value);
 
@@ -36,14 +39,14 @@ var usTypeCount = new Chart(ctx, {
         datasets: [{
             label: 'Porcentaje',
             data: countPercent,//[55, 30, 15],//percentages
-            backgroundColor: ['#e74a3b', '#1cc88a', '#36b9cc', '#4e73df', '#f6c23e', '#c81cbf'],
-            hoverBackgroundColor: ['#c22819', '#17a673', '#2c9faf', '#3b5399', '#cea334', '#871381'],
+            backgroundColor: backgroundColor,//['#e74a3b', '#1cc88a', '#36b9cc', '#4e73df', '#f6c23e', '#c81cbf'],
+            hoverBackgroundColor: hoverColor,//['#c22819', '#17a673', '#2c9faf', '#3b5399', '#cea334', '#871381'],
             hoverBorderColor: "rgba(234, 236, 244, 1)",
         }, {
             label: 'Horas',
             data: hoursPercent,//[55, 30, 15],//percentages
-            backgroundColor: ['#e74a3b', '#1cc88a', '#36b9cc', '#4e73df', '#f6c23e', '#c81cbf'],
-            hoverBackgroundColor: ['#c22819', '#17a673', '#2c9faf', '#3b5399', '#cea334', '#871381'],
+            backgroundColor: backgroundColor,//['#e74a3b', '#1cc88a', '#36b9cc', '#4e73df', '#f6c23e', '#c81cbf'],
+            hoverBackgroundColor: hoverColor,//['#c22819', '#17a673', '#2c9faf', '#3b5399', '#cea334', '#871381'],
             hoverBorderColor: "rgba(234, 236, 244, 1)",
         }],
     },

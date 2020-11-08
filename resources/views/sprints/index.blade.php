@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('container-title', ' Sprints')
+
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
@@ -19,7 +21,7 @@
 
 
                             @empty
-                                <p>No sprints created yet. What are you waiting for? Create your new Sprint here!</p>
+                                <p>No sprints created yet. Import projects first</p>
                             @endforelse
                         </ul>
 

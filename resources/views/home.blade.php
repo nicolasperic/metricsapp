@@ -14,10 +14,25 @@
                         </div>
                     @endif
 
-                    You are logged in!
+                    You are logged in! : )
                 </div>
             </div>
         </div>
+
+        <div class="col-md-12">
+            <div class="card shadow mb-12">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Dashboard</h6>
+                </div>
+                <div class="card-body">
+                    You're logged in!
+                </div>
+            </div>
+        </div>
+
     </div>
+
+
+
 </div>
 @endsection
