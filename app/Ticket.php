@@ -20,7 +20,7 @@ class Ticket extends Model
 
     public static function getTicketByAssemblaId($assemblaId)
     {
-        return self::where('ticket_assembla_id', $assemblaId)->firstOrFail();
+        return self::where('ticket_assembla_id', $assemblaId)->first();//firstOrFail
     }
 
     public function subtasks()

@@ -19,7 +19,7 @@ class SprintImporter
         $response = $assemblaGateway->getMilestonesForSpace($project->wikiname);
 
         if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);
+            $result = json_decode($response->getBody()->getContents(), 1);//TODO move this to the assembla gateway
             foreach ($result as $milestoneData) {
                 $sprintDto = new SprintDto($milestoneData);
 

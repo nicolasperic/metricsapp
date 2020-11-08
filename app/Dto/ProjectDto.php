@@ -8,6 +8,7 @@ class ProjectDto
     private $name;
     private $wikiName;
     private $status;
+    private $prefix;
 
     private $responseData;
 
@@ -34,6 +35,7 @@ class ProjectDto
         $this->setWikiName($data['wiki_name']);
         $this->setStatus($data['status']);
         $this->setProjectAssemblaId($data['id']);
+        $this->setPrefix($data['prefix']);
     }
 
     /**
@@ -99,6 +101,24 @@ class ProjectDto
     {
         $this->wikiName = $wikiName;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * @param mixed $prefix
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+    }
+
+
 
     public function toString()
     {

@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 /**
- * @group integration
- *        ^any test that will test my integration with another service
+ * @group reports
  */
 class UsHoursReportTest extends TestCase
 {
@@ -49,6 +48,8 @@ class UsHoursReportTest extends TestCase
             'dUHuyGkPGr44k-acwqEsg8' => 'Pedro Rigoli',
             'ddsWca79Wr44oYacwqjQXA' => 'Nicolas Alejandro Gandara',
             'dzBlqaLhKr5O16acwqEsg8' => 'Esteban Campos',
+            'arrHT2RRer54rQdmr6QqzO' => 'Mariana Rodriguez',
+            'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
         ];
 
         $this->userStories = [];
@@ -62,8 +63,9 @@ class UsHoursReportTest extends TestCase
             //'canaldeautopartes' => 'dpT43eCVCr54kBacwqjQYw',
             //'cemaco' => 'dKs4GwzB8r4Pz7acwqjQYw',
             //'pinturerias-rex' => 'atJlRad84r55JcacwqjQXA',
-            'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
-            //'summa-internal-projects' => 'bPFF_gQfWr4PjCacwqjQWU'
+           // 'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
+            //'summa-internal-projects' => 'bPFF_gQfWr4PjCacwqjQWU',
+            'Grupo-Grassi' => 'dTomygY3Gr6P7dbK8JiBFu'
         ];
 
 
@@ -74,7 +76,7 @@ class UsHoursReportTest extends TestCase
 
 
         $from = '2020/07/01 00:00';
-        $to = '2020/07/25 23:59';
+        $to = '2020/11/30 23:59';
         foreach ($projects as $wikiname => $spaceId) {
 
             $page = 1;
@@ -106,7 +108,7 @@ class UsHoursReportTest extends TestCase
                         if (array_key_exists($timeTracked['ticket_id'], $this->userStories)) {//it's a user story
                             $this->userStories[$timeTracked['ticket_id']]['hours'] += $timeTracked['hours'];
                             $this->userStories[$timeTracked['ticket_id']]['tasks'] += 1;
-                            Log::info('Tracking T1 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$timeTracked['ticket_id']]['hours'].' US tasks '.$this->userStories[$timeTracked['ticket_id']]['tasks']);
+                            Log::info('Tracking T1 '.$timeTracked['hours'].' hours | ticket number '.$timeTracked['ticket_number'].' US hs '.$this->userStories[$timeTracked['ticket_id']]['hours'].' US tasks '.$this->userStories[$timeTracked['ticket_id']]['tasks']);
                             $timetracked = true;
                             $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                         } else {//subtask
@@ -117,7 +119,7 @@ class UsHoursReportTest extends TestCase
                                 $this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['tasks'] += 1;
                                 $timetracked = true;
                                 $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
-                                Log::info('Tracking T2 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['hours'].' US tasks '.$this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['tasks']);
+                                Log::info('Tracking T2 '.$timeTracked['hours'].' hours | ticket number '.$timeTracked['ticket_number'].' US hs '.$this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['hours'].' US tasks '.$this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['tasks']);
                             } else {//subtask not found on ticketAssociations, need to retrieve related US from API if exists
 
                                 $userStoryId = $this->_retrieveTicketAssociation($wikiname, $timeTracked['ticket_number']);
@@ -134,7 +136,7 @@ class UsHoursReportTest extends TestCase
                                                 $this->userStories[$userStoryId]['hours'] = $timeTracked['hours'];
                                                 $this->userStories[$userStoryId]['tasks'] = 1;
 
-                                                Log::info('Tracking T3 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
+                                                Log::info('Tracking T3 '.$timeTracked['hours'].' hours |  ticket number '.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
                                                 $timetracked = true;
                                                 $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                                             } else {
@@ -144,7 +146,7 @@ class UsHoursReportTest extends TestCase
                                     } else {
                                         $this->userStories[$userStoryId]['hours'] += $timeTracked['hours'];
                                         $this->userStories[$userStoryId]['tasks'] += 1;
-                                        Log::info('Tracking T4 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
+                                        Log::info('Tracking T4 '.$timeTracked['hours'].' hours | ticket number '.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
                                         $timetracked = true;
                                         $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                                     }
@@ -157,7 +159,7 @@ class UsHoursReportTest extends TestCase
 
                                     $this->noUserStories[$timeTracked['ticket_id']]['hours'] += $timeTracked['hours'];
                                     $this->noUserStories[$timeTracked['ticket_id']]['tasks'] += 1;
-                                    Log::info('Tracking T5 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->noUserStories[$timeTracked['ticket_id']]['hours'].' US tasks '.$this->noUserStories[$timeTracked['ticket_id']]['tasks']);
+                                    Log::info('Tracking T5 '.$timeTracked['hours'].' hours | ticket number '.$timeTracked['ticket_number'].' US hs '.$this->noUserStories[$timeTracked['ticket_id']]['hours'].' US tasks '.$this->noUserStories[$timeTracked['ticket_id']]['tasks']);
                                     $timetracked = true;
                                     $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                                 }
@@ -185,7 +187,7 @@ class UsHoursReportTest extends TestCase
                     $totalTasks += 1;
 
                     Log::info('END Total hours '.$totalHours.' vs '.$totalHoursBasedOnTrackingUs.'< on tracking US | total tasks '.$totalTasks);
-                    Log::info('END Task Data hours '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' user_id '.$timeTracked['user_id'].' id'.$timeTracked['id']);
+                    Log::info('END Task Data hours '.$timeTracked['hours'].' ticket number '.$timeTracked['ticket_number'].' user_id '.$timeTracked['user_id'].' id'.$timeTracked['id']);
                 }
 
 
@@ -197,7 +199,7 @@ class UsHoursReportTest extends TestCase
 
 
 
-
+        print PHP_EOL;
         print '======================================================'.PHP_EOL;
         print "Desde $from hasta $to".PHP_EOL;
         print '======================================================'.PHP_EOL;
@@ -217,25 +219,32 @@ class UsHoursReportTest extends TestCase
         //print print_r($this->userStories, 1).PHP_EOL;
         //print print_r($this->noUserStories, 1).PHP_EOL;
 
-        print '======================================================'.PHP_EOL;
-        print 'Tasks (not a User Story)'.PHP_EOL;
-        print '======================================================'.PHP_EOL;
-        ksort($this->noUserStories);
-        print 'ticket,total_hours, hours, tasks, status'.PHP_EOL;
-        foreach ($this->noUserStories as $id => $ticketData) {
-            print $ticketData['description'].', '.$ticketData['total_invested_hours'].', '.$ticketData['hours'].', '.$ticketData['tasks'].', '.$ticketData['status'].PHP_EOL;
+        if (count($this->noUserStories)) {
+            print '======================================================'.PHP_EOL;
+            print 'Tasks (not a User Story)'.PHP_EOL;
+            print '======================================================'.PHP_EOL;
+            ksort($this->noUserStories);
+            print 'ticket,total_hours, hours, tasks, status'.PHP_EOL;
+            foreach ($this->noUserStories as $id => $ticketData) {
+                print $ticketData['description'].', '.$ticketData['total_invested_hours'].', '.$ticketData['hours'].', '.$ticketData['tasks'].', '.$ticketData['status'].PHP_EOL;
+            }
         }
 
-        //print print_r($this->withoutTicket, 1).PHP_EOL;
 
-        print '======================================================'.PHP_EOL;
-        print ' Tracked time without ticket'.PHP_EOL;
-        print '======================================================'.PHP_EOL;
-        print 'username, hours, tasks'.PHP_EOL;
-        foreach ($this->withoutTicket as $userId => $data) {
-            $username = (array_key_exists($userId, $users))?$users[$userId]: $userId;
-            print $username.','.$data['hours'].','.$data['tasks'].PHP_EOL;
+
+        if (count($this->withoutTicket)) {
+            //print print_r($this->withoutTicket, 1).PHP_EOL;
+
+            print '======================================================'.PHP_EOL;
+            print ' Tracked time without ticket'.PHP_EOL;
+            print '======================================================'.PHP_EOL;
+            print 'username, hours, tasks'.PHP_EOL;
+            foreach ($this->withoutTicket as $userId => $data) {
+                $username = (array_key_exists($userId, $users))?$users[$userId]: $userId;
+                print $username.','.$data['hours'].','.$data['tasks'].PHP_EOL;
+            }
         }
+
 
         $endTime = time();
         $minutes = round(($endTime - $startTime)/60, 2);
@@ -265,7 +274,7 @@ class UsHoursReportTest extends TestCase
                 'total_invested_hours' => $bodyContents['total_invested_hours']
             ];
 
-            if ($bodyContents['is_story']) {
+            if ($bodyContents['is_story'] && !array_key_exists($bodyContents['id'], $this->userStories)) {
                 $this->userStories[$bodyContents['id']]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
                 $this->userStories[$bodyContents['id']]['total_invested_hours'] = $bodyContents['total_invested_hours'];
                 $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
@@ -323,6 +332,151 @@ class UsHoursReportTest extends TestCase
         }
 
         return false;//the received ticketNumber has no subtask relation
+    }
+
+    /** @test  this tests will retrieve the tracked time
+     * //TODO esta es la tarea que ejecuto para tener las horas del equipo discrimiando por: documentar y clasificar (Reportes)
+     *
+     * - Proyecto
+     * - Team member
+     */
+    function can_get_projects_time_weekly_by_user()
+    {
+        $teamMembers = [
+            // 'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',
+            'cvixt811Gr4PBcacwqjQYw' => 'Nicolás Peric',
+            'dNWJBO9war45rbacwqjQXA' => 'Elina Perez',
+            'cc2NS0ZTSr4RS_acwqjQYw' => 'Jonatan Mayorano',
+            // 'ajLyFEiVir6A3ccK-zJOy8' => 'Federico Ackerley',
+            'buOwlo1uer45NdacwqjQWU' => 'Martín Granate',
+            'aAbtrS7fKr6y_dcP_HzTya' => 'Barbara Irizaga',
+        ];
+        $users = [
+            'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',
+            'cvixt811Gr4PBcacwqjQYw' => 'Nicolás Peric',
+            'aAbtrS7fKr6y_dcP_HzTya' => 'Barbara Irizaga',
+            'dNWJBO9war45rbacwqjQXA' => 'Elina Perez',
+            'cc2NS0ZTSr4RS_acwqjQYw' => 'Jonatan Mayorano',
+            'dBYqHcg2Cr5PRcdmr6CpXy' => 'Santiago Tolosa',
+            'brVttgsFOr543cdmr6QqzO' => 'Emanuel Arcos',
+            'buOwlo1uer45NdacwqjQWU' => 'Martín Granate',
+            'ajLyFEiVir6A3ccK-zJOy8' => 'Federico Ackerley',
+            'athUCe0pCr5OFcacwqEsg8' => 'Mariano Zunini',
+            'c6u2Cuuu4r6AFdbK8JiBFu' => 'Martin Perrotta',
+            'aW_vfY1FGr6ioeaH8tHBnc' => 'Brenda Herrada',
+            'aVzzeMlw0r6RhdaIC_Qgzw' => 'Nicolas Lavaggi',
+            'aSD9Sgwzqr6OoBaH8tHBnc' => 'Ezequiel Alvian',
+            'aDiA_Cb2Wr6iNcacwqjQYw' => 'Matias Rodriguez',
+            'a5Uwc0GEyr45yTacwqEsg8' => 'Alejandro Borria',
+            'bYoBk2IxKr5PNcdmr6QqzO' => 'Diego Piu',
+            'b_V2Si_JCr6lldaH8tHBnc' => 'Matias Wagner',
+            'dUHuyGkPGr44k-acwqEsg8' => 'Pedro Rigoli',
+            'ddsWca79Wr44oYacwqjQXA' => 'Nicolas Alejandro Gandara',
+            'dzBlqaLhKr5O16acwqEsg8' => 'Esteban Campos',
+            'arrHT2RRer54rQdmr6QqzO' => 'Mariana Rodriguez',
+            'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
+        ];
+        $projects = [
+            'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
+            'canaldeautopartes' => 'dpT43eCVCr54kBacwqjQYw',
+            'cemaco' => 'dKs4GwzB8r4Pz7acwqjQYw',
+            'pinturerias-rex' => 'atJlRad84r55JcacwqjQXA',
+            'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
+            'summa-internal-projects' => 'bPFF_gQfWr4PjCacwqjQWU',
+            'Grupo-Grassi' => 'dTomygY3Gr6P7dbK8JiBFu'
+        ];
+
+        $hours = array();
+        $totalHours = 0;
+        $totalTasks = 0;
+        $projectHours = array();
+
+        $from = '2020/10/26 00:00';
+        $to = '2020/10/31 23:59';
+        foreach ($projects as $wikiname => $spaceId) {
+
+            $page = 1;
+            do {
+                $queryParams = [
+                    'spaces' => $spaceId,
+                    'from' => $from,
+                    'to' => $to,
+                    'page' => $page,
+                ];
+                $response = AssemblaRequest::get("tasks", $queryParams);
+                $result = json_decode($response->getBody()->getContents(), 1);
+                if (!is_array($result)) {
+                    break;
+                }
+
+                foreach ($result as $timeTracked) {
+                    if ($wikiname == 'summa-internal-projects') {
+                        if (!array_key_exists($timeTracked['user_id'], $teamMembers)) {
+                            continue;
+                        }
+                    }
+                    if (!array_key_exists($timeTracked['user_id'], $hours)) {
+                        $hours[$timeTracked['user_id']]['hours']  = 0;
+                        $hours[$timeTracked['user_id']]['tasks'] = 0;
+                    }
+
+                    if (!array_key_exists($wikiname, $projectHours)) {
+                        $projectHours[$wikiname] = array();
+                    }
+
+                    if (!array_key_exists($timeTracked['user_id'], $projectHours[$wikiname])) {
+                        $projectHours[$wikiname][$timeTracked['user_id']] = ['hours' => 0, 'tasks' => 0];
+                    }
+
+
+                    $projectHours[$wikiname][$timeTracked['user_id']]['hours'] += $timeTracked['hours'];
+                    $projectHours[$wikiname][$timeTracked['user_id']]['tasks'] += 1;
+
+                    $hours[$timeTracked['user_id']]['hours'] += $timeTracked['hours'];
+                    $hours[$timeTracked['user_id']]['tasks'] += 1;
+                    $totalHours += $timeTracked['hours'];
+                    $totalTasks += 1;
+                }
+
+
+                $page++;
+
+            } while(count($result) === 100);
+        }
+
+        print PHP_EOL;
+        print '======================================================'.PHP_EOL;
+        print "Desde $from hasta $to".PHP_EOL;
+        print '======================================================'.PHP_EOL;
+        print 'Total Hours '.$totalHours.PHP_EOL;
+        print 'Total Tasks '.$totalTasks.PHP_EOL;
+
+
+        foreach ($projectHours as $wikiname => $projectData) {
+            print '======================================================'.PHP_EOL;
+            print "\t".$wikiname.PHP_EOL;
+            print '======================================================'.PHP_EOL;
+            $totalHours = 0;
+            $totalTasks = 0;
+            foreach ($projectData as $userId => $userHours) {
+                $totalHours += $userHours['hours'];
+                $totalTasks += $userHours['tasks'];
+
+                $userName = (array_key_exists($userId, $users))?$users[$userId]: $userId;
+                print str_pad($userName, 20)."\t".str_pad($userHours['tasks']. " tasks", 9) ." \t".$userHours['hours']. ' hours'.PHP_EOL;
+            }
+            print ''.PHP_EOL;
+            print 'Project total hours '.$totalHours.' in '.$totalTasks.' tasks'.PHP_EOL;
+        }
+
+        print PHP_EOL;
+        print '======================================================'.PHP_EOL;
+
+        foreach ($hours as $userId => $hoursData) {
+            $userName = (array_key_exists($userId, $users))?$users[$userId]: $userId;
+            print str_pad($userName, 20)."\t".str_pad($hoursData['tasks']. " tasks", 9). " \t".$hoursData['hours']. ' hours'.PHP_EOL;
+        }
+
     }
 
 

@@ -17,6 +17,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/reports', 'ReportsController@index')->name('reports.index')->middleware('auth');
+Route::post('/reports', 'ReportsController@store')->middleware('auth');
 Route::get('/tasks-timer', 'TasksTimerController@index')->name('taskstimer.index')->middleware('auth');
 Route::post('/tasks-timer', 'TasksTimerController@store')->middleware('auth');
 Route::get('/projects', 'ProjectsController@index')->name('projects.index')->middleware('auth');
@@ -26,6 +28,8 @@ Route::get('/sprints', 'SprintsController@index')->name('sprints.index')->middle
 Route::get('/sprints/importSprints/{projectId}', 'SprintsController@importSprints')->name('sprints.import')->middleware('auth');
 Route::get('/sprints/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
 Route::get('/tickets/importTickets/{sprintId}', 'TicketsController@importTickets')->name('tickets.import')->middleware('auth');
+Route::get('/settings', 'SettingsController@index')->name('settings.index')->middleware('auth');
+Route::post('/settings', 'SettingsController@store')->middleware('auth');
 
 Auth::routes();
 

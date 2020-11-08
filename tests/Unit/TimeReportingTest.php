@@ -9,6 +9,9 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * @group reports
+ * */
 class TimeReportingTest extends TestCase
 {
     use RefreshDatabase;

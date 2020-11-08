@@ -3,12 +3,12 @@
 namespace App\Importer;
 
 use App\Dto\TicketDto;
-use App\Dto\TicketTimeDto;
+use App\Dto\Mapper\TicketMapper;
+use App\Dto\Mapper\TicketTimeMapper;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use App\Project;
 use App\Ticket;
-use App\TicketTime;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -35,14 +35,13 @@ class TicketImporter
             'sort_order' => 'desc'
         ];
         do {
-            $response = $this->assemblaGateway->getTicketsForMilestone($project->wikiname, $sprint->sprint_assembla_id, $queryParams);
+            $tickets = $this->assemblaGateway->getTicketsForMilestone($project->wikiname, $sprint->sprint_assembla_id, $queryParams);
 
-            if ($response->getStatusCode() == 200) {
+            if ($tickets) {
                 Log::info('[Ticket Importer] Response 200 for page '.$page);
                 $queryParams['page'] = ++$page;
-                $result = json_decode($response->getBody()->getContents(), 1);
-                foreach ($result as $ticketData) {
-                    $ticketDto = new TicketDto($ticketData);
+
+                foreach ($tickets as $ticketDto) {
                     if (!Ticket::ticketExists($ticketDto->getTicketAssemblaId())) {
                         Log::info('[Ticket Importer] about to create ticket '.$ticketDto->getNumber());
                         $this->_createTicketFromDTO($ticketDto, $sprint, $project);
@@ -52,30 +51,16 @@ class TicketImporter
             } else {
                 break;
             }
-        } while(count($result) === AssemblaRequest::PER_PAGE);
+        } while(count($tickets) === AssemblaRequest::PER_PAGE);
         Log::info('[Ticket Importer] Ended');
     }
 
     private function _createTicketFromDTO(TicketDto $ticketDto, $sprint, $project)
     {
-        $ticket = Ticket::create([
-            'project_id' => $project->id,
-            'name' => $ticketDto->getSummary(),
-            'number' => $ticketDto->getNumber(),
-            'status' => $ticketDto->getStatus(),
-            'state' => $ticketDto->getState(),
-            'ticket_assembla_id' => $ticketDto->getTicketAssemblaId(),
-            'is_story' => $ticketDto->isStory(),
-            'story_points' => $ticketDto->getComplexity(),//TODO this mapping needs to be configurable (story_points)
-            'total_invested_hours' => $ticketDto->getTotalInvestedHours(),
-            'worked_hours' => $ticketDto->getWorkedHours(),
-            'started_at' => $this->_getParsedDate($ticketDto->getCreatedOn()),//todo started on is not real
-            'created_at' => $this->_getParsedDate($ticketDto->getCreatedOn()),
-            'completed_at' => $this->_getParsedDate($ticketDto->getCompletedDate()),
-        ]);
+        $ticket = TicketMapper::createTicketFromDTO($ticketDto, $project);
         Log::info("Ticket created {$ticketDto->getNumber()} {$ticketDto->getStatus()} {$ticketDto->getCompletedDate()}".Carbon::parse($ticketDto->getCompletedDate()));
         Log::info('[Ticket Importer] adding ticket to sprint '.$ticketDto->getNumber());
-        $this->_addTicketToSprint($ticket, $sprint);
+        $sprint->tickets()->save($ticket);//adding ticket to sprint
 
         if ($ticket->is_story) {
             Log::info('[Ticket Importer] ticket associations '.$ticketDto->getNumber());
@@ -83,29 +68,19 @@ class TicketImporter
         }
     }
 
-    private function _getParsedDate($date)
-    {
-        if (strlen($date)) {
-            $date = Carbon::parse($date);
-        }
-
-        return $date;
-    }
-
-    private function _addTicketToSprint($ticket, $sprint)
-    {
-        $sprint->tickets()->save($ticket);
-    }
 
     private function _validateTicketAssociations($userStory, $project)
     {
         $response = $this->assemblaGateway->getTicketAssociationsBySpaceAndNumber($project->wikiname, $userStory->number);
         if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);
+            $result = json_decode($response->getBody()->getContents(), 1);//TODO move this to assembla gateway
             foreach ($result as $association) {
                 if ($association['relationship'] === AssemblaGateway::STORY_RELATION) {
+                    Log::info('[Ticket Importer] retrieving ticket by association '.$association['ticket1_id']);
                     $subtask = Ticket::getTicketByAssemblaId($association['ticket1_id']);
-                    $userStory->subtasks()->save($subtask,['relationship' => $association['relationship']]);
+                    if (!is_null($subtask)) {
+                        $userStory->subtasks()->save($subtask,['relationship' => $association['relationship']]);
+                    }//TODO subtask was on a different milestone so it was not created and is not found
                 }
             }
         }
@@ -118,25 +93,11 @@ class TicketImporter
     {
         Log::info('[Ticket Importer] about to retrieve tracked time for ticket '.$ticketId);
         $queryParams = ['ticket_ids' => $ticketId];
-        $response = $this->assemblaGateway->getTrackedTimeForTicket($queryParams);
-        if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);
-            foreach ($result as $trackedTime) {
-                $ticketTimeDto = new TicketTimeDto($trackedTime);
+        $tasks = $this->assemblaGateway->getTrackedTimeForTicket($queryParams);
+        if ($tasks) {
+            foreach ($tasks as $ticketTimeDto) {
                 Log::info("[Ticket Importer] tracking time {$ticketTimeDto->getTicketNumber()} {$ticketTimeDto->getHours()}");
-                TicketTime::create([
-                    'description' => $ticketTimeDto->getDescription(),
-                    'hours' => $ticketTimeDto->getHours(),
-                    'begin_at' => $this->_getParsedDate($ticketTimeDto->getBeginAt()),
-                    'end_at' => $this->_getParsedDate($ticketTimeDto->getEndAt()),
-                    'ticket_time_assembla_id' => $ticketTimeDto->getTicketTimeAssemblaId(),
-                    'ticket_number' => $ticketTimeDto->getTicketNumber(),
-                    'ticket_assembla_id' => $ticketTimeDto->getTicketAssemblaId(),
-                    'project_assembla_id' => $ticketTimeDto->getProjectAssemblaId(),
-                    'user_assembla_id' => $ticketTimeDto->getUserAssemblaId(),
-                    'created_at' => $this->_getParsedDate($ticketTimeDto->getCreatedAt()),
-                    'updated_at' => $this->_getParsedDate($ticketTimeDto->getUpdatedAt()),
-                ]);
+                TicketTimeMapper::createTicketTimeFromDTO($ticketTimeDto);
             }
         }
     }

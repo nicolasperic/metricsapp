@@ -2,7 +2,7 @@
 
 namespace App\Importer;
 
-use App\Dto\ProjectDto;
+use App\Dto\Mapper\ProjectMapper;
 use App\Integration\AssemblaGateway;
 use App\Project;
 use Illuminate\Support\Facades\Auth;
@@ -16,37 +16,22 @@ class ProjectImporter
     public function importAllAssemblaSpacesAsProjects()
     {
         $assemblaGateway = new AssemblaGateway();
-        $response = $assemblaGateway->getSpaces();
+        $spaces = $assemblaGateway->getSpaces();
 
-        if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);
-            foreach ($result as $spaceData) {
-                $projectDto = new ProjectDto($spaceData);
-
+        if ($spaces) {
+            foreach ($spaces as $projectDto) {
                 if (!Project::projectExists($projectDto->getProjectAssemblaId())) {
-                    $this->_createProjectFromDTO($projectDto);
+                    ProjectMapper::createProjectFromDTO($projectDto);
                 } elseif (!Auth::user()->hasProject($projectDto->getProjectAssemblaId())) {
-                    $project = Project::getProjectByAssemblaId($projectDto->getProjectAssemblaId());
-                    $this->_addProjectToUser($project);
+                    $this->_addProjectToUser($projectDto);
                 }
             }
         }
     }
 
-    private function _createProjectFromDTO(ProjectDto $projectDto)
+    private function _addProjectToUser($projectDto)
     {
-        $project = Project::create([
-            'name' => $projectDto->getName(),
-            'code' => 'TPJ',
-            'wikiname' => $projectDto->getWikiName(),
-            'project_assembla_id' => $projectDto->getProjectAssemblaId(),
-            'status' => $projectDto->getStatus(),
-        ]);
-        $this->_addProjectToUser($project);
-    }
-
-    private function _addProjectToUser($project)
-    {
+        $project = Project::getProjectByAssemblaId($projectDto->getProjectAssemblaId());
         Auth::user()->projects()->save($project);
     }
 

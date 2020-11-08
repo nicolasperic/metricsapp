@@ -2,6 +2,9 @@
 
 namespace App\Integration;
 
+use App\Dto\ProjectDto;
+use App\Dto\TicketDto;
+use App\Dto\TicketTimeDto;
 use GuzzleHttp\Exception\ClientException;
 
 class AssemblaGateway
@@ -21,6 +24,19 @@ class AssemblaGateway
     }
 
     /**
+     * Returns user profile.
+     * https://api-docs.assembla.cc/content/ref/user_show.html
+     *
+     * @param $userId
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function getUser($userId)
+    {
+        return AssemblaRequest::get("users/{$userId}");
+    }
+
+    /**
      * Get list of spaces user is participating to
      * https://api-docs.assembla.cc/content/ref/spaces_index.html
      *
@@ -28,7 +44,17 @@ class AssemblaGateway
      */
     public function getSpaces()
     {
-        return AssemblaRequest::get('spaces');
+        $spaces = false;
+        $response = AssemblaRequest::get("spaces");
+        if ($response->getStatusCode() == 200) {
+            $spaces = [];
+            $result = json_decode($response->getBody()->getContents(), 1);
+            foreach ($result as $spaceData) {
+                $spaces[] = new ProjectDto($spaceData);
+            }
+        }
+
+        return $spaces;
     }
 
     /**
@@ -40,7 +66,7 @@ class AssemblaGateway
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function getSpaceUsers($space)
-    {
+    {//TODO update this an all requests so they return DTO's instead of a response
         return AssemblaRequest::get("spaces/{$space}/users");
     }
 
@@ -81,11 +107,23 @@ class AssemblaGateway
      * @param $milestoneId
      * @param $queryParams array
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return array|bool array of tickets or false if request to API is not 200
      */
     public function getTicketsForMilestone($space, $milestoneId, $queryParams = [])
     {
-        return AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $queryParams);
+        $tickets = false;
+        $response = AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $queryParams);
+        if ($response->getStatusCode() == 200) {
+            $tickets = [];
+            $result = json_decode($response->getBody()->getContents(), 1);
+            foreach ($result as $ticketData) {
+                $tickets[] = new TicketDto($ticketData);
+            }
+        }
+
+
+        //return AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $queryParams);
+        return $tickets;
     }
 
     /**
@@ -98,7 +136,18 @@ class AssemblaGateway
      */
     public function getTrackedTimeForTicket($queryParams)
     {
-        return AssemblaRequest::get("tasks", $queryParams);
+
+        $tasks = false;
+        $response = AssemblaRequest::get("tasks", $queryParams);
+        if ($response->getStatusCode() == 200) {
+            $tasks = [];
+            $result = json_decode($response->getBody()->getContents(), 1);
+            foreach ($result as $trackedTimeData) {
+                $tasks[] = new TicketTimeDto($trackedTimeData);
+            }
+        }
+
+        return $tasks;
     }
 
     /**
