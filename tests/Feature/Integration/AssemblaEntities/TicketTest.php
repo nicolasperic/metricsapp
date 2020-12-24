@@ -18,16 +18,12 @@ class TicketTest
     {
         $assemblaGateway = new AssemblaGateway();
 
-        $response = $assemblaGateway->getTicketBySpaceAndNumber('sommiercenter', '1022');
-        //sommiercenter canaldeautopartes cemaco AD-Barbieri pinturerias-rex Grupo-Grassi
-        //$response = $assemblaGateway->getTicketBySpaceAndNumber('Grupo-Grassi', '7');
-        $bodyContents = json_decode($response->getBody()->getContents(), 1);
-        //dd($bodyContents);
+        /** @var TicketDto $ticketDto */
+        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber('sommiercenter', '1022');
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(1022, $bodyContents['number']);
-        $this->assertEquals('[US] MSI Estrategia de Rollback', $bodyContents['summary']);
-        $this->assertEquals('Sommier Center', $bodyContents['space_name']);
+        $this->assertEquals(1022, $ticketDto->getNumber());
+        $this->assertEquals('[US] MSI Estrategia de Rollback', $ticketDto->getSummary());
+        $this->assertEquals('Sommier Center', $ticketDto->getSpaceName());
 
     }
 
@@ -35,10 +31,11 @@ class TicketTest
     function can_validate_a_ticket_exists_by_space_and_number()
     {
         $assemblaGateway = new AssemblaGateway();
+        /** @var TicketDto $existingTicket */
         $existingTicket = $assemblaGateway->validateTicketExistsBySpaceAndNumber('sommiercenter', '1022');
         $notExistingTicket = $assemblaGateway->validateTicketExistsBySpaceAndNumber('sommiercenter', '12341234');
 
-        $this->assertEquals(1022, $existingTicket['number']);
+        $this->assertEquals(1022, $existingTicket->getNumber());
         $this->assertEquals(false, $notExistingTicket);
     }
 
@@ -47,14 +44,17 @@ class TicketTest
     {
         $assemblaGateway = new AssemblaGateway();
 
+        /** @var TicketDto $existingTicketSubtask */
         $existingTicketSubtask = $assemblaGateway->validateTicketExistsBySpaceAndNumber('sommiercenter', '1023', ['is_story' => false]);
+        /** @var TicketDto $existingTicketUS */
         $existingTicketUS = $assemblaGateway->validateTicketExistsBySpaceAndNumber('sommiercenter', '1022', ['is_story' => true]);
+        /** @var TicketDto $existingTicketNotUS */
         $existingTicketNotUS = $assemblaGateway->validateTicketExistsBySpaceAndNumber('sommiercenter', '1024', ['is_story' => true]);
 
-        $this->assertEquals(1023, $existingTicketSubtask['number']);
-        $this->assertEquals(false, $existingTicketSubtask['is_story']);
-        $this->assertEquals(1022, $existingTicketUS['number']);
-        $this->assertEquals(true, $existingTicketUS['is_story']);
+        $this->assertEquals(1023, $existingTicketSubtask->getNumber());
+        $this->assertEquals(false, $existingTicketSubtask->isStory());
+        $this->assertEquals(1022, $existingTicketUS->getNumber());
+        $this->assertEquals(true, $existingTicketUS->isStory());
         $this->assertEquals(false, $existingTicketNotUS);
     }
 
@@ -63,12 +63,8 @@ class TicketTest
     {
         $assemblaGateway = new AssemblaGateway();
 
-        $response = $assemblaGateway->getTicketBySpaceAndNumber('sommiercenter', '1578');
-        $responseData = json_decode($response->getBody()->getContents(), 1);
+        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber('sommiercenter', '1578');
 
-        $ticketDto = new TicketDto($responseData);
-
-        $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(1578, $ticketDto->getNumber());
         $this->assertEquals('[US] Análisis Integración con Producteca', $ticketDto->getSummary());
         $this->assertEquals('Sommier Center', $ticketDto->getSpaceName());

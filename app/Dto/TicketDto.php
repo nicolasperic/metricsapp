@@ -195,6 +195,14 @@ class TicketDto
     }
 
     /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->getNumber().' '.$this->getSummary();
+    }
+
+    /**
      * @param mixed $summary
      */
     public function setSummary($summary)

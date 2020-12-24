@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
 use App\Project;
 use App\TicketTime;
@@ -24,11 +25,12 @@ class TasksTimerController extends Controller
     public function store()
     {
         $this->validateRequest();
+        /** @var TicketDto $validTicket */
         $validTicket = $this->validateTicket();
 
         if ($validTicket !== false) {
             TicketTime::create([
-                'description' => $validTicket['summary'],
+                'description' => $validTicket->getSummary(),
                 'begin_at' => Carbon::now(),
                 'ticket_number' => request('ticket_number'),
                 'project_assembla_id' => request('project'),

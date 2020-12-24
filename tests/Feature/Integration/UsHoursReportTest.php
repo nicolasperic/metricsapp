@@ -3,6 +3,7 @@
 namespace Tests\Feature\Integration;
 
 
+use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use Illuminate\Support\Facades\Log;
@@ -77,7 +78,7 @@ class UsHoursReportTest extends TestCase
         $totalTasks = 0;
 
 
-        $from = '2020/12/01 00:00';
+        $from = '2020/12/23 00:00';
         $to = '2020/12/23 23:59';
         foreach ($projects as $wikiname => $spaceId) {
 
@@ -295,29 +296,34 @@ class UsHoursReportTest extends TestCase
     private function _retrieveAndSetTicketInformation($space, $ticketNumber)
     {
         $assemblaGateway = new AssemblaGateway();
-        $response = $assemblaGateway->getTicketBySpaceAndNumber($space, $ticketNumber);
+        /** @var TicketDto $ticketDto */
+        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber($space, $ticketNumber);
         $this->apicalls++;
 
-        if ($response->getStatusCode() == 200) {
-            $bodyContents = json_decode($response->getBody()->getContents(), 1);
-            $this->ticketsApiData[$bodyContents['id']] = [
-                'is_story' => $bodyContents['is_story'],
-                'description' => $bodyContents['number'].' '.$bodyContents['summary'],
-                'total_invested_hours' => $bodyContents['total_invested_hours']
+        if ($ticketDto !== false) {
+            $ticketId = $ticketDto->getTicketAssemblaId();
+            $ticketData = [
+                'description'           => $ticketDto->getDescription(),
+                'total_invested_hours'  => $ticketDto->getTotalInvestedHours(),
+                'status'                => $ticketDto->getStatus(),
+                'hours'                 => 0,
+                'tasks'                 => 0,
+                'type'                  => ($ticketDto->getType())? $ticketDto->getType() : 'Empty'
+            ];
+            $this->ticketsApiData[$ticketId] = [
+                'is_story' => $ticketDto->isStory(),
+                'description' => $ticketDto->getDescription(),
+                'total_invested_hours' => $ticketDto->getTotalInvestedHours()
             ];
 
-            if ($bodyContents['is_story'] && !array_key_exists($bodyContents['id'], $this->userStories)) {
-                $this->userStories[$bodyContents['id']]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
-                $this->userStories[$bodyContents['id']]['total_invested_hours'] = $bodyContents['total_invested_hours'];
-                $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
-                $this->userStories[$bodyContents['id']]['hours'] = 0;
-                $this->userStories[$bodyContents['id']]['tasks'] = 0;
-                $this->userStories[$bodyContents['id']]['type'] = self::_getTicketType($bodyContents['custom_fields']);
+
+            if ($ticketDto->isStory() && !array_key_exists($ticketId, $this->userStories)) {
+                $this->userStories[$ticketId] = $ticketData;
             } else {
                 $userStoryId = $this->_retrieveTicketAssociation($space, $ticketNumber);
                 if ($userStoryId !== false) {
                     if (!array_key_exists($userStoryId, $this->userStories)) {
-                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}");
+                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}");//TODO create a function in AssemblaGateway for this endpoint
                         $this->apicalls++;
                         if ($response->getStatusCode() == 200) {
                             $bodyContents = json_decode($response->getBody()->getContents(), 1);
@@ -335,15 +341,10 @@ class UsHoursReportTest extends TestCase
                     }
 
                 } else {
-                    if (!array_key_exists($bodyContents['id'], $this->noUserStories)) {
+                    if (!array_key_exists($ticketId, $this->noUserStories)) {
                         //the task is not a user story neither a subtask since it has no association as subtask
-                        $this->noUserStories[$bodyContents['id']]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
-                        $this->noUserStories[$bodyContents['id']]['total_invested_hours'] = $bodyContents['total_invested_hours'];
-                        $this->noUserStories[$bodyContents['id']]['status'] = $bodyContents['status'];
-                        $this->noUserStories[$bodyContents['id']]['hours'] = 0;
-                        $this->noUserStories[$bodyContents['id']]['tasks'] = 0;
+                        $this->noUserStories[$ticketId] = $ticketData;
                     }
-
                 }
             }
         }

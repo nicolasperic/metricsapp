@@ -81,8 +81,16 @@ class AssemblaGateway
      */
     public function getTicketBySpaceAndNumber($space, $ticketNumber)
     {
-        return AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}");
+        $ticket = false;
 
+        $response = AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}");
+        if ($response->getStatusCode() == 200) {
+            $ticketData = json_decode($response->getBody()->getContents(), 1);
+            $ticket = new TicketDto($ticketData);
+        }
+
+        //return AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}");
+        return $ticket;
     }
 
     /**
@@ -176,20 +184,20 @@ class AssemblaGateway
     public function validateTicketExistsBySpaceAndNumber($space, $ticketNumber, $validateData = null)
     {
         try {
-            $response = self::getTicketBySpaceAndNumber($space, $ticketNumber);
-            if ($response->getStatusCode() === 200) {
-                $bodyContents = json_decode($response->getBody()->getContents(), 1);
-                if ($validateData !== null) {
-                    foreach ($validateData as $input => $value) {
-                        if ($bodyContents[$input] != $value) {
-                            return false;
-                        }
+            /** @var TicketDto $ticketDto */
+            $ticketDto = self::getTicketBySpaceAndNumber($space, $ticketNumber);
+
+            if ($validateData !== null) {
+                foreach ($validateData as $input => $value) {
+                    if ($ticketDto->getResponseData()[$input] != $value) {
+                        return false;
                     }
-                    return $bodyContents;
-                } else {
-                    return $bodyContents;
                 }
+                return $ticketDto;
+            } else {
+                return $ticketDto;
             }
+
         } catch (ClientException $exception) {
             return false;
         }
