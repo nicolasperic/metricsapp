@@ -20,6 +20,8 @@ class UsHoursReportTest extends TestCase
     //^ de no tener asociacion subtask_id -> false
     private $ticketsApiData;//info solicitada a la API
 
+    private $typePercentages;//mantener % de horas y cantidad por tipo de US
+
     private $apicalls = 0;
     /** @test */
     function can_get_projects_time_by_user_story()
@@ -63,7 +65,7 @@ class UsHoursReportTest extends TestCase
             //'canaldeautopartes' => 'dpT43eCVCr54kBacwqjQYw',
             //'cemaco' => 'dKs4GwzB8r4Pz7acwqjQYw',
             //'pinturerias-rex' => 'atJlRad84r55JcacwqjQXA',
-           // 'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
+            //'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
             //'summa-internal-projects' => 'bPFF_gQfWr4PjCacwqjQWU',
             'Grupo-Grassi' => 'dTomygY3Gr6P7dbK8JiBFu'
         ];
@@ -75,8 +77,8 @@ class UsHoursReportTest extends TestCase
         $totalTasks = 0;
 
 
-        $from = '2020/07/01 00:00';
-        $to = '2020/11/30 23:59';
+        $from = '2020/12/01 00:00';
+        $to = '2020/12/23 23:59';
         foreach ($projects as $wikiname => $spaceId) {
 
             $page = 1;
@@ -211,14 +213,22 @@ class UsHoursReportTest extends TestCase
         print 'User Stories'.PHP_EOL;
         print '======================================================'.PHP_EOL;
 
+        $this->typePercentages = [];// Type => hours; count; hours/percentage (sobre total stories hours); count/percentage (sobre total stories)
         ksort($this->userStories);
-        print 'ticket,total_hours, hours, tasks, status'.PHP_EOL;
+        $userStoriesTotalHours = 0;
+        print 'ticket,total_hours, hours, tasks, status, type'.PHP_EOL;
         foreach ($this->userStories as $id => $storyData) {
-            print $storyData['description'].', '.$storyData['total_invested_hours'].', '.$storyData['hours'].', '.$storyData['tasks'].', '.$storyData['status'].PHP_EOL;
+            print $storyData['description'].', '.$storyData['total_invested_hours'].', '.$storyData['hours'].', '.$storyData['tasks'].', '.$storyData['status'].', '.$storyData['type'].PHP_EOL;
+            $userStoriesTotalHours += $storyData['hours'];
+
+            self::_keepTrackOfTypeData($storyData);
         }
+
+        print PHP_EOL.'User Stories Total Hours: '.$userStoriesTotalHours.PHP_EOL;
         //print print_r($this->userStories, 1).PHP_EOL;
         //print print_r($this->noUserStories, 1).PHP_EOL;
 
+        $noUserStoriesTotalHours = 0;
         if (count($this->noUserStories)) {
             print '======================================================'.PHP_EOL;
             print 'Tasks (not a User Story)'.PHP_EOL;
@@ -227,11 +237,15 @@ class UsHoursReportTest extends TestCase
             print 'ticket,total_hours, hours, tasks, status'.PHP_EOL;
             foreach ($this->noUserStories as $id => $ticketData) {
                 print $ticketData['description'].', '.$ticketData['total_invested_hours'].', '.$ticketData['hours'].', '.$ticketData['tasks'].', '.$ticketData['status'].PHP_EOL;
+                $noUserStoriesTotalHours += $ticketData['hours'];
             }
+
+            print PHP_EOL.'Tasks (not a User Story) Total Hours: '.$noUserStoriesTotalHours.PHP_EOL;
         }
 
 
 
+        $withoutTicketTotalHours = 0;
         if (count($this->withoutTicket)) {
             //print print_r($this->withoutTicket, 1).PHP_EOL;
 
@@ -239,12 +253,30 @@ class UsHoursReportTest extends TestCase
             print ' Tracked time without ticket'.PHP_EOL;
             print '======================================================'.PHP_EOL;
             print 'username, hours, tasks'.PHP_EOL;
+
             foreach ($this->withoutTicket as $userId => $data) {
                 $username = (array_key_exists($userId, $users))?$users[$userId]: $userId;
                 print $username.','.$data['hours'].','.$data['tasks'].PHP_EOL;
+                $withoutTicketTotalHours += $data['hours'];
             }
+
+            print PHP_EOL.'Tracked time without ticket Total Hours: '.$withoutTicketTotalHours.PHP_EOL;
         }
 
+
+        print PHP_EOL;
+        foreach ($this->typePercentages as $type => $typeData) {
+            $typeTotalHours = $this->typePercentages[$type]['total_hours'];
+            $typeTotalTickets = $this->typePercentages[$type]['total_tickets'];
+
+            $typeTotalHoursPercentage =  ($userStoriesTotalHours != 0)?number_format(($typeTotalHours / $userStoriesTotalHours) * 100, 2) : 0;
+            $typeTotalTicketsPercentage = (count($this->userStories) != 0)?  number_format(($typeTotalTickets/ count($this->userStories)) * 100, 2) : 0;
+
+            print str_pad($type, 20)."\t\t".$typeTotalTickets.' user stories ('.$typeTotalTicketsPercentage.'%)'.PHP_EOL;
+            print str_pad('', 20)."\t\t".$typeTotalHours.' horas ('.$typeTotalHoursPercentage.'%)'.PHP_EOL;
+        }
+
+        print PHP_EOL.'Total Tracked Time '.$totalHours.' vs Total Hours per section (all added) '.($userStoriesTotalHours+$noUserStoriesTotalHours+$withoutTicketTotalHours).PHP_EOL;
 
         $endTime = time();
         $minutes = round(($endTime - $startTime)/60, 2);
@@ -280,6 +312,7 @@ class UsHoursReportTest extends TestCase
                 $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
                 $this->userStories[$bodyContents['id']]['hours'] = 0;
                 $this->userStories[$bodyContents['id']]['tasks'] = 0;
+                $this->userStories[$bodyContents['id']]['type'] = self::_getTicketType($bodyContents['custom_fields']);
             } else {
                 $userStoryId = $this->_retrieveTicketAssociation($space, $ticketNumber);
                 if ($userStoryId !== false) {
@@ -294,6 +327,7 @@ class UsHoursReportTest extends TestCase
                                 $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
                                 $this->userStories[$bodyContents['id']]['hours'] = 0;
                                 $this->userStories[$bodyContents['id']]['tasks'] = 0;
+                                $this->userStories[$bodyContents['id']]['type'] = self::_getTicketType($bodyContents['custom_fields']);
                             } else {
                                 dd('hmm it has a subtask but is not a user story??');
                             }
@@ -315,6 +349,30 @@ class UsHoursReportTest extends TestCase
         }
     }
 
+    private function _getTicketType($customFields)
+    {
+        $type = 'Empty';
+        if (array_key_exists('Type',$customFields) && trim($customFields['Type']) != '') {
+            $type = $customFields['Type'];
+        }
+
+        return $type;
+    }
+
+    private function _keepTrackOfTypeData($storyData)
+    {
+        $type = $storyData['type'];
+
+        if (!array_key_exists($type, $this->typePercentages)) {
+            $this->typePercentages[$type] = [
+                'total_hours' => 0,
+                'total_tickets' => 0,
+            ];
+        }
+
+        $this->typePercentages[$type]['total_hours'] += $storyData['hours'];
+        $this->typePercentages[$type]['total_tickets'] += 1;
+    }
 
     private function _retrieveTicketAssociation($space, $ticketNumber)
     {
@@ -350,6 +408,7 @@ class UsHoursReportTest extends TestCase
             // 'ajLyFEiVir6A3ccK-zJOy8' => 'Federico Ackerley',
             'buOwlo1uer45NdacwqjQWU' => 'Martín Granate',
             'aAbtrS7fKr6y_dcP_HzTya' => 'Barbara Irizaga',
+            'dDTcSCiNSr64ojaIC_Qgzw' => 'Julián García',
         ];
         $users = [
             'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',
@@ -375,6 +434,7 @@ class UsHoursReportTest extends TestCase
             'dzBlqaLhKr5O16acwqEsg8' => 'Esteban Campos',
             'arrHT2RRer54rQdmr6QqzO' => 'Mariana Rodriguez',
             'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
+            'dDTcSCiNSr64ojaIC_Qgzw' => 'Julián García',
         ];
         $projects = [
             'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
@@ -391,8 +451,8 @@ class UsHoursReportTest extends TestCase
         $totalTasks = 0;
         $projectHours = array();
 
-        $from = '2020/10/26 00:00';
-        $to = '2020/10/31 23:59';
+        $from = '2020/12/14 00:00';
+        $to = '2020/12/20 23:59';
         foreach ($projects as $wikiname => $spaceId) {
 
             $page = 1;
