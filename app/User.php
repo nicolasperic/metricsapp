@@ -43,6 +43,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Sprint::class);
     }
 
+    public function getOpenSprints()
+    {
+        return $this->sprints()->open();
+    }
+
+    public function getClosedSprints()
+    {
+        return $this->sprints()->closed();
+    }
+
     public function projects()
     {
         return $this->belongsToMany(Project::class);

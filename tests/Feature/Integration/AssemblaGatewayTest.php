@@ -20,7 +20,7 @@ class AssemblaGatewayTest
 
 
     /**
-     * @test define assets for this test
+     * TODO define assets for can_list_all_spaces test
      */
     function can_list_all_spaces()
     {

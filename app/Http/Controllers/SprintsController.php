@@ -11,7 +11,8 @@ class SprintsController extends Controller
     public function index()
     {
         return view('sprints.index', [
-            'sprints' => Auth::user()->sprints,
+            'openSprints' => Auth::user()->getOpenSprints,
+            'closedSprints' => Auth::user()->getClosedSprints,
         ]);
     }
 

@@ -2,7 +2,10 @@
 
 namespace App\Integration;
 
+use App\Dto\AssemblaUserDto;
 use App\Dto\ProjectDto;
+use App\Dto\SprintDto;
+use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Dto\TicketTimeDto;
 use GuzzleHttp\Exception\ClientException;
@@ -20,7 +23,30 @@ class AssemblaGateway
      */
     public function getAuthenticatedUser()
     {
-        return AssemblaRequest::get('user');
+        $user = false;
+        $response =  AssemblaRequest::get('user');
+        if ($response->getStatusCode() == 200) {
+            $userData = json_decode($response->getBody()->getContents(), 1);
+            $user = new AssemblaUserDto($userData);
+
+        }
+
+        return $user;
+    }
+
+    /**
+     * Returns user image
+     * https://api-docs.assembla.cc/content/ref/users_picture.html
+     *
+     * @param $userId
+     *
+     * @return string
+     */
+    public function getUserImage($userId)
+    {
+        $response = AssemblaRequest::get('users/'.$userId.'/picture');
+
+        return $response->getHeaderLine('X-Guzzle-Redirect-History');
     }
 
     /**
@@ -33,7 +59,14 @@ class AssemblaGateway
      */
     public function getUser($userId)
     {
-        return AssemblaRequest::get("users/{$userId}");
+        $user = false;
+        $response = AssemblaRequest::get("users/{$userId}");
+        if ($response->getStatusCode() == 200) {
+            $userData = json_decode($response->getBody()->getContents(), 1);
+            $user = new AssemblaUserDto($userData);
+        }
+        
+        return $user;
     }
 
     /**
@@ -66,8 +99,17 @@ class AssemblaGateway
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function getSpaceUsers($space)
-    {//TODO update this an all requests so they return DTO's instead of a response
-        return AssemblaRequest::get("spaces/{$space}/users");
+    {
+        $spaceUsers = false;
+        $response = AssemblaRequest::get("spaces/{$space}/users");
+        if ($response->getStatusCode() == 200) {
+            $spaceUsers = [];
+            $result = json_decode($response->getBody()->getContents(), 1);
+            foreach ($result as $spaceUserData) {
+                $spaceUsers[] = new AssemblaUserDto($spaceUserData);
+            }
+        }
+        return $spaceUsers;
     }
 
     /**
@@ -104,7 +146,16 @@ class AssemblaGateway
      */
     public function getTicketAssociationsBySpaceAndNumber($space, $ticketNumber)
     {
-        return AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}/ticket_associations");
+        $ticketAssociations = false;
+        $response = AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}/ticket_associations");
+        if ($response->getStatusCode() == 200) {
+            $result = json_decode($response->getBody()->getContents(), 1);
+            foreach ($result as $associationData) {
+                $ticketAssociations[] = new TicketAssociationDto($associationData);
+            }
+        }
+        //print count($ticketAssociations).PHP_EOL;
+        return $ticketAssociations;
     }
 
     /**
@@ -144,6 +195,7 @@ class AssemblaGateway
      */
     public function getTrackedTimeForTicket($queryParams)
     {
+        //TODO generar nuevo getTrackedTime() para sobregarcargar en esta función
 
         $tasks = false;
         $response = AssemblaRequest::get("tasks", $queryParams);
@@ -168,7 +220,16 @@ class AssemblaGateway
      */
     public function getMilestonesForSpace($space)
     {
-        return AssemblaRequest::get("spaces/{$space}/milestones");
+        $milestones = false;
+        $response = AssemblaRequest::get("spaces/{$space}/milestones/all");//todo this endpoint only returns open milestones > /milestones/all will return all milestones
+        if ($response->getStatusCode() == 200) {
+            $result = json_decode($response->getBody()->getContents(), 1);
+
+            foreach ($result as $milestoneData) {
+                $milestones[] = new SprintDto($milestoneData);
+            }
+        }
+        return $milestones;
     }
 
     /**

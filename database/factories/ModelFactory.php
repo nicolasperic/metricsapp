@@ -30,6 +30,8 @@ $factory->define(User::class, function (Faker $faker) {
         'email_verified_at' => now(),
         'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
         'remember_token' => Str::random(10),
+        'assembla_key'=>'TEST',
+        'assembla_secret' => 'TEST'
     ];
 });
 
@@ -93,6 +95,7 @@ $factory->define(Sprint::class, function (Faker $faker) {
         'name' => 'Sprint 1',
         'start_date' => Carbon::parse('4 days ago'),
         'end_date' => Carbon::parse('+5 days'),
+        'is_active' => 1,
     ];
 });
 

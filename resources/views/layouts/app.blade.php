@@ -17,7 +17,7 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-
+    @yield('head')
 </head>
 
 <body id="page-top">
@@ -47,15 +47,15 @@
         </li>
 
         <!-- Divider -->
-        <hr class="sidebar-divider">
+        <!-- hr class="sidebar-divider" -->
 
         <!-- Heading -->
-        <div class="sidebar-heading">
+        <!-- div class="sidebar-heading">
             Interface
-        </div>
+        </div -->
 
         <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
+        <!-- li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-cog"></i>
                 <span>Components</span>
@@ -67,10 +67,10 @@
                     <a class="collapse-item" href="cards.html">Cards</a>
                 </div>
             </div>
-        </li>
+        </li -->
 
         <!-- Nav Item - Utilities Collapse Menu -->
-        <li class="nav-item">
+        <!-- li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
                 <i class="fas fa-fw fa-wrench"></i>
                 <span>Utilities</span>
@@ -84,49 +84,71 @@
                     <a class="collapse-item" href="utilities-other.html">Other</a>
                 </div>
             </div>
-        </li>
+        </li -->
 
         <!-- Divider -->
         <hr class="sidebar-divider">
 
         <!-- Heading -->
         <div class="sidebar-heading">
-            Addons
+            Menu
         </div>
 
         <!-- Nav Item - Pages Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link Notcollapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
+            <a class="nav-link Notcollapsed" href="#" data-toggle="collapse" data-target="#collapseProjects" aria-expanded="true" aria-controls="collapseProjects">
                 <i class="fas fa-fw fa-folder"></i>
                 <span>Projects</span>
             </a>
-            <div id="collapsePages" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div id="collapseProjects" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Starred:</h6>
+                    <!--h6 class="collapse-header">Starred:</h6>
                     <a class="collapse-item" href="login.html">Login</a>
                     <a class="collapse-item" href="register.html">Register</a>
-                    <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
+                    <a class="collapse-item" href="forgot-password.html">Forgot Password</a-->
                     <div class="collapse-divider"></div>
-                    <h6 class="collapse-header">Other Pages:</h6>
-                    <a class="collapse-item" href="{{url('/projects')}} ">All projects</a>
-                    <a class="collapse-item" href="blank.html">Blank Page</a>
+                    <!--h6 class="collapse-header">Starred:</h6 -->
+                    <a class="collapse-item" href="{{url('/projects')}} ">All Projects</a>
+                    <!-- a class="collapse-item" href="blank.html">Blank Page</a-->
+                    <h6 class="collapse-header">Starred Projects:</h6>
+                </div>
+            </div>
+        </li>
+
+        <!-- Nav Item - Pages Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link Notcollapsed" href="#" data-toggle="collapse" data-target="#collapseSprints" aria-expanded="true" aria-controls="collapseSprints">
+                <i class="fas fa-fw fa-folder"></i>
+                <span>Sprints</span>
+            </a>
+            <div id="collapseSprints" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <!--h6 class="collapse-header">Starred:</h6>
+                    <a class="collapse-item" href="login.html">Login</a>
+                    <a class="collapse-item" href="register.html">Register</a>
+                    <a class="collapse-item" href="forgot-password.html">Forgot Password</a-->
+                    <div class="collapse-divider"></div>
+                    <!--h6 class="collapse-header">Starred:</h6 -->
+                    <a class="collapse-item" href="{{url('/sprints')}} ">All Sprints</a>
+                    <!-- a class="collapse-item" href="blank.html">Blank Page</a-->
+                    <h6 class="collapse-header">Starred Sprints:</h6>
                 </div>
             </div>
         </li>
 
         <!-- Nav Item - Charts -->
-        <li class="nav-item">
+        <!--li class="nav-item">
             <a class="nav-link" href="charts.html">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>Charts</span></a>
-        </li>
+        </li -->
 
         <!-- Nav Item - Tables -->
-        <li class="nav-item">
+        <!-- li class="nav-item">
             <a class="nav-link" href="tables.html">
                 <i class="fas fa-fw fa-table"></i>
                 <span>Tables</span></a>
-        </li>
+        </li -->
 
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
@@ -189,13 +211,13 @@
                     </li>
 
                     <!-- Nav Item - Alerts -->
-                    <li class="nav-item dropdown no-arrow mx-1">
+                    <!-- li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-bell fa-fw"></i>
-                            <!-- Counter - Alerts -->
+                            <!-- Counter - Alerts >
                             <span class="badge badge-danger badge-counter">3+</span>
                         </a>
-                        <!-- Dropdown - Alerts -->
+                        <!-- Dropdown - Alerts -
                         <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
                             <h6 class="dropdown-header">
                                 Alerts Center
@@ -235,16 +257,16 @@
                             </a>
                             <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
                         </div>
-                    </li>
+                    </li -->
 
                     <!-- Nav Item - Messages -->
-                    <li class="nav-item dropdown no-arrow mx-1">
+                    <!-- li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-envelope fa-fw"></i>
-                            <!-- Counter - Messages -->
+                            <!-- Counter - Messages >
                             <span class="badge badge-danger badge-counter">7</span>
                         </a>
-                        <!-- Dropdown - Messages -->
+                        <!-- Dropdown - Messages >
                         <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="messagesDropdown">
                             <h6 class="dropdown-header">
                                 Message Center
@@ -291,7 +313,7 @@
                             </a>
                             <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
                         </div>
-                    </li>
+                    </li -->
 
                     <div class="topbar-divider d-none d-sm-block"></div>
 
@@ -299,7 +321,7 @@
                     <li class="nav-item dropdown no-arrow">
 
                         @guest
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="{{ url('/login') }}" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">Login </span>
                         </a>
                         @else
@@ -313,18 +335,18 @@
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
+                                <!-- a class="dropdown-item" href="#">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
-                                </a>
+                                </a -->
                                 <a class="dropdown-item" href="{{ url('/settings') }}">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Settings
                                 </a>
-                                <a class="dropdown-item" href="#">
+                                <!-- a class="dropdown-item" href="#">
                                     <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Activity Log
-                                </a>
+                                </a -->
                                 <div class="dropdown-divider"></div>
 
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
@@ -343,6 +365,7 @@
 
             <!-- Begin Page Content -->
             <div class="container-fluid">
+                @yield('breadcrumbs')
 
                 @if(Session::has('message'))
                     <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{!! Session::get('message') !!}</p>
@@ -350,7 +373,7 @@
 
                 <!-- Page Heading -->
                 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                    <h1 class="h3 mb-0 text-gray-800">@yield('container-title','Dashboard')</h1>
+                    <h1 class="h3 mb-0 text-gray-800"><!--@yield('container-title','Dashboard')--></h1>
                     <a href="{{ url('/reports') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Reports</a>
                 </div>
 

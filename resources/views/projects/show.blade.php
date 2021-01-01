@@ -1,15 +1,18 @@
 @extends('layouts.app')
 
+@section('breadcrumbs',  Breadcrumbs::render('projects.show', $project))
+
 @section('container-title', $project->name . ' Milestones')
 
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">{{ $project->name }}
+                <div class="card shadow mb-12">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ $project->name }}</h6>
                         <a href="{{url("users/importUsers/{$project->id}")}}" style="float:right;">Import Users</a>
-                        <a href="{{url("sprints/importSprints/{$project->id}")}}" style="float:right;">Import Milestones</a>
+                        <a href="{{url("sprints/importSprints/{$project->id}")}}" style="float:right;margin-right: 5px;">Import Milestones</a>
                     </div>
 
                     <div class="card-body">
@@ -21,7 +24,7 @@
 
                         Open Milestones:
                         <ul>
-                            @forelse ($project->sprints as $sprint)
+                            @forelse ($project->getOpenSprints as $sprint)
                                 <li>
                                     <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>
                                 </li>
@@ -32,7 +35,35 @@
                             @endforelse
                         </ul>
 
-                        Users:
+                        Closed Milestones:
+                        <ul>
+                            @forelse ($project->getClosedSprints as $sprint)
+                                <li>
+                                    <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>
+                                </li>
+
+
+                            @empty
+                                <p>No sprints assigned to this project yet.</p>
+                            @endforelse
+                        </ul>
+
+
+                        Assembla Team Members:
+                        <ul>
+                            @forelse ($project->assemblaUsers as $user)
+                                <li>
+                                    {{ $user->name }}
+                                </li>
+
+
+                            @empty
+                                <p>No assembla users imported yet.</p>
+                            @endforelse
+                        </ul>
+
+
+                        App Users:
                         <ul>
                             @forelse ($project->users as $user)
                                 <li>

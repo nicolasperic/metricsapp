@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 
+use App\Project;
 use App\Sprint;
 use App\User;
 use Carbon\Carbon;
@@ -57,9 +58,9 @@ class ViewSprintListingTest extends TestCase
 
         $response = $this->actingAs($user)->get('/sprints');
         $response->assertStatus(200);
-        $response->data('sprints')->assertContains($sprintA);
-        $response->data('sprints')->assertContains($sprintB);
-        $response->data('sprints')->assertContains($sprintC);
+        $response->data('openSprints')->assertContains($sprintA);
+        $response->data('openSprints')->assertContains($sprintB);
+        $response->data('openSprints')->assertContains($sprintC);
     }
 
     /** @test */
@@ -88,10 +89,10 @@ class ViewSprintListingTest extends TestCase
 
         $response = $this->actingAs($user)->get('/sprints');
         $response->assertStatus(200);
-        $response->data('sprints')->assertContains($sprintA);
-        $response->data('sprints')->assertContains($sprintB);
-        $response->data('sprints')->assertContains($sprintC);
-        $response->data('sprints')->assertNotContains($sprintD);
+        $response->data('openSprints')->assertContains($sprintA);
+        $response->data('openSprints')->assertContains($sprintB);
+        $response->data('openSprints')->assertContains($sprintC);
+        $response->data('openSprints')->assertNotContains($sprintD);
     }
 
 
@@ -100,9 +101,15 @@ class ViewSprintListingTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
+        $project =  factory(Project::class)->create([
+            'name' => 'Project Test 1',
+        ]);
+
         $sprint =  factory(Sprint::class)->create([
             'name' => 'Sprint Test 1',
         ]);
+
+        $project->sprints()->save($sprint);
 
         $user = factory(User::class)->create();
         $user->sprints()->save($sprint);

@@ -1,12 +1,14 @@
 @extends('layouts.app')
 
+@section('breadcrumbs',  Breadcrumbs::render('home'))
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">Dashboard</div>
-
+        <div class="col-md-12">
+            <div class="card shadow mb-12">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Dashboard</h6>
+                </div>
                 <div class="card-body">
                     @if (session('status'))
                         <div class="alert alert-success" role="alert">
@@ -14,25 +16,10 @@
                         </div>
                     @endif
 
-                    You are logged in! : )
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-12">
-            <div class="card shadow mb-12">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Dashboard</h6>
-                </div>
-                <div class="card-body">
                     You're logged in!
                 </div>
             </div>
         </div>
-
     </div>
-
-
-
 </div>
 @endsection

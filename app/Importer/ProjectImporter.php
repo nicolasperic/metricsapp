@@ -22,7 +22,9 @@ class ProjectImporter
             foreach ($spaces as $projectDto) {
                 if (!Project::projectExists($projectDto->getProjectAssemblaId())) {
                     ProjectMapper::createProjectFromDTO($projectDto);
-                } elseif (!Auth::user()->hasProject($projectDto->getProjectAssemblaId())) {
+                }
+
+                if (!Auth::user()->hasProject($projectDto->getProjectAssemblaId())) {
                     $this->_addProjectToUser($projectDto);
                 }
             }

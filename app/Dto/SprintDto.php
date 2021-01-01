@@ -57,7 +57,7 @@ class SprintDto
     {
         $data = $this->getResponseData();
         $this->setTitle($data['title']);
-        $this->setStatus($data['is_completed']);
+        $this->setStatus(!boolval($data['is_completed']));
         $this->setSprintAssemblaId($data['id']);
         $this->setProjectAssemblaId($data['space_id']);
     }

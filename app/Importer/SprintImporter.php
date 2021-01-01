@@ -16,13 +16,10 @@ class SprintImporter
     public function importProjectMilestonesAsSprints($project)
     {
         $assemblaGateway = new AssemblaGateway();
-        $response = $assemblaGateway->getMilestonesForSpace($project->wikiname);
+        $sprints = $assemblaGateway->getMilestonesForSpace($project->wikiname);
 
-        if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);//TODO move this to the assembla gateway
-            foreach ($result as $milestoneData) {
-                $sprintDto = new SprintDto($milestoneData);
-
+        if ($sprints !== false) {
+            foreach ($sprints as $sprintDto) {
                 if (!Sprint::sprintExists($sprintDto->getSprintAssemblaId())) {
                     $this->_createSprintFromDTO($sprintDto, $project);
                 } elseif (!Auth::user()->hasSprint($sprintDto->getSprintAssemblaId())) {

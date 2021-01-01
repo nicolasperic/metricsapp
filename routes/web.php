@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ForceAssemblaKeys;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,24 +18,31 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/reports', 'ReportsController@index')->name('reports.index')->middleware('auth');
-Route::post('/reports', 'ReportsController@store')->middleware('auth');
-Route::get('/tasks-timer', 'TasksTimerController@index')->name('taskstimer.index')->middleware('auth');
-Route::post('/tasks-timer', 'TasksTimerController@store')->middleware('auth');
-Route::get('/projects', 'ProjectsController@index')->name('projects.index')->middleware('auth');
-Route::get('/projects/importProjects', 'ProjectsController@importProjects')->name('projects.import')->middleware('auth');
-Route::get('/projects/{id}', 'ProjectsController@show')->name('projects.show')->middleware('auth');
-Route::get('/sprints', 'SprintsController@index')->name('sprints.index')->middleware('auth');
-Route::get('/sprints/importSprints/{projectId}', 'SprintsController@importSprints')->name('sprints.import')->middleware('auth');
-Route::get('/sprints/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
-Route::get('/tickets/importTickets/{sprintId}', 'TicketsController@importTickets')->name('tickets.import')->middleware('auth');
+
+Route::group(['middleware' => ForceAssemblaKeys::class], function () {
+    Route::get('/reports', 'ReportsController@index')->name('reports.index')->middleware('auth');
+    Route::post('/reports/hoursByUs', 'ReportsController@generateHoursByUsReport')->middleware('auth');
+    Route::post('/reports/hoursByUser', 'ReportsController@generateHoursByUserReport')->middleware('auth');
+    Route::get('/tasks-timer', 'TasksTimerController@index')->name('taskstimer.index')->middleware('auth');
+    Route::post('/tasks-timer', 'TasksTimerController@store')->middleware('auth');
+    Route::get('/projects', 'ProjectsController@index')->name('projects.index')->middleware('auth');
+    Route::get('/projects/importProjects', 'ProjectsController@importProjects')->name('projects.import')->middleware('auth');
+    Route::get('/projects/{id}', 'ProjectsController@show')->name('projects.show')->middleware('auth');
+    Route::get('/sprints', 'SprintsController@index')->name('sprints.index')->middleware('auth');
+    Route::get('/sprints/importSprints/{projectId}', 'SprintsController@importSprints')->name('sprints.import')->middleware('auth');
+    Route::get('/sprints/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
+    Route::get('/tickets/importTickets/{sprintId}', 'TicketsController@importTickets')->name('tickets.import')->middleware('auth');
+    Route::get('/users/importUsers/{userId}', 'UsersController@importUsers')->name('users.import')->middleware('auth');
+
+    Route::get('/home', 'HomeController@index')->name('home');
+});
+
 Route::get('/settings', 'SettingsController@index')->name('settings.index')->middleware('auth');
 Route::post('/settings', 'SettingsController@store')->middleware('auth');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
 
-Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+
+

@@ -35,7 +35,7 @@ class ProjectsController extends Controller
     public function importProjects()
     {
         $projectImporter = new ProjectImporter();
-        //TODO if the key and secret are invalid or not set we will get an exception
+
         try {
             $projectImporter->importAllAssemblaSpacesAsProjects();
 

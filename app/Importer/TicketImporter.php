@@ -2,6 +2,7 @@
 
 namespace App\Importer;
 
+use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Dto\Mapper\TicketMapper;
 use App\Dto\Mapper\TicketTimeMapper;
@@ -71,15 +72,15 @@ class TicketImporter
 
     private function _validateTicketAssociations($userStory, $project)
     {
-        $response = $this->assemblaGateway->getTicketAssociationsBySpaceAndNumber($project->wikiname, $userStory->number);
-        if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);//TODO move this to assembla gateway
-            foreach ($result as $association) {
-                if ($association['relationship'] === AssemblaGateway::STORY_RELATION) {
-                    Log::info('[Ticket Importer] retrieving ticket by association '.$association['ticket1_id']);
-                    $subtask = Ticket::getTicketByAssemblaId($association['ticket1_id']);
+        $ticketAssociations = $this->assemblaGateway->getTicketAssociationsBySpaceAndNumber($project->wikiname, $userStory->number);
+        if ($ticketAssociations !== false) {
+            /** @var TicketAssociationDto $association */
+            foreach ($ticketAssociations  as $association) {
+                if ($association->getRelationship() === AssemblaGateway::STORY_RELATION) {
+                    Log::info('[Ticket Importer] retrieving ticket by association '.$association->getTicket1Id());
+                    $subtask = Ticket::getTicketByAssemblaId($association->getTicket1Id());
                     if (!is_null($subtask)) {
-                        $userStory->subtasks()->save($subtask,['relationship' => $association['relationship']]);
+                        $userStory->subtasks()->save($subtask,['relationship' => $association->getRelationship()]);
                     }//TODO subtask was on a different milestone so it was not created and is not found
                 }
             }

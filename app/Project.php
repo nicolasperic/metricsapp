@@ -27,8 +27,24 @@ class Project extends Model
     {
         return $this->belongsToMany('App\Sprint');
     }
+
+    public function getOpenSprints()
+    {
+        return $this->sprints()->open();
+    }
+
+    public function getClosedSprints()
+    {
+        return $this->sprints()->closed();
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function assemblaUsers()
+    {
+        return $this->belongsToMany(AssemblaUser::class);
     }
 }
