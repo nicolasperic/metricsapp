@@ -26,7 +26,7 @@
 
                 <div class="card">
                     <div class="card-header">Hours by User Story Report</div>
-                    <form method="POST" action="/reports/hoursByUs" style="padding: 20px;">
+                    <form method="POST" action="{{url("reports/hoursByUs")}}" style="padding: 20px;">
                         @csrf
 
                         <div class="field">
@@ -87,7 +87,7 @@
 
                 <div class="card" style="margin-top: 20px;">
                     <div class="card-header">Hours by Users Report</div>
-                    <form method="POST" action="/reports/hoursByUser" style="padding: 20px;">
+                    <form method="POST" action="{{url("reports/hoursByUser")}}" style="padding: 20px;">
                         @csrf
 
                         <div class="field">
