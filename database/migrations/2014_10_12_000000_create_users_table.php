@@ -22,6 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('assembla_key')->nullable();
             $table->string('assembla_secret')->nullable();//TODO this value should be encrypted
             $table->string('assembla_user_image')->nullable();
+            $table->string('user_assembla_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

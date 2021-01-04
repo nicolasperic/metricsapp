@@ -294,105 +294,171 @@ var weeklyHoursChart = new Chart(ctx, {
 });
 
 
+//ONLY CHART WITH DYNAMIC DATASETS
+let userNames= [];
+let userHours = [];
+let userTasks = [];
+let userHoursDataset = [];
+let userColors = ['#1cc88a','#4e73df','#e74a3b','#f6c23e','#dbd8ce','#a947c4','#9B59B6','#2980B9','#F39C12','#16A085','#95A5A6','#D35400','#D35400','#F1C40F'];
+jQuery.each( timeReport['user_hours'], function( index, value ){
+    var userColor = userColors.shift();
+    userHoursDataset.push(
+        {
+            label: value['label'],
+            fill: false,
+            lineTension: 0.3,
+            backgroundColor: userColor,//"rgba(78, 115, 223, 1)",
+            borderColor: userColor,//"rgba(78, 115, 223, 1)",
+            pointRadius: 3,
+            pointBackgroundColor: userColor,//"rgba(78, 115, 223, 1)",
+            pointBorderColor: userColor,//"rgba(78, 115, 223, 1)",
+            pointHoverRadius: 3,
+            pointHoverBackgroundColor: userColor,//"rgba(78, 115, 223, 1)",
+            pointHoverBorderColor: userColor,//"rgba(78, 115, 223, 1)",
+            pointHitRadius: 10,
+            pointBorderWidth: 2,
+            data: value['hours']
+        }
+    );
+    userNames.push(value['label']);
+    userHours.push(value['hours']);
+    userTasks.push(value['tasks']);
 
+});
+
+console.log(userHoursDataset);
+//console.log(userNames);
+//console.log(userHours);
+
+/*
+
+ #FF5733 (rojo)
+ #2980B9 "esmeralda verde"
+ #F1C40F amarillo mostaza
+ #F39C12 naranja
+ #9B59B6 (violeta claro)
+ #95A5A6 gris oscuro
+ #D35400 naranja más oscuro
+ #16A085 verd más oscuro
+ #D35400 gris claro
+ #27AE60 otro verde
+ #8E44AD violeta oscuro
+ #34495E gris bien oscuro
+ #E67E22 naranja oscuro
+ #2ECC71 otro verde 2
+ #3498DB "esmeralda más azul"
+ #1ABC9C  verde claro
+DATASETS
+
+Diferentes
+label: user name ie: Nicolás
+data: array hours per month i.e [1.25, 20.5, 42.5]
+color!
+
+un solo color para >
+backgroundColor, borderColor, pointBackgroundColor, pointBorderColor, pointHoverBackgroundColor, pointHoverBorderColor
+Iguales
+fill: false; lineTension: 0.3, pointRadius: 3, pointHoverRadius: 3, pointHitRadius: 10, pointBorderWidth: 2
+ */
 var ctx = document.getElementById("userHoursChart");
 var myLineChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: ["Mayo", "Junio", "Julio"],
-        datasets: [{
-            label: "Nicolás",
-            fill: false,
-            lineTension: 0.3,
-            backgroundColor: "rgba(78, 115, 223, 1)",
-            borderColor: "rgba(78, 115, 223, 1)",
-            pointRadius: 3,
-            pointBackgroundColor: "rgba(78, 115, 223, 1)",
-            pointBorderColor: "rgba(78, 115, 223, 1)",
-            pointHoverRadius: 3,
-            pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-            pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-            pointHitRadius: 10,
-            pointBorderWidth: 2,
-            data: [1.25, 20.5, 42.5],
-        }, {
-            label: "Franco",
-            fill: false,
-            lineTension: 0.3,
-            backgroundColor: "#ff6384",
-            borderColor: "#ff6384",
-            pointRadius: 3,
-            pointBackgroundColor: "#ff6384",
-            pointBorderColor: "#ff6384",
-            pointHoverRadius: 3,
-            pointHoverBackgroundColor: "#ff6384",
-            pointHoverBorderColor: "#ff6384",
-            pointHitRadius: 10,
-            pointBorderWidth: 2,
-            data: [6, 0, 0],
-        }, {
-            label: "Barbara",
-            fill: false,
-            lineTension: 0.3,
-            backgroundColor: "#1cc88a",
-            borderColor: "#1cc88a",
-            pointRadius: 3,
-            pointBackgroundColor: "#1cc88a",
-            pointBorderColor: "#1cc88a",
-            pointHoverRadius: 3,
-            pointHoverBackgroundColor: "#1cc88a",
-            pointHoverBorderColor: "#1cc88a",
-            pointHitRadius: 10,
-            pointBorderWidth: 2,
-            data: [0, 4, 2.5],
-        }, {
-            label: "Elina",
-            fill: false,
-            lineTension: 0.3,
-            backgroundColor: "#36b9cc",
-            borderColor: "#36b9cc",
-            pointRadius: 3,
-            pointBackgroundColor: "#36b9cc",
-            pointBorderColor: "#36b9cc",
-            pointHoverRadius: 3,
-            pointHoverBackgroundColor: "#36b9cc",
-            pointHoverBorderColor: "#36b9cc",
-            pointHitRadius: 10,
-            pointBorderWidth: 2,
-            data: [0, 0, 0.5],
-        }, {
-            label: "Julieta",
-            fill: false,
-            lineTension: 0.3,
-            backgroundColor: "#f6c23e",
-            borderColor: "#f6c23e",
-            pointRadius: 3,
-            pointBackgroundColor: "#f6c23e",
-            pointBorderColor: "#f6c23e",
-            pointHoverRadius: 3,
-            pointHoverBackgroundColor: "#f6c23e",
-            pointHoverBorderColor: "#f6c23e",
-            pointHitRadius: 10,
-            pointBorderWidth: 2,
-            data: [0, 0, 5],
-        }, {
-            label: "Foco",
-            fill: false,
-            lineTension: 0.3,
-            backgroundColor: "#858796",
-            borderColor: "#858796",
-            pointRadius: 3,
-            pointBackgroundColor: "#858796",
-            pointBorderColor: "#858796",
-            pointHoverRadius: 3,
-            pointHoverBackgroundColor: "#858796",
-            pointHoverBorderColor: "#858796",
-            pointHitRadius: 10,
-            pointBorderWidth: 2,
-            data: [0, 0, 0.75],
-        },
-        ]
-
+        labels: monthLabels,//["Mayo", "Junio", "Julio"],
+        datasets: userHoursDataset
+/*
+* datasets: [{
+ label: "Nicolás",
+ fill: false,
+ lineTension: 0.3,
+ backgroundColor: "rgba(78, 115, 223, 1)",
+ borderColor: "rgba(78, 115, 223, 1)",
+ pointRadius: 3,
+ pointBackgroundColor: "rgba(78, 115, 223, 1)",
+ pointBorderColor: "rgba(78, 115, 223, 1)",
+ pointHoverRadius: 3,
+ pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+ pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+ pointHitRadius: 10,
+ pointBorderWidth: 2,
+ data: [1.25, 20.5, 42.5],
+ }, {
+ label: "Franco",
+ fill: false,
+ lineTension: 0.3,
+ backgroundColor: "#ff6384",
+ borderColor: "#ff6384",
+ pointRadius: 3,
+ pointBackgroundColor: "#ff6384",
+ pointBorderColor: "#ff6384",
+ pointHoverRadius: 3,
+ pointHoverBackgroundColor: "#ff6384",
+ pointHoverBorderColor: "#ff6384",
+ pointHitRadius: 10,
+ pointBorderWidth: 2,
+ data: [6, 0, 0],
+ }, {
+ label: "Barbara",
+ fill: false,
+ lineTension: 0.3,
+ backgroundColor: "#1cc88a",
+ borderColor: "#1cc88a",
+ pointRadius: 3,
+ pointBackgroundColor: "#1cc88a",
+ pointBorderColor: "#1cc88a",
+ pointHoverRadius: 3,
+ pointHoverBackgroundColor: "#1cc88a",
+ pointHoverBorderColor: "#1cc88a",
+ pointHitRadius: 10,
+ pointBorderWidth: 2,
+ data: [0, 4, 2.5],
+ }, {
+ label: "Elina",
+ fill: false,
+ lineTension: 0.3,
+ backgroundColor: "#36b9cc",
+ borderColor: "#36b9cc",
+ pointRadius: 3,
+ pointBackgroundColor: "#36b9cc",
+ pointBorderColor: "#36b9cc",
+ pointHoverRadius: 3,
+ pointHoverBackgroundColor: "#36b9cc",
+ pointHoverBorderColor: "#36b9cc",
+ pointHitRadius: 10,
+ pointBorderWidth: 2,
+ data: [0, 0, 0.5],
+ }, {
+ label: "Julieta",
+ fill: false,
+ lineTension: 0.3,
+ backgroundColor: "#f6c23e",
+ borderColor: "#f6c23e",
+ pointRadius: 3,
+ pointBackgroundColor: "#f6c23e",
+ pointBorderColor: "#f6c23e",
+ pointHoverRadius: 3,
+ pointHoverBackgroundColor: "#f6c23e",
+ pointHoverBorderColor: "#f6c23e",
+ pointHitRadius: 10,
+ pointBorderWidth: 2,
+ data: [0, 0, 5],
+ }, {
+ label: "Foco",
+ fill: false,
+ lineTension: 0.3,
+ backgroundColor: "#858796",
+ borderColor: "#858796",
+ pointRadius: 3,
+ pointBackgroundColor: "#858796",
+ pointBorderColor: "#858796",
+ pointHoverRadius: 3,
+ pointHoverBackgroundColor: "#858796",
+ pointHoverBorderColor: "#858796",
+ pointHitRadius: 10,
+ pointBorderWidth: 2,
+ data: [0, 0, 0.75],
+ },
+ ]*/
     },
     options: {
         responsive: true,

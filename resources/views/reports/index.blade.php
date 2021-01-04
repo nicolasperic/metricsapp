@@ -14,7 +14,7 @@
                 @if ($results)
                     <div class="console">
                         <header>
-                            <p>{{ trim(strtolower(Auth::user()->name)) }}@metricsapp</p>
+                            <p>{{ str_replace(' ','',strtolower(Auth::user()->name)) }}@metricsapp</p>
                         </header>
                         <div class="consolebody">
                             @foreach($results as $line)
@@ -125,7 +125,7 @@
                                     <p class="help is-danger">{{ $errors->first('users') }}</p>
                                     @enderror
                                 @else
-                                    No user yet, users can be imported by space</a>
+                                    No users yet, users can be imported by space from each project page</a>
                                 @endif
                             </div>
                         </div>

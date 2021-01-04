@@ -21,7 +21,7 @@ namespace App\Dto;
 [updated_by] => awkfUI9wer46vDacwqEsg8
 [release_level] =>
 [release_notes] =>
-[planner_type] => 0
+[planner_type] => 0 //0 None, 1 Backlog, 2 Current
 [pretty_release_level] => None
 )
  * Class SprintDto
@@ -34,6 +34,7 @@ class SprintDto
     private $projectAssemblaId;
     private $title;
     private $status;
+    private $plannerType;//0 None, 1 Backlog, 2 Current
 
     private $responseData;
 
@@ -60,6 +61,7 @@ class SprintDto
         $this->setStatus(!boolval($data['is_completed']));
         $this->setSprintAssemblaId($data['id']);
         $this->setProjectAssemblaId($data['space_id']);
+        $this->setPlannerType($data['planner_type']);
     }
 
     /**
@@ -126,12 +128,31 @@ class SprintDto
         $this->title = $title;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getPlannerType()
+    {
+        return $this->plannerType;
+    }
+
+    /**
+     * @param mixed $plannerType
+     */
+    public function setPlannerType($plannerType)
+    {
+        $this->plannerType = $plannerType;
+    }
+
+
+
     public function toString()
     {
         return "Name: ".$this->getTitle().PHP_EOL.
         "Status: ".$this->getStatus().PHP_EOL.
-        "Sprint ID: ".$this->getSprintAssemblaId();
-        "Project ID: ".$this->getProjectAssemblaId();
+        "Sprint ID: ".$this->getSprintAssemblaId().
+        "Project ID: ".$this->getProjectAssemblaId().
+        "Planner Type: ".$this->getPlannerType();
     }
     
 

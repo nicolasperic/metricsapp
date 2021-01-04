@@ -46,7 +46,6 @@ class Ticket extends Model
     {
         if ($this->is_story && $this->state === self::CLOSED_STATE) {
             //Cualquier estado distinto de done o invalid! Es considerado inconsistente
-            //todo status could have a state to easily validate if its open or closed
             return $this->subtasks->whereNotIn('status', ['Done','Invalid']);
         }
         return [];

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Integration;
 
+use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
 use Tests\TestCase;
@@ -19,7 +20,8 @@ class TicketTest
         $assemblaGateway = new AssemblaGateway();
 
         /** @var TicketDto $ticketDto */
-        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber('sommiercenter', '1022');
+        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber('Grupo-Grassi', '536');//228
+
 
         $this->assertEquals(1022, $ticketDto->getNumber());
         $this->assertEquals('[US] MSI Estrategia de Rollback', $ticketDto->getSummary());
@@ -78,14 +80,15 @@ class TicketTest
     {
         $assemblaGateway = new AssemblaGateway();
 
-        $response = $assemblaGateway->getTicketAssociationsBySpaceAndNumber('sommiercenter', '1117');
-        $bodyContents = json_decode($response->getBody()->getContents(), 1);
+        $ticketAssociations = $assemblaGateway->getTicketAssociationsBySpaceAndNumber('sommiercenter', '1117');
+        /** @var TicketAssociationDto $ticketAssociation */
+        $ticketAssociation = $ticketAssociations[0];
 
         $subtaskId = '231717985';
         $userstoryId = '231438936';
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals($subtaskId, $bodyContents[0]['ticket1_id']);
-        $this->assertEquals($userstoryId, $bodyContents[0]['ticket2_id']);
-        $this->assertEquals(AssemblaGateway::STORY_RELATION, $bodyContents[0]['relationship']);
+
+        $this->assertEquals($subtaskId, $ticketAssociation->getTicket1Id());
+        $this->assertEquals($userstoryId, $ticketAssociation->getTicket2Id());
+        $this->assertEquals(AssemblaGateway::STORY_RELATION, $ticketAssociation->getRelationship());
     }
 }

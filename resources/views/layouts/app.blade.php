@@ -111,6 +111,9 @@
                     <a class="collapse-item" href="{{url('/projects')}} ">All Projects</a>
                     <!-- a class="collapse-item" href="blank.html">Blank Page</a-->
                     <h6 class="collapse-header">Starred Projects:</h6>
+                    @foreach (Auth::user()->starredProjects as $project)
+                        <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{$project->name}}</a>
+                    @endforeach
                 </div>
             </div>
         </li>
@@ -130,6 +133,7 @@
                     <div class="collapse-divider"></div>
                     <!--h6 class="collapse-header">Starred:</h6 -->
                     <a class="collapse-item" href="{{url('/sprints')}} ">All Sprints</a>
+                    <a class="collapse-item" href="{{url('/sprints/current')}} ">Current Sprints</a>
                     <!-- a class="collapse-item" href="blank.html">Blank Page</a-->
                     <h6 class="collapse-header">Starred Sprints:</h6>
                 </div>
@@ -391,7 +395,7 @@
         <footer class="sticky-footer bg-white">
             <div class="container my-auto">
                 <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Your Website 2019</span>
+                    <span>Copyright &copy; Nicolás Peric 2019</span>
                 </div>
             </div>
         </footer>

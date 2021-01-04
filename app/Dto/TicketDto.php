@@ -29,8 +29,12 @@ class TicketDto
     private $complexity;
     /** @var  string type */
     private $type;
-    /** @var  int estimate (it can be hours, story points based on space configuration) */
+    /** @var  float estimate (it can be hours, story points based on space configuration) */
     private $estimate;
+
+    /** @var  float total estimate (it can be hours, story points based on space configuration) */
+    private $totalEstimate;
+
     /** @var  boolean 1 if open, 0 if closed */
     private $state;
     /** @var  string status name */
@@ -42,16 +46,17 @@ class TicketDto
     /** @var  float worked hours on ticket */
     private $workedHours;
 
+    /** @var  float working hours on ticket (remaining working hours) */
+    private $workingHours;
+
+    /** @var  float total working hours on ticket (total remaining working hours) */
+    private $totalWorkingHours;
+
     /** @var  string ticket ID on Assembla */
     private $ticketAssemblaId;
 
-    /*
-       "working_hours" => 0.0
-        "estimate" => 19.0
-        "total_estimate" => 19.0
-        "total_invested_hours" => 49.5
-        "total_working_hours" => 0.0
-     */
+    /** @var  string Custom Fields array serialized */
+    private $customFields;
 
     private $responseData;
 
@@ -61,55 +66,19 @@ class TicketDto
         $this->processInfo();
     }
 
-    /**
-     *
-     * array:30 [
-    "id" => 231587796
-    X"number" => 1022
-    X"summary" => "[US] MSI Estrategia de Rollback"
-    "description" => ""
-    X"priority" => 3
-    X"completed_date" => null
-    "component_id" => null
-    "created_on" => "2020-02-18T19:28:33.000Z"
-    "permission_type" => 1
-    "importance" => -7.0
-    X"is_story" => true
-    X"milestone_id" => 12975241
-    "notification_list" => "cvixt811Gr4PBcacwqjQYw,ajLyFEiVir6A3ccK-zJOy8,d8r95QiVer6zj-aH8tHBnc,aAbtrS7fKr6y_dcP_HzTya"
-    X"space_id" => "dxD3_KI5ur6ky6dmr6QqzO"
-    X"state" => 1
-    X"status" => "Stage Test"
-    "story_importance" => 0
-    "updated_at" => "2020-04-06T13:58:14.000Z"
-    "working_hours" => 0.0
-    "estimate" => 19.0
-    "total_estimate" => 19.0
-    "total_invested_hours" => 49.5
-    "total_working_hours" => 0.0
-    "assigned_to_id" => "aAbtrS7fKr6y_dcP_HzTya"
-    "reporter_id" => "cvixt811Gr4PBcacwqjQYw"
-    "custom_fields" => array:1 [
-    "Complexity" => ""
-    ]
-    "hierarchy_type" => 2
-    "due_date" => null
-    "number_with_prefix" => 1022
-    "space_name" => "Sommier Center"
-    ]
-     */
     private function processInfo()
     {
         $data = $this->getResponseData();
         $this->setNumber($data['number']);
         $this->setSummary($data['summary']);
         $this->setEstimate($data['estimate']);
+        $this->setTotalEstimate($data['total_estimate']);
         $this->setPriority($data['priority']);
         $this->setState($data['state']);
         $this->setStatus($data['status']);
         $this->setMilestoneId($data['milestone_id']);
-        $this->setComplexity($this->_validate('Complexity', $data['custom_fields'], 0));
-        $this->setType($this->_validate('Type', $data['custom_fields']));
+        $this->setComplexity($this->_validate('Complexity', $data['custom_fields'], 0));//TODO remove, this is custom for our projects
+        $this->setType($this->_validate('Type', $data['custom_fields']));//TODO remove, this is custom for our projects
         $this->setAssignedToId($data['assigned_to_id']);
         $this->setSpaceId($data['space_id']);
         $this->setSpaceName($this->_validate('space_name', $data));
@@ -119,6 +88,9 @@ class TicketDto
         $this->setTicketAssemblaId($data['id']);
         $this->setTotalInvestedHours($data['total_invested_hours']);
         $this->setWorkedHours($data['worked_hours']);
+        $this->setWorkingHours($data['working_hours']);
+        $this->setTotalWorkingHours($data['total_working_hours']);
+        $this->setCustomFields(serialize($data['custom_fields']));
     }
 
     private function _validate($key, $data, $default = null)
@@ -436,6 +408,72 @@ class TicketDto
     {
         $this->workedHours = $workedHours;
     }
+
+    /**
+     * @return float
+     */
+    public function getTotalEstimate()
+    {
+        return $this->totalEstimate;
+    }
+
+    /**
+     * @param float $totalEstimate
+     */
+    public function setTotalEstimate($totalEstimate)
+    {
+        $this->totalEstimate = $totalEstimate;
+    }
+
+    /**
+     * @return float
+     */
+    public function getWorkingHours()
+    {
+        return $this->workingHours;
+    }
+
+    /**
+     * @param float $workingHours
+     */
+    public function setWorkingHours($workingHours)
+    {
+        $this->workingHours = $workingHours;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalWorkingHours()
+    {
+        return $this->totalWorkingHours;
+    }
+
+    /**
+     * @param float $totalWorkingHours
+     */
+    public function setTotalWorkingHours($totalWorkingHours)
+    {
+        $this->totalWorkingHours = $totalWorkingHours;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomFields()
+    {
+        return $this->customFields;
+    }
+
+    /**
+     * @param string $customFields
+     */
+    public function setCustomFields($customFields)
+    {
+        $this->customFields = $customFields;
+    }
+
+
 
     public function toString()
     {

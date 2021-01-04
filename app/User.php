@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -55,7 +56,12 @@ class User extends Authenticatable
 
     public function projects()
     {
-        return $this->belongsToMany(Project::class);
+        return $this->belongsToMany(Project::class)->withPivot('starred');
+    }
+
+    public function starredProjects()
+    {
+        return $this->belongsToMany(Project::class)->withPivot('starred')->where('starred', 1);
     }
 
     /**
@@ -64,9 +70,7 @@ class User extends Authenticatable
      */
     public function tasks()
     {
-        //TODO add userAssemblaId on a configuration table or other suitable place
-        $npericUserAssemblaId = 'cvixt811Gr4PBcacwqjQYw';
-        return TicketTime::where('user_assembla_id', $npericUserAssemblaId)->whereDate('begin_at', Carbon::today())->get();
+        return TicketTime::where('user_assembla_id', Auth::user()->user_assembla_id)->whereDate('begin_at', Carbon::today())->get();
     }
 
     public function hasProject($projectAssemblaId)

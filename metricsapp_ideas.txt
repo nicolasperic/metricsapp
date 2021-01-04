@@ -1,5 +1,19 @@
+
+
+Summa Beta Testers (features, feedback, bugs) | LANDING PAGE | SUBSCRIBE
+- ideas, feedback que te guste, y los bugs
+    > implementar la parte de auth, teams, billing, etc.
+- armar una landing page, con un par de screenshots o sample downloads (xls o loq ue sea que uses)
+    - con un mini form de “subscribite para recibir noticias” que guarde mails en algún lugar.
+    - eso puede ir dandote una idea de randoms que visiten y puedan tener interés. y una mailing list para enviar un mail de launch.
+
 sudo vim /usr/local/etc/php/7.3/php.ini
 max_execution_time
+
+
+- Current sprints Assembla Metrics
+- Hours > Worked (OK) y Remaining (attr working_hours o total_working_horus de ticket abiertos?not paused)
+    //228 es subtask pausada; le puse 4 hs de work remaining y no la vi en la subtask (no validé US parent)
 
 
 - Reporte de tickets
@@ -8,6 +22,13 @@ max_execution_time
         Done- US y subtasks con estados inconsistentes (definir algunas reglas) > ej US con "working_hours" != 0.0 quiere decir que reportaron horas en la US
         Done- User Stories sin story points
     - releases
+
+> FILTERS para validaciones en atributos de tickets | Name > validaciones | Ícono/color/badge
+    1. Subtask working hours > 6hs//DOS atributos SUBTASK && HOURS
+    2. User Stories total inv hours > 15hs (?) //DOS attr US %% HOURS
+    3. Completed US with open subtasks (or not in Done)//complicado armar esta regla :think: US && completed > subtasks status != Done
+    4. US without story points//ATRIUTO
+    5. US con horas trackeadas//ATRIBUTO
 
 
 Indicadores
@@ -31,3 +52,33 @@ Features
         Tenés entonces un dropdown con los spaces y pones el # de ticket a manopla > genera un counter y después submit!
     - Manejar los sprints, crearlos (armar grupo de tickets)
         -> tener en cuenta carry over de S1 para crear S2
+
+
+Atributos configs de space:
+- Starred: favorito, lo agrego en el menú (+ current, + auto importing Assembla API) | esto es por usuario en un PIVOT en project_user
+- espacio "trackeable": para los dropdowns de reportes y task timer (muy verde aún)
+- espacio compartido (para usar el filtro de equipo en el reporte de horas)
+- estimate: hours, story points, [small, medium, large]
+
+Widgets configurables | Type > pie chart, X opciones, Y default, Z colores
+    - name: US Type
+    - assembla_code: Type
+    - IS CUSTOM [ ]//si lo busco o no dentro de custom fields
+        //ej puedo hacer cálculos con assigned_to (pie de US por persona y unassigned), bar chart de estimate (1,2,3,4,5,6)
+        //1. Active Tickets by User, Closed Tickets by User//tanto user story como subtask
+        //2. Tickets by Status | Active by Status | Closed By Status Ej: New 10 53%, Accepted 3 16%, In Progress 2 11%, Paused 1 %%
+        //3. Tickets by Priority | Active y Priority | Closed by Priority
+    - Ticket Type: All, US, Subtask//para filtrar por tipo de ticket
+    - Field Type: Text (complicado métricas), Numeric (avg, sum,?) , List, Team List, Date (i.e: 2021-01-03), Date Time (i.e: 2021-01-03 22:47), Checkbox (Yes/No)
+        List: values, colors
+    - visualization/chart: [pie, bar %] //q más opciones?
+    - default value
+    - spaces (multi select)
+    - sort order
+    - active: yes/no
+    - hours related (?) > type: Soporte 23% 10 horas //ver si esto vale la pena o es algo que YA vamos a hacer seguro
+    - user stories related (?) type: Soporte 40% 3 US//ver si vale la pena o es la info de la métrica
+
+
+Laravel Socialite > Facebook/Google login
+> Register page con estilos del theme

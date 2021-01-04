@@ -22,7 +22,7 @@ class TicketImporter
     }
 
     /**
-     *
+     * @param \App\Sprint $sprint
      */
     public function importMilestoneTickets($sprint)
     {
@@ -42,11 +42,20 @@ class TicketImporter
                 Log::info('[Ticket Importer] Response 200 for page '.$page);
                 $queryParams['page'] = ++$page;
 
+                /** @var TicketDto $ticketDto */
                 foreach ($tickets as $ticketDto) {
                     if (!Ticket::ticketExists($ticketDto->getTicketAssemblaId())) {
                         Log::info('[Ticket Importer] about to create ticket '.$ticketDto->getNumber());
                         $this->_createTicketFromDTO($ticketDto, $sprint, $project);
                         $this->_createTrackedTimeFor($ticketDto->getTicketAssemblaId());
+                    } else {
+                        //we need to update ticket fields and milestone assignation!
+                        //since we are importing for a given milestone, tickets processed here won't need a milestone update!
+                        //but some tickets could be present on the milestone in our DB and not on Assembla...
+
+                        $ticket = Ticket::getTicketByAssemblaId($ticketDto->getTicketAssemblaId());
+                        TicketMapper::updateTicketFromDTO($ticket, $ticketDto);//Ticket Data synced
+                        //Milestone; ticket associations and ticket tracked time//TODO test what happens if I track i.e 1h and then I change it to 30m
                     }
                 }
             } else {
@@ -56,6 +65,11 @@ class TicketImporter
         Log::info('[Ticket Importer] Ended');
     }
 
+    /**
+     * @param TicketDto    $ticketDto
+     * @param \App\Sprint  $sprint
+     * @param \App\Project $project
+     */
     private function _createTicketFromDTO(TicketDto $ticketDto, $sprint, $project)
     {
         $ticket = TicketMapper::createTicketFromDTO($ticketDto, $project);
@@ -70,6 +84,13 @@ class TicketImporter
     }
 
 
+    /**
+     *
+     * relationship is 5 - ticket2 is story and ticket1 is subtask of the story
+     *
+     * @param \App\Ticket $userStory
+     * @param \App\Project $project
+     */
     private function _validateTicketAssociations($userStory, $project)
     {
         $ticketAssociations = $this->assemblaGateway->getTicketAssociationsBySpaceAndNumber($project->wikiname, $userStory->number);
@@ -81,7 +102,7 @@ class TicketImporter
                     $subtask = Ticket::getTicketByAssemblaId($association->getTicket1Id());
                     if (!is_null($subtask)) {
                         $userStory->subtasks()->save($subtask,['relationship' => $association->getRelationship()]);
-                    }//TODO subtask was on a different milestone so it was not created and is not found
+                    }//subtask was on a different milestone so it was not created
                 }
             }
         }

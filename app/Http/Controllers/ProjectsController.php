@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\SessionMessage;
 use App\Importer\ProjectImporter;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
@@ -38,16 +39,22 @@ class ProjectsController extends Controller
 
         try {
             $projectImporter->importAllAssemblaSpacesAsProjects();
-
+            SessionMessage::infoMessage("Projects were correctly imported");
         } catch (ClientException $e) {
-            Session::flash('alert-class', 'alert-danger');//alert-danger, alert-info, alert-warning
+
             if ($e->getCode() == 401) {
                 $settingsUrl = '<a href="'.url('/settings').'">here</a>';
-                Session::flash('message', 'Not authorized! Add your Assembla credentials '.$settingsUrl);
+                SessionMessage::errorMessage('Not authorized! Add your Assembla credentials '.$settingsUrl);
+
             } else {
-                Session::flash('message', 'Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');
+                SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');
+
             }
 
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+        } catch (\Exception $e) {
+            SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
         }

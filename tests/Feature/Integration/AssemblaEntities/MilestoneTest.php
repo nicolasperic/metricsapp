@@ -77,20 +77,21 @@ class MilestoneTest
 
 
     //TODO assets tarea
+    /** @test */
     function can_get_all_milestones_for_a_space()
     {
         $space = 'sommiercenter';
 
         $assemblaGateway = new AssemblaGateway();
-        $response = $assemblaGateway->getMilestonesForSpace($space);
+        $sprints = $assemblaGateway->getMilestonesForSpace($space);
 
-        $result = json_decode($response->getBody()->getContents(), 1);
 
-        foreach ($result as $milestone) {
-            print PHP_EOL.print_r($milestone, 1).PHP_EOL;
+
+        foreach ($sprints as $sprint) {
+            print PHP_EOL.print_r($sprint, 1).PHP_EOL;
         }
 
-        print 'Found '. count($result).' milestones '.PHP_EOL;
+        print 'Found '. count($sprints).' milestones '.PHP_EOL;
 
 
     }

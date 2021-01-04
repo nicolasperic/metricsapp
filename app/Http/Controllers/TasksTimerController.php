@@ -34,7 +34,7 @@ class TasksTimerController extends Controller
                 'begin_at' => Carbon::now(),
                 'ticket_number' => request('ticket_number'),
                 'project_assembla_id' => request('project'),
-                'user_assembla_id' => 'cvixt811Gr4PBcacwqjQYw'//TODO avoid hardcoded user assembla id
+                'user_assembla_id' => Auth::user()->user_assembla_id
             ]);
 
             return redirect(route('taskstimer.index'));

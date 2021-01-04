@@ -19,6 +19,7 @@ class CreateSprintsTable extends Migration
             $table->boolean('is_active')->default(true);
             $table->string('sprint_assembla_id')->nullable();
             $table->string('project_assembla_id')->nullable();
+            $table->integer('planner_type');
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->timestamps();

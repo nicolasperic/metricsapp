@@ -26,7 +26,7 @@
                         <ul>
                             @forelse ($project->getOpenSprints as $sprint)
                                 <li>
-                                    <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>
+                                    <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a> <?= $sprint->getFormattedPlannerType()?>
                                 </li>
 
 
@@ -80,6 +80,28 @@
             </div>
         </div>
     </div>
+
+    <style>
+        <?php //TODO move styles to CSS/SCSS?>
+        .planner-type {
+            padding: 3px 5px 3px;
+            border-radius: 3px;
+            line-height: 17px;
+            font-size: 11px;
+            cursor: pointer;
+            color: white;
+            position: relative;
+            top: -3px;
+        }
+
+        .planner-type.current {
+            background-color: rgb(122, 185, 102);
+        }
+
+        .planner-type.backlog {
+            background-color: rgb(51, 54, 55);
+        }
+    </style>
 @endsection
 
 

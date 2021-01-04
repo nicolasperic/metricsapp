@@ -96,6 +96,7 @@ $factory->define(Sprint::class, function (Faker $faker) {
         'start_date' => Carbon::parse('4 days ago'),
         'end_date' => Carbon::parse('+5 days'),
         'is_active' => 1,
+        'planner_type' => 0,
     ];
 });
 

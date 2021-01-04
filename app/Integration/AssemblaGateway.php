@@ -76,7 +76,7 @@ class AssemblaGateway
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function getSpaces()
-    {
+    {   //TODO spaces could be more than just one page, we need to update this function (and others) to continue asking for more pages
         $spaces = false;
         $response = AssemblaRequest::get("spaces");
         if ($response->getStatusCode() == 200) {

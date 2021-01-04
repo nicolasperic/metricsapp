@@ -3,6 +3,7 @@
 namespace Tests\Feature\Integration;
 
 
+use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
@@ -15,7 +16,7 @@ use Tests\TestCase;
 class UsHoursReportTest extends TestCase
 {
     private $userStories;//array para agrupar las horas de cada US > ticket_id > description (ticket_number + description ), total hours y total tasks
-    private $noUserStories;//array para agrupar las horas de tickets que no son US ni subtasks; ticket_id => desription, total hours, total tasks
+    private $noUserStories;//array para agrupar las horas de tickets que no son US ni subtasks; ticket_id => description, total hours, total tasks
     private $withoutTicket;//array para agrupar las horas trackeadas sin ticket > user_id > hours y tasks
     private $ticketAssociations;//array para mapear subtasks con user stories > subtask_id => user_story_id; de ser posible evitar algunas llamadas a la API
     //^ de no tener asociacion subtask_id -> false
@@ -29,7 +30,9 @@ class UsHoursReportTest extends TestCase
     {
         $this->apicalls = 0;
         $startTime = time();
+        //TODO add logic to remove hardcoded users
         $users = [
+            'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
             'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',
             'cvixt811Gr4PBcacwqjQYw' => 'Nicolás Peric',
             'aAbtrS7fKr6y_dcP_HzTya' => 'Barbara Irizaga',
@@ -52,7 +55,11 @@ class UsHoursReportTest extends TestCase
             'ddsWca79Wr44oYacwqjQXA' => 'Nicolas Alejandro Gandara',
             'dzBlqaLhKr5O16acwqEsg8' => 'Esteban Campos',
             'arrHT2RRer54rQdmr6QqzO' => 'Mariana Rodriguez',
-            'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
+            'cC7iHg0oSr6BBdaIC_Qgzw' => 'Ariel Benítez',
+            'blHTwYuger44kaacwqjQYw' => 'Ezequiel Gomez',
+            'cxNMFQ6Fer5zdcacwqjQYw' => 'Andres Campos',
+            'c1n5gcr0Or6B_cbQarZsNG' => 'Delfina Labate',
+            'dDTcSCiNSr64ojaIC_Qgzw' => 'Julián García'
         ];
 
         $this->userStories = [];
@@ -74,7 +81,6 @@ class UsHoursReportTest extends TestCase
 
 
         $totalHours = 0;
-        $totalHoursBasedOnTrackingUs = 0;//TODO remove
         $totalTasks = 0;
 
 
@@ -113,7 +119,6 @@ class UsHoursReportTest extends TestCase
                             $this->userStories[$timeTracked['ticket_id']]['tasks'] += 1;
                             Log::info('Tracking T1 '.$timeTracked['hours'].' hours | ticket number '.$timeTracked['ticket_number'].' US hs '.$this->userStories[$timeTracked['ticket_id']]['hours'].' US tasks '.$this->userStories[$timeTracked['ticket_id']]['tasks']);
                             $timetracked = true;
-                            $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                         } else {//subtask
 
                             //subtask found on ticketAssociations, we can retrieve the user story ID without calling the API
@@ -121,7 +126,6 @@ class UsHoursReportTest extends TestCase
                                 $this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['hours'] += $timeTracked['hours'];
                                 $this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['tasks'] += 1;
                                 $timetracked = true;
-                                $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                                 Log::info('Tracking T2 '.$timeTracked['hours'].' hours | ticket number '.$timeTracked['ticket_number'].' US hs '.$this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['hours'].' US tasks '.$this->userStories[$this->ticketAssociations[$timeTracked['ticket_id']]]['tasks']);
                             } else {//subtask not found on ticketAssociations, need to retrieve related US from API if exists
 
@@ -141,7 +145,6 @@ class UsHoursReportTest extends TestCase
 
                                                 Log::info('Tracking T3 '.$timeTracked['hours'].' hours |  ticket number '.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
                                                 $timetracked = true;
-                                                $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                                             } else {
                                                 dd('hmm it has a subtask but is not a user story??');
                                             }
@@ -151,7 +154,6 @@ class UsHoursReportTest extends TestCase
                                         $this->userStories[$userStoryId]['tasks'] += 1;
                                         Log::info('Tracking T4 '.$timeTracked['hours'].' hours | ticket number '.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
                                         $timetracked = true;
-                                        $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                                     }
 
                                 } else {
@@ -164,7 +166,6 @@ class UsHoursReportTest extends TestCase
                                     $this->noUserStories[$timeTracked['ticket_id']]['tasks'] += 1;
                                     Log::info('Tracking T5 '.$timeTracked['hours'].' hours | ticket number '.$timeTracked['ticket_number'].' US hs '.$this->noUserStories[$timeTracked['ticket_id']]['hours'].' US tasks '.$this->noUserStories[$timeTracked['ticket_id']]['tasks']);
                                     $timetracked = true;
-                                    $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                                 }
                             }
                         }
@@ -179,7 +180,6 @@ class UsHoursReportTest extends TestCase
                         $this->withoutTicket[$timeTracked['user_id']]['tasks'] += 1;
                         Log::info('Tracking T6 '.$timeTracked['hours'].' US hs '.$this->withoutTicket[$timeTracked['user_id']]['hours'].' US tasks '.$this->withoutTicket[$timeTracked['user_id']]['tasks']);
                         $timetracked = true;
-                        $totalHoursBasedOnTrackingUs += $timeTracked['hours'];
                     }
 
                     if (!$timetracked) {
@@ -189,7 +189,6 @@ class UsHoursReportTest extends TestCase
                     $totalHours += $timeTracked['hours'];
                     $totalTasks += 1;
 
-                    Log::info('END Total hours '.$totalHours.' vs '.$totalHoursBasedOnTrackingUs.'< on tracking US | total tasks '.$totalTasks);
                     Log::info('END Task Data hours '.$timeTracked['hours'].' ticket number '.$timeTracked['ticket_number'].' user_id '.$timeTracked['user_id'].' id'.$timeTracked['id']);
                 }
 
@@ -378,14 +377,14 @@ class UsHoursReportTest extends TestCase
     private function _retrieveTicketAssociation($space, $ticketNumber)
     {
         $assemblaGateway = new AssemblaGateway();
-        $response = $assemblaGateway->getTicketAssociationsBySpaceAndNumber($space, $ticketNumber);
+        $ticketAssociations = $assemblaGateway->getTicketAssociationsBySpaceAndNumber($space, $ticketNumber);
         $this->apicalls++;
-        if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);
-            foreach ($result as $association) {
-                if ($association['relationship'] === AssemblaGateway::STORY_RELATION) {
+        if ($ticketAssociations !== false) {
+            /** @var TicketAssociationDto $association */
+            foreach ($ticketAssociations as $association) {
+                if ($association->getRelationship() === AssemblaGateway::STORY_RELATION) {
                     //$subtaskId = $association['ticket1_id'];
-                    return  $association['ticket2_id'];//returning user story ID
+                    return  $association->getTicket2Id();//returning user story ID
                 }
             }
         }
@@ -411,7 +410,9 @@ class UsHoursReportTest extends TestCase
             'aAbtrS7fKr6y_dcP_HzTya' => 'Barbara Irizaga',
             'dDTcSCiNSr64ojaIC_Qgzw' => 'Julián García',
         ];
+        //TODO add logic to remove hardcoded users
         $users = [
+            'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
             'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',
             'cvixt811Gr4PBcacwqjQYw' => 'Nicolás Peric',
             'aAbtrS7fKr6y_dcP_HzTya' => 'Barbara Irizaga',
@@ -434,8 +435,11 @@ class UsHoursReportTest extends TestCase
             'ddsWca79Wr44oYacwqjQXA' => 'Nicolas Alejandro Gandara',
             'dzBlqaLhKr5O16acwqEsg8' => 'Esteban Campos',
             'arrHT2RRer54rQdmr6QqzO' => 'Mariana Rodriguez',
-            'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
-            'dDTcSCiNSr64ojaIC_Qgzw' => 'Julián García',
+            'cC7iHg0oSr6BBdaIC_Qgzw' => 'Ariel Benítez',
+            'blHTwYuger44kaacwqjQYw' => 'Ezequiel Gomez',
+            'cxNMFQ6Fer5zdcacwqjQYw' => 'Andres Campos',
+            'c1n5gcr0Or6B_cbQarZsNG' => 'Delfina Labate',
+            'dDTcSCiNSr64ojaIC_Qgzw' => 'Julián García'
         ];
         $projects = [
             'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
@@ -452,8 +456,8 @@ class UsHoursReportTest extends TestCase
         $totalTasks = 0;
         $projectHours = array();
 
-        $from = '2020/12/14 00:00';
-        $to = '2020/12/20 23:59';
+        $from = '2020/12/01 00:00';
+        $to = '2020/12/31 23:59';
         foreach ($projects as $wikiname => $spaceId) {
 
             $page = 1;
