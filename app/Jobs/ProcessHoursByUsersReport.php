@@ -3,20 +3,19 @@
 namespace App\Jobs;
 
 use App\Report;
-use App\Reports\HoursByUSReport;
+use App\Reports\HoursByUserReport;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
-class ProcessUserStoryReport implements ShouldQueue
+class ProcessHoursByUsersReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     /**
-     * @var array with required data for user story report
+     * @var
      */
     private $requestData;
     /**
@@ -24,11 +23,10 @@ class ProcessUserStoryReport implements ShouldQueue
      */
     private $reportModel;
 
-
     /**
      * Create a new job instance.
-     *
-     *
+     * @param $requestData
+     * @param $reportModel
      */
     public function __construct($requestData, $reportModel)
     {
@@ -44,12 +42,10 @@ class ProcessUserStoryReport implements ShouldQueue
      */
     public function handle()
     {
-        $report = new HoursByUSReport($this->requestData);
+        $report = new HoursByUserReport($this->requestData);
         $reportResults = $report->execute();
 
-
-
-        $this->reportModel->status = Report::PROCESSED_STATUS;
+        $this->reportModel->status = Report::PROCESSED_STATUS;//TODO si no importo Report puedo simular un exception para ver el status failed
         $reportBody = '';
         foreach ($reportResults as $line) {
             $reportBody .= '<p>'.$line.'</p>';
@@ -57,6 +53,5 @@ class ProcessUserStoryReport implements ShouldQueue
         $this->reportModel->body = $reportBody;
         $this->reportModel->finished_at = Carbon::now();
         $this->reportModel->save();
-
     }
 }

@@ -5,6 +5,7 @@ namespace App\Integration;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 
 class AssemblaRequest extends Model
 {
@@ -146,7 +147,7 @@ class AssemblaRequest extends Model
     private static function getApplicationSecret()
     {
         if (Auth::check()) {
-            return Auth::user()->assembla_secret;
+            return Crypt::decrypt(Auth::user()->assembla_secret);
         }
 
         return '497e452c605c29f8971aeb367e6c15a872749efe';//TODO this is only for testing purposes

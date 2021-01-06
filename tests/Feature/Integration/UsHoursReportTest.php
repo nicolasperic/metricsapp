@@ -69,13 +69,13 @@ class UsHoursReportTest extends TestCase
         $this->ticketsApiData = [];
 
         $projects = [
-            //'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
+            'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
             //'canaldeautopartes' => 'dpT43eCVCr54kBacwqjQYw',
             //'cemaco' => 'dKs4GwzB8r4Pz7acwqjQYw',
             //'pinturerias-rex' => 'atJlRad84r55JcacwqjQXA',
             //'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
             //'summa-internal-projects' => 'bPFF_gQfWr4PjCacwqjQWU',
-            'Grupo-Grassi' => 'dTomygY3Gr6P7dbK8JiBFu'
+            //'Grupo-Grassi' => 'dTomygY3Gr6P7dbK8JiBFu'
         ];
 
 
@@ -84,8 +84,8 @@ class UsHoursReportTest extends TestCase
         $totalTasks = 0;
 
 
-        $from = '2020/12/23 00:00';
-        $to = '2020/12/23 23:59';
+        $from = '2020/12/01 00:00';
+        $to = '2020/12/31 23:59';
         foreach ($projects as $wikiname => $spaceId) {
 
             $page = 1;

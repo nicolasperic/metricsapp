@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helper\SessionMessage;
 use App\Integration\AssemblaGateway;
+use App\Jobs\ProcessHoursByUsersReport;
 use App\Jobs\ProcessUserStoryReport;
 use App\Project;
 
@@ -85,7 +86,12 @@ class ReportsController extends Controller
             'to_date' => request('hours_us_to_date').' 23:59',
         ];
 
-        ProcessUserStoryReport::dispatch($requestData, Auth::user());
+        $reportModel = Report::create([
+            'title' => 'Hours by User Story',
+            'request_data' => serialize($requestData)
+        ]);
+        Auth::user()->reports()->save($reportModel);
+        ProcessUserStoryReport::dispatch($requestData, $reportModel);
         SessionMessage::infoMessage('The report has been added to the queue');
 
         return redirect()->route('reports.index');
@@ -114,11 +120,20 @@ class ReportsController extends Controller
             'to_date' => request('hours_user_to_date').' 23:59',
         ];
 
-        $report = new HoursByUserReport($requestData);
-        $reportResults = $report->execute();
+        $testData = $requestData;
+        unset($testData['users']);
+        unset($testData['projects']);
 
+        $reportModel = Report::create([
+            'title' => 'Hours by Users',
+            'request_data' => serialize($testData)
+        ]);
 
-        return $this->_generateIndexView($reportResults);
+        Auth::user()->reports()->save($reportModel);
+        ProcessHoursByUsersReport::dispatch($requestData, $reportModel);
+        SessionMessage::infoMessage('The report has been added to the queue');
+
+        return redirect()->route('reports.index');
     }
 
     /**

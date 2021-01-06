@@ -8,6 +8,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Faker\Generator as Faker;
+use Illuminate\Support\Facades\Crypt;
 
 class DatabaseSeeder extends Seeder
 {
@@ -38,7 +39,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'nicolasperic@gmail.com',
             'password' => bcrypt('Magento01'),
             'assembla_key' => 'a5aa5632989ec768d71d',
-            'assembla_secret' => '497e452c605c29f8971aeb367e6c15a872749efe',
+            'assembla_secret' => Crypt::encrypt('497e452c605c29f8971aeb367e6c15a872749efe'),
             'assembla_user_image' => 'https://s3.amazonaws.com/assembla-avatars/1e7f71fc/cvixt811Gr4PBcacwqjQYw:1571509138',
         ]);
 

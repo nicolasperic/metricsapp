@@ -8,6 +8,7 @@ use App\Integration\AssemblaGateway;
 
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 
 class SettingsController extends Controller
@@ -27,7 +28,7 @@ class SettingsController extends Controller
 
         $user = Auth::user();
         $user->assembla_key = request('assembla_key');
-        $user->assembla_secret = request('assembla_secret');
+        $user->assembla_secret = Crypt::encrypt(request('assembla_secret'));
 
         //TODO all this image logic should not be here.. maybe on a listener
         if ($this->_setUserImageAndId($user)) {

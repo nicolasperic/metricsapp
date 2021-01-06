@@ -31,7 +31,7 @@ class Report extends Model
     public function getRequestDataFormatted()
     {
         $requestData = unserialize($this->request_data);
-
-        return $requestData['wikiname']. ' from '.$requestData['from_date']. ' to '.$requestData['to_date'];
+        $wikiname = (array_key_exists('wikiname', $requestData))?$requestData['wikiname']:'';
+        return $wikiname. ' from '.$requestData['from_date']. ' to '.$requestData['to_date'];
     }
 }
