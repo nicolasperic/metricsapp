@@ -1,0 +1,37 @@
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Report extends Model
+{
+    protected $guarded = [];
+
+    const PENDING_STATUS = 0;
+    const RUNNING_STATUS = 1;
+    const PROCESSED_STATUS = 2;
+    const FAILED_STATUS = 3;
+
+    public function getStatusLabel()
+    {
+        switch($this->status) {
+            case self::PENDING_STATUS:
+                return 'Pending';
+            case self::RUNNING_STATUS:
+                return 'Running';
+            case self::PROCESSED_STATUS:
+                return 'Processed';
+            case self::FAILED_STATUS:
+                return 'Failed';
+
+        }
+    }
+
+    public function getRequestDataFormatted()
+    {
+        $requestData = unserialize($this->request_data);
+
+        return $requestData['wikiname']. ' from '.$requestData['from_date']. ' to '.$requestData['to_date'];
+    }
+}

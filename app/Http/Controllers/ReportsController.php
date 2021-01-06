@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\SessionMessage;
 use App\Integration\AssemblaGateway;
+use App\Jobs\ProcessUserStoryReport;
 use App\Project;
 
+use App\Report;
 use App\Reports\HoursByUserReport;
 use App\Reports\HoursByUSReport;
 use Illuminate\Support\Facades\Auth;
@@ -19,11 +22,29 @@ class ReportsController extends Controller
     public function index()
     {
         Log::info('ReportsController index action');
+        return $this->_generateIndexView(request('results'));
+    }
+
+    public function show($id)
+    {
+        $report = Auth::user()->reports()->findOrFail($id);
+
+        return view('reports.show', [
+            'report' => $report,
+        ]);
+    }
+
+    /**
+     //TODO remove this function, we can probably work with a redirect > return redirect()->route('reports.index');
+     */
+    private function _generateIndexView($reportResults = null)
+    {
         $projects = Auth::user()->projects;
         return view('reports.index', [
             'projects' => $projects,
             'users' => self::_getUsersInProjects($projects),
-            'results' => request('results'),
+            'results' => $reportResults,
+            'reports' => Auth::user()->lastWeekReports(),
         ]);
     }
 
@@ -64,22 +85,10 @@ class ReportsController extends Controller
             'to_date' => request('hours_us_to_date').' 23:59',
         ];
 
-        Log::info('Project '.print_r($requestData, 1));
-        $report = new HoursByUSReport($requestData);
-        $reportResults = $report->execute();
-        //return redirect(route('reports.index', ['results' => $reportResults]));
+        ProcessUserStoryReport::dispatch($requestData, Auth::user());
+        SessionMessage::infoMessage('The report has been added to the queue');
 
-        $projects = Auth::user()->projects;
-        return view('reports.index', [
-            'projects' => $projects,
-            'users' => self::_getUsersInProjects($projects),
-            'results' => $reportResults,
-        ]);
-
-
-            /*return redirect(route('reports.index'))->withErrors([
-                'assembla_secret' => 'Ticket number does not exists or is a User Story',
-            ])->withInput();*/
+        return redirect()->route('reports.index');
     }
 
     /**
@@ -87,13 +96,8 @@ class ReportsController extends Controller
      */
     protected function validateHoursByUsRequest()
     {
-        //$from = '2020/01/01 00:00';
-        //$to = '2020/09/02 23:59';
-
         return request()->validate([
             'project'   => 'required',
-            //'assembla_secret' => 'required',
-            //'assembla_key' => 'required',
             'hours_us_from_date' => 'date',
             'hours_us_to_date' => 'date|after_or_equal:from_date',
         ]);
@@ -103,7 +107,6 @@ class ReportsController extends Controller
     {
         $this->validateHoursByUserRequest();
 
-        //$project = Project::getProjectByAssemblaId(request('project'));//fuck! obtener todos los wikinames?
         $requestData = [
             'projects' => request('projects'),
             'users' => request('users'),
@@ -111,24 +114,11 @@ class ReportsController extends Controller
             'to_date' => request('hours_user_to_date').' 23:59',
         ];
 
-        Log::info('Project '.print_r($requestData, 1));
         $report = new HoursByUserReport($requestData);
         $reportResults = $report->execute();
 
-        Log::info('Project report ended without any issue');
-        Log::info(print_r($reportResults, 1));
-        Log::info('About to redirect');
-        //return redirect(route('reports.index', ['results' => array('El reporte fue ejecutado')]));//$reportResults]));
-        //return redirect(route('reports.index'));
 
-        //return view('reports.index')->with('results', $reportResults);
-
-        $projects = Auth::user()->projects;
-        return view('reports.index', [
-            'projects' => $projects,
-            'users' => self::_getUsersInProjects($projects),
-            'results' => $reportResults,
-        ]);
+        return $this->_generateIndexView($reportResults);
     }
 
     /**
@@ -136,11 +126,8 @@ class ReportsController extends Controller
      */
     protected function validateHoursByUserRequest()
     {
-        //$from = '2020/01/01 00:00';
-        //$to = '2020/09/02 23:59';
         return request()->validate([
             'projects'   => 'required',
-            //'users'      => 'required',
             'hours_user_from_date' => 'date',
             'hours_user_to_date'   => 'date|after_or_equal:from_date',
         ]);

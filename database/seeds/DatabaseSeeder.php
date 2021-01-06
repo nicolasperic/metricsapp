@@ -1,6 +1,7 @@
 <?php
 
 use App\Project;
+use App\Report;
 use App\Sprint;
 use App\Ticket;
 use App\User;
@@ -47,7 +48,31 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('Magento02'),
             'assembla_user_image' => 'https://s3.amazonaws.com/assembla-avatars/ac4c96a6/dNWJBO9war45rbacwqjQXA:1550599353',
         ]);
+
         return;
+
+        $reportA = factory(Report::class)->create([
+            'created_at' => \Carbon\Carbon::today()->subDays(1),
+            'request_data' => serialize(['wikiname' => 'Sommier', 'from_date' => '2020/11/30', 'to_date' => '2020/12/13']),
+            'title' => 'Hours by User Story',
+        ]);
+        $reportB = factory(Report::class)->states('processed')->create([
+            'created_at' => \Carbon\Carbon::today()->subDays(2),
+            'request_data' => serialize(['wikiname' => 'REX', 'from_date' => '2020/11/30', 'to_date' => '2020/12/13']),
+            'title' => 'Hours by Users',
+        ]);
+        $reportC = factory(Report::class)->states('processed')->create([
+            'created_at' => \Carbon\Carbon::today()->subDays(5),
+            'request_data' => serialize(['wikiname' => 'Grassi', 'from_date' => '2020/11/30', 'to_date' => '2020/12/13']),
+        ]);
+        $reportD = factory(Report::class)->create([
+            'created_at' => \Carbon\Carbon::today()->subDays(7),
+            'status' => 3,
+            'request_data' => serialize(['wikiname' => 'Sommier', 'from_date' => '2020/11/30', 'to_date' => '2020/12/13']),
+        ]);
+
+        $nperic->reports()->saveMany([$reportA, $reportB, $reportC, $reportD]);
+
 
 
 

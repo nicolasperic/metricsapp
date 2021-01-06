@@ -11,6 +11,26 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
 
+                @if ($reports)
+
+                    <table style="width: 100%;margin-bottom: 20px;">
+                        <thead>
+                        <th>Status</th>
+                        <th>Report Type</th>
+                        <th>Data</th>
+                        <th>View Report</th>
+                        </thead>
+                        @foreach($reports as $report)
+                            <tr>
+                                <td>{{ $report->getStatusLabel() }}</td><td>{{ $report->title }}</td><td>{{ $report->getRequestDataFormatted() }}</td>
+                                <td>@if ($report->status == 2)<a href="{{url("reports/{$report->id}")}}" target="_blank">View</a> @endif</td>
+                            </tr>
+                        @endforeach
+                    </table>
+
+
+                @endif
+
                 @if ($results)
                     <div class="console">
                         <header>
@@ -298,6 +318,10 @@
 
     .datepicker-switch {
         color: white;
+    }
+
+    .datepicker.datepicker-dropdown.dropdown-menu {
+        z-index: 10000 !important;
     }
 
 

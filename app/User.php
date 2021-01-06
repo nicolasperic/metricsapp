@@ -44,6 +44,17 @@ class User extends Authenticatable
         return $this->belongsToMany(Sprint::class);
     }
 
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    public function lastWeekReports()
+    {
+        $date = Carbon::today()->subDays(7);
+        return $this->reports()->where('created_at', '>=', $date)->get();
+    }
+
     public function getOpenSprints()
     {
         return $this->sprints()->open();

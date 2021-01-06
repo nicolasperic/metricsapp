@@ -3,6 +3,7 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\Project;
+use App\Report;
 use App\Sprint;
 use App\Ticket;
 use App\AssemblaUser;
@@ -100,3 +101,18 @@ $factory->define(Sprint::class, function (Faker $faker) {
     ];
 });
 
+$factory->define(Report::class, function (Faker $faker) {
+    return [
+        'user_id' => 1,
+        'request_data' => serialize(['wikiname' => 'Grassi', 'from_date' => '2020/11/30', 'to_date' => '2020/12/13']),
+        'title' => 'Hours by User Story',
+    ];
+});
+
+$factory->state(Report::class, 'processed', function () {
+    return [
+        'status' => Report::PROCESSED_STATUS,
+        'body' => '160 horas',
+        'finished_at' => Carbon::parse('-1 hour'),
+    ];
+});

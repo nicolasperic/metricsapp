@@ -82,3 +82,13 @@ Widgets configurables | Type > pie chart, X opciones, Y default, Z colores
 
 Laravel Socialite > Facebook/Google login
 > Register page con estilos del theme
+
+> US Report on background with queued jobs
+> once the job is created we keep track of the report on a custom table i.e reports report_id, user_id, requestData, response, status, created_at, finished_at
+> the customer will be able to see the new registry for the report and as soon it ends a download link to get the report content (or open/print it on the browser)
+> once the job ends we store the report data on the database
+> only display the reports on the last 7 days
+> cronjob to clear reports older than 7 days
+
+php artisan queue:work --timeout=1200
+php artisan queue:table
