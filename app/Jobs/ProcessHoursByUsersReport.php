@@ -42,16 +42,25 @@ class ProcessHoursByUsersReport implements ShouldQueue
      */
     public function handle()
     {
-        $report = new HoursByUserReport($this->requestData);
-        $reportResults = $report->execute();
+        try {
+            $this->reportModel->status = Report::RUNNING_STATUS;
+            $this->reportModel->save();
 
-        $this->reportModel->status = Report::PROCESSED_STATUS;//TODO si no importo Report puedo simular un exception para ver el status failed
-        $reportBody = '';
-        foreach ($reportResults as $line) {
-            $reportBody .= $line;
+            $report = new HoursByUserReport($this->requestData);
+            $reportResults = $report->execute();
+
+            $reportBody = '';
+            foreach ($reportResults as $line) {
+                $reportBody .= $line;
+            }
+            $this->reportModel->body = $reportBody;
+            $this->reportModel->status = Report::PROCESSED_STATUS;//TODO si no importo Report puedo simular un exception para ver el status failed
+        } catch (\Exception $e) {
+            $this->reportModel->status = Report::FAILED_STATUS;
+        } finally {
+            $this->reportModel->finished_at = Carbon::now();
+            $this->reportModel->save();
         }
-        $this->reportModel->body = $reportBody;
-        $this->reportModel->finished_at = Carbon::now();
-        $this->reportModel->save();
+
     }
 }

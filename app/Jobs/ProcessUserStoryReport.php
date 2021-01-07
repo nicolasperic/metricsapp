@@ -44,19 +44,28 @@ class ProcessUserStoryReport implements ShouldQueue
      */
     public function handle()
     {
-        $report = new HoursByUSReport($this->requestData);
-        $reportResults = $report->execute();
+        try {
+            //TODO report->execute() should flag the report model as started
+            //tal vez cada proceso de reporte debería extender de Elqouent Report?
+            $this->reportModel->status = Report::RUNNING_STATUS;
+            $this->reportModel->save();
 
+            $report = new HoursByUSReport($this->requestData);
+            $reportResults = $report->execute();
 
-
-        $this->reportModel->status = Report::PROCESSED_STATUS;
-        $reportBody = '';
-        foreach ($reportResults as $line) {
-            $reportBody .= $line;
+            $reportBody = '';//TODO this function is 95% like the handle function from Users report
+            foreach ($reportResults as $line) {
+                $reportBody .= $line;
+            }
+            $this->reportModel->body = $reportBody;
+            $this->reportModel->status = Report::PROCESSED_STATUS;
+        } catch (\Exception $e) {
+            $this->reportModel->status = Report::FAILED_STATUS;
+        } finally {
+            $this->reportModel->finished_at = Carbon::now();
+            $this->reportModel->save();
         }
-        $this->reportModel->body = $reportBody;
-        $this->reportModel->finished_at = Carbon::now();
-        $this->reportModel->save();
+
 
     }
 }
