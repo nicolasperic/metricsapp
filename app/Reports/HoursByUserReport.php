@@ -313,6 +313,8 @@ class HoursByUserReport
 
         $results[] = PHP_EOL;
         $results[] = '======================================================'.PHP_EOL;
+        $results[] = ' Hours grouped by Users '.PHP_EOL;
+        $results[] = '======================================================'.PHP_EOL;
 
         foreach ($hours as $userId => $hoursData) {
             $userName = (array_key_exists($userId, $users))?$users[$userId]: $userId;
@@ -325,8 +327,8 @@ class HoursByUserReport
         $minutes = round(($endTime - $startTime)/60, 2);
         $results[] = ''.PHP_EOL;//adding a breakline
         $results[] = ''.PHP_EOL;//adding a breakline
-        $results[] = "Execution time ". $minutes ." minutes";
-        $results[] = 'Total API calls '.$apicalls;
+        $results[] = "Execution time ". $minutes ." minutes".PHP_EOL;
+        $results[] = 'Total API calls '.$apicalls.PHP_EOL;
 
         return $results;
     }

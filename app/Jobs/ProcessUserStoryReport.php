@@ -52,7 +52,7 @@ class ProcessUserStoryReport implements ShouldQueue
         $this->reportModel->status = Report::PROCESSED_STATUS;
         $reportBody = '';
         foreach ($reportResults as $line) {
-            $reportBody .= '<p>'.$line.'</p>';
+            $reportBody .= $line;
         }
         $this->reportModel->body = $reportBody;
         $this->reportModel->finished_at = Carbon::now();

@@ -48,7 +48,7 @@ class ProcessHoursByUsersReport implements ShouldQueue
         $this->reportModel->status = Report::PROCESSED_STATUS;//TODO si no importo Report puedo simular un exception para ver el status failed
         $reportBody = '';
         foreach ($reportResults as $line) {
-            $reportBody .= '<p>'.$line.'</p>';
+            $reportBody .= $line;
         }
         $this->reportModel->body = $reportBody;
         $this->reportModel->finished_at = Carbon::now();

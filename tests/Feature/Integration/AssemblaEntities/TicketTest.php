@@ -20,7 +20,7 @@ class TicketTest
         $assemblaGateway = new AssemblaGateway();
 
         /** @var TicketDto $ticketDto */
-        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber('Grupo-Grassi', '536');//228
+        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber('sommiercenter', '1022');
 
 
         $this->assertEquals(1022, $ticketDto->getNumber());

@@ -362,45 +362,45 @@ class HoursByUSReport
 
 
         $results = [];
-        $results[]= '======================================================';
-        $results[] = "Desde $from hasta $to";
-        $results[] = '======================================================';
-        $results[] = 'Total Hours '.$totalHours;
-        $results[] = 'Total Tasks '.$totalTasks;
+        $results[]= '======================================================'.PHP_EOL;
+        $results[] = "Desde $from hasta $to".PHP_EOL;
+        $results[] = '======================================================'.PHP_EOL;
+        $results[] = 'Total Hours '.$totalHours.PHP_EOL;
+        $results[] = 'Total Tasks '.$totalTasks.PHP_EOL;
 
 
-        $results[] = '======================================================';
+        $results[] = '======================================================'.PHP_EOL;
         $results[] = 'User Stories'.PHP_EOL;
-        $results[] = '======================================================';
+        $results[] = '======================================================'.PHP_EOL;
 
         $this->typePercentages = [];// Type => hours; count; hours/percentage (sobre total stories hours); count/percentage (sobre total stories)
         $userStoriesTotalHours = 0;
         ksort($this->userStories);
-        $results[] = 'ticket,total_hours, hours, tasks, status, type';
+        $results[] = 'ticket,total_hours, hours, tasks, status, type'.PHP_EOL;
         foreach ($this->userStories as $id => $storyData) {
             $results[] = $storyData['description'].', '.$storyData['total_invested_hours'].', '.$storyData['hours'].', '.$storyData['tasks'].', '.$storyData['status'].', '.$storyData['type'].PHP_EOL;
             $userStoriesTotalHours += $storyData['hours'];
             self::_keepTrackOfTypeData($storyData);
         }
 
-        $results[] = '';
+        $results[] = ''.PHP_EOL;
         $results[] = 'User Stories Total Hours: '.$userStoriesTotalHours.PHP_EOL;
         //$results[] = print_r($this->userStories, 1).PHP_EOL;
         //$results[] = print_r($this->noUserStories, 1).PHP_EOL;
 
         $noUserStoriesTotalHours = 0;
         if ($this->noUserStories) {
-            $results[] = '======================================================';
-            $results[] = 'Tasks (not a User Story)';
-            $results[] = '======================================================';
+            $results[] = '======================================================'.PHP_EOL;
+            $results[] = 'Tasks (not a User Story)'.PHP_EOL;
+            $results[] = '======================================================'.PHP_EOL;
             ksort($this->noUserStories);
-            $results[] = 'ticket,total_hours, hours, tasks, status';
+            $results[] = 'ticket,total_hours, hours, tasks, status'.PHP_EOL;
             foreach ($this->noUserStories as $id => $ticketData) {
                 $results[] = $ticketData['description'].', '.$ticketData['total_invested_hours'].', '.$ticketData['hours'].', '.$ticketData['tasks'].', '.$ticketData['status'].PHP_EOL;
                 $noUserStoriesTotalHours += $ticketData['hours'];
             }
 
-            $results[] = '';
+            $results[] = ''.PHP_EOL;
             $results[] = 'Tasks (not a User Story) Total Hours: '.$noUserStoriesTotalHours.PHP_EOL;
         }
 
@@ -409,21 +409,21 @@ class HoursByUSReport
 
         $withoutTicketTotalHours = 0;
         if (count($this->withoutTicket)) {
-            $results[] = '======================================================';
+            $results[] = '======================================================'.PHP_EOL;
             $results[] = ' Tracked time without ticket'.PHP_EOL;
-            $results[] = '======================================================';
-            $results[] = 'username, hours, tasks';
+            $results[] = '======================================================'.PHP_EOL;
+            $results[] = 'username, hours, tasks'.PHP_EOL;
             foreach ($this->withoutTicket as $userId => $data) {
                 $username = (array_key_exists($userId, $users))?$users[$userId]: $userId;
-                $results[] = $username.','.$data['hours'].','.$data['tasks'];
+                $results[] = $username.','.$data['hours'].','.$data['tasks'].PHP_EOL;
                 $withoutTicketTotalHours += $data['hours'];
             }
 
-            $results[] = '';
+            $results[] = ''.PHP_EOL;
             $results[] = 'Tracked time without ticket Total Hours: '.$withoutTicketTotalHours.PHP_EOL;
         }
 
-        $results[] = '';//adding a breakline
+        $results[] = ''.PHP_EOL;//adding a breakline
 
         foreach ($this->typePercentages as $type => $typeData) {
             $typeTotalHours = $this->typePercentages[$type]['total_hours'];
@@ -437,15 +437,15 @@ class HoursByUSReport
         }
 
 
-        $results[] = '';//adding a breakline
+        $results[] = ''.PHP_EOL;//adding a breakline
         $results[] = 'Total Tracked Time '.$totalHours.' vs Total Hours per section (all added) '.($userStoriesTotalHours+$noUserStoriesTotalHours+$withoutTicketTotalHours).PHP_EOL;
 
         $endTime = time();
         $minutes = round(($endTime - $startTime)/60, 2);
-        $results[] = '';//adding a breakline
-        $results[] = '';//adding a breakline
-        $results[] = "Execution time ". $minutes ." minutes";
-        $results[] = 'Total API calls '.$this->apicalls.' (pages '.$page.')';
+        $results[] = ''.PHP_EOL;//adding a breakline
+        $results[] = ''.PHP_EOL;//adding a breakline
+        $results[] = "Execution time ". $minutes ." minutes".PHP_EOL;
+        $results[] = 'Total API calls '.$this->apicalls.' (pages '.$page.')'.PHP_EOL;
 
         return $results;
     }
