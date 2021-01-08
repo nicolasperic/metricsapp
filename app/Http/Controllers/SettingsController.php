@@ -38,6 +38,7 @@ class SettingsController extends Controller
             }
         }
 
+            $user->name = request('name');
             $user->email = request('email');
             $user->save();
             SessionMessage::infoMessage('Settings saved');
@@ -90,6 +91,7 @@ class SettingsController extends Controller
     protected function validateRequest()
     {
         return request()->validate([
+            'name'   => 'required',
             'email'   => 'required',
             'assembla_secret' => 'required',
             'assembla_key' => 'required',
