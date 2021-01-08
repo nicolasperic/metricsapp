@@ -27,26 +27,31 @@ class SettingsController extends Controller
         $this->validateRequest();
 
         $user = Auth::user();
-        $user->assembla_key = request('assembla_key');
-        $user->assembla_secret = Crypt::encrypt(request('assembla_secret'));
+        if ($this->assemblaCredentialsUpdated($user)) {
+            $user->assembla_key = request('assembla_key');
+            $user->assembla_secret = Crypt::encrypt(request('assembla_secret'));
+            if (!$this->_setUserImageAndId($user)) {
+                return redirect(route('settings.index'))->withErrors([
+                    'assembla_secret' => 'Assembla Secret is not valid',
+                    'assembla_key'    => 'Assembla Key is not valid',
+                ])->withInput();
+            }
+        }
 
-        //TODO all this image logic should not be here.. maybe on a listener
-        if ($this->_setUserImageAndId($user)) {
+            $user->email = request('email');
             $user->save();
             SessionMessage::infoMessage('Settings saved');
 
             return redirect(route('settings.index'));
-        } else {
-            return redirect(route('settings.index'))->withErrors([
-                'assembla_secret' => 'Assembla Secret is not valid',
-                'assembla_key'    => 'Assembla Key is not valid',
-            ])->withInput();
-        }
-
-
-
     }
 
+    private function assemblaCredentialsUpdated($user)
+    {
+        return request('assembla_key') != $user->assembla_key ||
+        Crypt::decrypt($user->assembla_secret) != request('assembla_secret');
+    }
+
+    //TODO this function doesn't belong here
     private function _setUserImageAndId($user)
     {
         $success = false;
