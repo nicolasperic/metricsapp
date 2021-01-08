@@ -112,7 +112,7 @@
                     <!-- a class="collapse-item" href="blank.html">Blank Page</a-->
                     <h6 class="collapse-header">Starred Projects:</h6>
                     @foreach (Auth::user()->starredProjects as $project)
-                        <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{$project->getFormattedName(18)}}</a>
+                        <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{$project->getFormattedName(23)}}</a>
                     @endforeach
                 </div>
             </div>
