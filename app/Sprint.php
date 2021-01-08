@@ -67,6 +67,11 @@ class Sprint extends Model
         //return $query->whereNotNull('completed_at')->where('state', self::CLOSED_STATE);//el ticket 385 estaba en delivered state 0 pero sin fecha de completed_at
     }
 
+    public function scopeCurrent($query)
+    {
+        return $query->where('planner_type', 2);
+    }
+
     public function scopeClosed($query)
     {
         return $query->where('is_active', 0);

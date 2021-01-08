@@ -33,6 +33,11 @@ class Project extends Model
         return $this->sprints()->open();
     }
 
+    public function getCurrentSprint()
+    {
+        return $this->getOpenSprints()->current()->first();
+    }
+
     public function getClosedSprints()
     {
         return $this->sprints()->closed();
@@ -46,5 +51,15 @@ class Project extends Model
     public function assemblaUsers()
     {
         return $this->belongsToMany(AssemblaUser::class);
+    }
+
+
+    public function getFormattedName($length = 80)
+    {
+        $name = $this->name;
+        if (strlen($this->name) > $length) {
+            $name = substr($this->name,0,$length).'...';
+        }
+        return $name;
     }
 }

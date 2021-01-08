@@ -76,6 +76,24 @@ class User extends Authenticatable
     }
 
     /**
+     * This function will iterate user starred projects and collect current sprints
+     *
+     * @return \Illuminate\Support\Collection|null|\Symfony\Component\HttpKernel\Profiler\Profile|void
+     */
+    public function starredProjectsCurrentSprints()
+    {
+        $sprints = collect();
+        $this->starredProjects->each( function ($project) use (&$sprints){
+            $current = $project->getCurrentSprint();
+            if ($current) {
+                $sprints->add($current);
+            }
+        });
+
+        return $sprints;
+    }
+
+    /**
      * This function will return the created tasks for the logged user
      * Tasks used to populate the Timer list
      */

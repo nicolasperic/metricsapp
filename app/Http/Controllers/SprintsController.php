@@ -21,7 +21,7 @@ class SprintsController extends Controller
     public function current()
     {
         return view('sprints.current', [
-            'currentSprints' => Auth::user()->getOpenSprints->where('planner_type',2),
+            'currentSprints' => Auth::user()->starredProjectsCurrentSprints(),
         ]);
     }
 

@@ -29,6 +29,7 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::get('/projects', 'ProjectsController@index')->name('projects.index')->middleware('auth');
     Route::get('/projects/importProjects', 'ProjectsController@importProjects')->name('projects.import')->middleware('auth');
     Route::get('/projects/{id}', 'ProjectsController@show')->name('projects.show')->middleware('auth');
+    Route::post('/projects/starred/{id}', 'ProjectsController@starred')->name('projects.starred')->middleware('auth');
     Route::get('/sprints', 'SprintsController@index')->name('sprints.index')->middleware('auth');
     Route::get('/sprints/current', 'SprintsController@current')->name('sprints.current')->middleware('auth');
     Route::get('/sprints/importSprints/{projectId}', 'SprintsController@importSprints')->name('sprints.import')->middleware('auth');
