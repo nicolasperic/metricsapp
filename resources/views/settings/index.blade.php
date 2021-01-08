@@ -41,7 +41,7 @@
 
                         <div class="form-group">
                             <label for="assembla_secret">Assembla Secret</label>
-                            <input type="password" class="input form-control @error('assembla_secret') is-danger @enderror" id="assembla_secret" name="assembla_secret" placeholder="Assembla Secret" value="{{ old('assembla_secret',Crypt::decrypt(Auth::user()->assembla_secret)) }}">
+                            <input type="password" class="input form-control @error('assembla_secret') is-danger @enderror" id="assembla_secret" name="assembla_secret" placeholder="Assembla Secret" value="{{ old('assembla_secret',(Auth::user()->assembla_secret)?Crypt::decrypt(Auth::user()->assembla_secret):'') }}">
                             @error('assembla_secret')
                             <p class="help is-danger">{{ $errors->first('assembla_secret') }}</p>
                             @enderror
