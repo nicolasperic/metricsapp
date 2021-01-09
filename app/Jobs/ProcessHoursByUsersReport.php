@@ -66,7 +66,7 @@ class ProcessHoursByUsersReport implements ShouldQueue
                 $user = $this->reportModel->user;
                 Mail::raw($reportBody, function ($mail) use ($user) {
                     $mail->to($user->email)
-                        ->subject('Weekly Report ('.$this->requestData['from_date'].' - '.$this->requestData['to_date']);
+                        ->subject('Weekly Report ('.$this->requestData['from_date'].' - '.$this->requestData['to_date'].')');
                 });
             }
         } catch (\Exception $e) {
