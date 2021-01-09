@@ -28,8 +28,9 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         //$schedule->command('weekly:report')->weeklyOn(1, '8:00');
         $schedule->command('weekly:report')->everyMinute()->when(function (){
+            //workaround for Heroku scheduler
             $today = new Carbon();
-            return $today->dayOfWeek == Carbon::SATURDAY;//for testing
+            return $today->dayOfWeek == Carbon::MONDAY;
         });
     }
 
