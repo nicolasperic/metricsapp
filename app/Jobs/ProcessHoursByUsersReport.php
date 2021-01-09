@@ -60,20 +60,18 @@ class ProcessHoursByUsersReport implements ShouldQueue
                 $reportBody .= $line;
             }
             $this->reportModel->body = $reportBody;
-            $this->reportModel->status = Report::PROCESSED_STATUS;//TODO si no importo Report puedo simular un exception para ver el status failed
+            $this->reportModel->status = Report::PROCESSED_STATUS;
 
             if ($this->sendEmail) {
-                Log::info('SendEmail set to true');
                 $user = $this->reportModel->user;
                 Mail::raw($reportBody, function ($mail) use ($user) {
-                    $mail->from('weekly-report@assemblametrics.com');
                     $mail->to($user->email)
                         ->subject('Weekly Report ('.$this->requestData['from_date'].' - '.$this->requestData['to_date']);
                 });
-                Log::info('Email sent');
             }
         } catch (\Exception $e) {
             $this->reportModel->status = Report::FAILED_STATUS;
+            Log::info($e->getMessage());
         } finally {
             $this->reportModel->finished_at = Carbon::now();
             $this->reportModel->save();
