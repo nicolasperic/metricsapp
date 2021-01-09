@@ -13,6 +13,11 @@ class Report extends Model
     const PROCESSED_STATUS = 2;
     const FAILED_STATUS = 3;
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function getStatusLabel()
     {
         switch($this->status) {

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -13,7 +14,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\WeeklyReport::class,
     ];
 
     /**
@@ -25,6 +26,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        //$schedule->command('weekly:report')->weeklyOn(1, '8:00');
+        $schedule->command('weekly:report')->everyMinute()->when(function (){
+            $today = new Carbon();
+            return $today->dayOfWeek == Carbon::SATURDAY;//for testing
+        });
     }
 
     /**

@@ -21,6 +21,8 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::get('/reports', 'ReportsController@index')->name('reports.index')->middleware('auth');
+    Route::get('/reports/weekly', 'ReportsController@weekly')->name('reports.weekly')->middleware('auth');
+    Route::post('/reports/weeklyStore', 'ReportsController@weeklyStore')->middleware('auth');
     Route::get('/reports/{id}', 'ReportsController@show')->name('reports.show')->middleware('auth');
     Route::post('/reports/hoursByUs', 'ReportsController@generateHoursByUsReport')->middleware('auth');
     Route::post('/reports/hoursByUser', 'ReportsController@generateHoursByUserReport')->middleware('auth');

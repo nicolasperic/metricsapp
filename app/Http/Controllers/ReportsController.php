@@ -3,17 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Helper\SessionMessage;
-use App\Integration\AssemblaGateway;
 use App\Jobs\ProcessHoursByUsersReport;
 use App\Jobs\ProcessUserStoryReport;
 use App\Project;
 
 use App\Report;
-use App\Reports\HoursByUserReport;
-use App\Reports\HoursByUSReport;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use TheSeer\Tokenizer\Exception;
 
 class ReportsController extends Controller
 {
@@ -22,8 +17,40 @@ class ReportsController extends Controller
 
     public function index()
     {
-        Log::info('ReportsController index action');
-        return $this->_generateIndexView(request('results'));
+        $projects = Auth::user()->projects;
+        return view('reports.index', [
+            'projects' => $projects,
+            'users' => self::_getUsersInProjects($projects),
+            'results' => request('results'),
+            'reports' => Auth::user()->lastWeekReports(),
+        ]);
+    }
+
+    public function weekly()
+    {
+        $user = Auth::user();
+        $projects = $user->projects;
+        return view('reports.weekly', [
+            'projects' => $projects,
+            'users' => self::_getUsersInProjects($projects),
+            'selectedProjects' => unserialize($user->weekly_report_projects),
+            'selectedUsers' => unserialize($user->weekly_report_users),
+        ]);
+    }
+
+    public function weeklyStore()
+    {
+        $this->validateHoursByUserRequest();
+
+
+        $user = Auth::user();
+        $user->weekly_report_projects = serialize(request('projects'));
+        $user->weekly_report_users = serialize(request('users'));
+        $user->save();
+
+        SessionMessage::infoMessage('Weekly report saved');
+
+        return redirect()->route('reports.weekly');
     }
 
     public function show($id)
@@ -32,20 +59,6 @@ class ReportsController extends Controller
 
         return view('reports.show', [
             'report' => $report,
-        ]);
-    }
-
-    /**
-     //TODO remove this function, we can probably work with a redirect > return redirect()->route('reports.index');
-     */
-    private function _generateIndexView($reportResults = null)
-    {
-        $projects = Auth::user()->projects;
-        return view('reports.index', [
-            'projects' => $projects,
-            'users' => self::_getUsersInProjects($projects),
-            'results' => $reportResults,
-            'reports' => Auth::user()->lastWeekReports(),
         ]);
     }
 

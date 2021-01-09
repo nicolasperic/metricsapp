@@ -10,6 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ProcessHoursByUsersReport implements ShouldQueue
 {
@@ -22,17 +24,21 @@ class ProcessHoursByUsersReport implements ShouldQueue
      * @var
      */
     private $reportModel;
+    /**
+     * @var bool
+     */
+    private $sendEmail;
 
     /**
      * Create a new job instance.
      * @param $requestData
      * @param $reportModel
      */
-    public function __construct($requestData, $reportModel)
+    public function __construct($requestData, $reportModel, $sendEmail = false)
     {
-        //
         $this->requestData = $requestData;
         $this->reportModel = $reportModel;
+        $this->sendEmail = $sendEmail;
     }
 
     /**
@@ -55,6 +61,17 @@ class ProcessHoursByUsersReport implements ShouldQueue
             }
             $this->reportModel->body = $reportBody;
             $this->reportModel->status = Report::PROCESSED_STATUS;//TODO si no importo Report puedo simular un exception para ver el status failed
+
+            if ($this->sendEmail) {
+                Log::info('SendEmail set to true');
+                $user = $this->reportModel->user;
+                Mail::raw($reportBody, function ($mail) use ($user) {
+                    $mail->from('weekly-report@assemblametrics.com');
+                    $mail->to($user->email)
+                        ->subject('Weekly Report ('.$this->requestData['from_date'].' - '.$this->requestData['to_date']);
+                });
+                Log::info('Email sent');
+            }
         } catch (\Exception $e) {
             $this->reportModel->status = Report::FAILED_STATUS;
         } finally {
