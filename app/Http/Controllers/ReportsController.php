@@ -6,7 +6,6 @@ use App\Helper\SessionMessage;
 use App\Jobs\ProcessHoursByUsersReport;
 use App\Jobs\ProcessUserStoryReport;
 use App\Project;
-
 use App\Report;
 use Illuminate\Support\Facades\Auth;
 
