@@ -35,6 +35,7 @@ class TicketImporter
             'sort_by' => 'id',
             'sort_order' => 'desc'
         ];
+        $allSprintTicketsFromAPI = array();
         do {
             $tickets = $this->assemblaGateway->getTicketsForMilestone($project->wikiname, $sprint->sprint_assembla_id, $queryParams);
 
@@ -44,6 +45,8 @@ class TicketImporter
 
                 /** @var TicketDto $ticketDto */
                 foreach ($tickets as $ticketDto) {
+                    $allSprintTicketsFromAPI[$ticketDto->getTicketAssemblaId()] = true;
+
                     if (!Ticket::ticketExists($ticketDto->getTicketAssemblaId())) {
                         Log::info('[Ticket Importer] about to create ticket '.$ticketDto->getNumber());
                         $this->_createTicketFromDTO($ticketDto, $sprint, $project);
@@ -62,6 +65,13 @@ class TicketImporter
                 break;
             }
         } while(count($tickets) === AssemblaRequest::PER_PAGE);
+
+        //sync $tickets received from API with sprints->tickets
+        foreach ($sprint->tickets as $ticket) {
+            if (!array_key_exists($ticket->ticket_assembla_id, $allSprintTicketsFromAPI)) {
+                $sprint->tickets()->detach($ticket->id);
+            }
+        }
         Log::info('[Ticket Importer] Ended');
     }
 

@@ -2,8 +2,13 @@
 
 namespace Tests\Feature\Integration;
 
+use App\Importer\TicketImporter;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
+use App\Project;
+use App\Sprint;
+use App\Ticket;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -13,6 +18,8 @@ use Tests\TestCase;
 class MilestoneTest
     extends TestCase
 {
+    use RefreshDatabase;
+
     /**  @test */
     function can_get_all_pages_of_tickets_for_a_milestone()
     {
@@ -93,6 +100,87 @@ class MilestoneTest
 
         print 'Found '. count($sprints).' milestones '.PHP_EOL;
 
+
+    }
+
+    /** @test */
+    function can_sync_milestone_tickets()
+    {
+        //wikiname: canaldeautopartes
+        $wikiname = 'canaldeautopartes';
+        $milestoneId = '13040067';
+
+        $project = factory(Project::class)->create([
+            'name'                  => 'Project C',
+            'wikiname'              => 'canaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+
+
+        //milestone id: 13040067
+        //milestone name: Closed SE - Noviembre 2
+        //Total tickets 7 > 904, 905, 906, 907, 908, 909, 910
+
+        $sprint = factory(Sprint::class)->create([
+            'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
+            'sprint_assembla_id'  => '13040067',
+        ]);
+
+        $ticketA = factory(Ticket::class)->states('completed')->create([
+            'id' => 1,
+            'ticket_assembla_id' => '232538824',
+            'is_story' => true,
+            'number' => 908,
+        ]);
+        $ticketB = factory(Ticket::class)->states('completed')->create([
+            'id' => 2,
+            'ticket_assembla_id' => '232533924',
+            'is_story' => true,
+            'number' => 904,
+        ]);
+        $ticketC = factory(Ticket::class)->states('completed')->create([
+            'id' => 3,
+            'ticket_assembla_id' => '232534968',
+            'is_story' => false,
+            'number' => 905,
+        ]);
+        $ticketD = factory(Ticket::class)->create([
+            'id' => 4,
+            'ticket_assembla_id' => '232538091',
+            'is_story' => false,
+            'number' => 906,
+        ]);
+        $ticketE = factory(Ticket::class)->create([
+            'id' => 5,
+            'ticket_assembla_id' => '232538583',
+            'is_story' => false,
+            'number' => 907,
+        ]);
+
+        //this ticket doesn' belong to the sprint the importer should remove it
+        $ticketF = factory(Ticket::class)->create([
+            'id' => 6,
+            'ticket_assembla_id' => '232538999',
+            'is_story' => false,
+            'number' => 911,
+        ]);
+
+
+
+
+
+        $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC, $ticketD, $ticketE, $ticketF]);
+        $sprint->projects()->save($project);
+
+        $this->assertEquals(6, $sprint->getTotalTickets());
+
+        //MISSING TICKETS 909 and 910 will be added by importer
+        //TICKET 911 will be removed by importer
+        $ticketImporter = new TicketImporter();
+        $ticketImporter->importMilestoneTickets($sprint);
+
+
+        $this->assertEquals(7, $sprint->getTotalTickets());
 
     }
 }
