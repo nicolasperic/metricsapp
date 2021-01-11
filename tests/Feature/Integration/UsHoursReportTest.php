@@ -28,6 +28,7 @@ class UsHoursReportTest extends TestCase
     /** @test */
     function can_get_projects_time_by_user_story()
     {
+        $this->loginWithAssemblaUser();
         $this->apicalls = 0;
         $startTime = time();
         //TODO add logic to remove hardcoded users
@@ -69,23 +70,24 @@ class UsHoursReportTest extends TestCase
         $this->ticketsApiData = [];
 
         $projects = [
-            'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
+            //'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
             //'canaldeautopartes' => 'dpT43eCVCr54kBacwqjQYw',
             //'cemaco' => 'dKs4GwzB8r4Pz7acwqjQYw',
             //'pinturerias-rex' => 'atJlRad84r55JcacwqjQXA',
             //'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
             //'summa-internal-projects' => 'bPFF_gQfWr4PjCacwqjQWU',
-            //'Grupo-Grassi' => 'dTomygY3Gr6P7dbK8JiBFu'
+            //'Grupo-Grassi' => 'dTomygY3Gr6P7dbK8JiBFu',
+            'clubdebeneficios' => 'cDK4RGOoar6RfhaIC_Qgzw'
         ];
 
-
+//204 NO CONTENT;
 
         $totalHours = 0;
         $totalTasks = 0;
 
 
         $from = '2020/12/01 00:00';
-        $to = '2020/12/31 23:59';
+        $to = '2029/12/31 23:59';
         foreach ($projects as $wikiname => $spaceId) {
 
             $page = 1;
@@ -97,14 +99,16 @@ class UsHoursReportTest extends TestCase
                     'page' => $page,
                 ];
 
-                $response = AssemblaRequest::get("tasks", $queryParams);
+                $response = AssemblaRequest::get("tasks", $queryParams, $this->user->assembla_key, $this->user->assembla_secret);
+                //dd($response);
                 $this->apicalls++;
                 $result = json_decode($response->getBody()->getContents(), 1);
                 if (!is_array($result)) {
+                    print 'not an array'.PHP_EOL;
                     break;
                 }
 
-
+                print 'Tracked time on page '.$page.' '.count($result);
                 foreach ($result as $timeTracked) {
                     $timetracked = false;
                     if (trim($timeTracked['ticket_id']) != '') {//Tracked time to a ticket
@@ -132,7 +136,7 @@ class UsHoursReportTest extends TestCase
                                 $userStoryId = $this->_retrieveTicketAssociation($wikiname, $timeTracked['ticket_number']);
                                 if ($userStoryId !== false) {
                                     if (!array_key_exists($userStoryId, $this->userStories)) {
-                                        $response = AssemblaRequest::get("spaces/{$wikiname}/tickets/id/{$userStoryId}");
+                                        $response = AssemblaRequest::get("spaces/{$wikiname}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);
                                         $this->apicalls++;
                                         if ($response->getStatusCode() == 200) {
                                             $bodyContents = json_decode($response->getBody()->getContents(), 1);
@@ -322,7 +326,7 @@ class UsHoursReportTest extends TestCase
                 $userStoryId = $this->_retrieveTicketAssociation($space, $ticketNumber);
                 if ($userStoryId !== false) {
                     if (!array_key_exists($userStoryId, $this->userStories)) {
-                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}");//TODO create a function in AssemblaGateway for this endpoint
+                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);//TODO create a function in AssemblaGateway for this endpoint
                         $this->apicalls++;
                         if ($response->getStatusCode() == 200) {
                             $bodyContents = json_decode($response->getBody()->getContents(), 1);
@@ -400,6 +404,7 @@ class UsHoursReportTest extends TestCase
      */
     function can_get_projects_time_weekly_by_user()
     {
+        $this->loginWithAssemblaUser();
         $teamMembers = [
             // 'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',
             'cvixt811Gr4PBcacwqjQYw' => 'Nicolás Peric',
@@ -468,7 +473,7 @@ class UsHoursReportTest extends TestCase
                     'to' => $to,
                     'page' => $page,
                 ];
-                $response = AssemblaRequest::get("tasks", $queryParams);
+                $response = AssemblaRequest::get("tasks", $queryParams, $this->user->assembla_key, $this->user->assembla_secret);
                 $result = json_decode($response->getBody()->getContents(), 1);
                 if (!is_array($result)) {
                     break;

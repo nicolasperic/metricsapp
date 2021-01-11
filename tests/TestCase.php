@@ -11,7 +11,7 @@ use Illuminate\Testing\TestResponse;
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
-
+    protected $user;
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,6 +34,7 @@ abstract class TestCase extends BaseTestCase
             'assembla_secret' => config('services.assemblatesting.assembla_secret')
         ]);
         $this->be($user);
+        $this->user = $user;
 
         return $user;
     }

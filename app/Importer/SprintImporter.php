@@ -6,6 +6,7 @@ use App\Dto\Mapper\SprintMapper;
 use App\Dto\SprintDto;
 use App\Integration\AssemblaGateway;
 use App\Sprint;
+use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -15,12 +16,12 @@ class SprintImporter
     /**
      *
      */
-    public function importProjectMilestonesAsSprints($project)
+    public function importProjectMilestonesAsSprints(User $user, $project)
     {
         Log::info('[Milestones Importer] Starting import process');
         $startTime = time();
         $allProjectMilestonesFromAPI = array();
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($user);
         $sprints = $assemblaGateway->getMilestonesForSpace($project->wikiname);
 
         $APIEndTime = time();

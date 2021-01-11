@@ -23,10 +23,10 @@ class MilestoneTest
     /**  @test */
     function can_get_all_pages_of_tickets_for_a_milestone()
     {
-        $this->loginWithAssemblaUser();
+        $user = $this->loginWithAssemblaUser();
         $space = 'sommiercenter';
         $milestoneId = 12982775;
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($user);
         $page = 1;
 
         $queryParams = [
@@ -57,10 +57,11 @@ class MilestoneTest
     //TODO assets tarea
     function can_get_a_list_of_tickets_for_a_milestone()
     {
+        $user = $this->loginWithAssemblaUser();
         ///GET /v1/spaces/[space_id]/tickets/milestone/[milestone_id]	Get the list of tickets for a milestone
         $space = 'sommiercenter';
         $milestoneId = 12982775;
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($user);
         $response = $assemblaGateway->getTicketsForMilestone($space, $milestoneId);
 
         $result = json_decode($response->getBody()->getContents(), 1);
@@ -88,10 +89,10 @@ class MilestoneTest
     /**  */
     function can_get_all_milestones_for_a_space()
     {
-        $this->loginWithAssemblaUser();
+        $user = $this->loginWithAssemblaUser();
         $space = 'sommiercenter';
 
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($user);
         $sprints = $assemblaGateway->getMilestonesForSpace($space);
 
 
@@ -108,7 +109,7 @@ class MilestoneTest
     /** @test */
     function can_sync_milestone_tickets()
     {
-        $this->loginWithAssemblaUser();
+        $user = $this->loginWithAssemblaUser();
 
         $project = factory(Project::class)->create([
             'name'                  => 'Project C',
@@ -176,7 +177,7 @@ class MilestoneTest
 
         //MISSING TICKETS 909 and 910 will be added by importer
         //TICKET 911 will be removed by importer
-        $ticketImporter = new TicketImporter();
+        $ticketImporter = new TicketImporter($user);
         $ticketImporter->importMilestoneTickets($sprint);
 
 

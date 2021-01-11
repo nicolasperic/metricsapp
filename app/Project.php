@@ -52,14 +52,4 @@ class Project extends Model
     {
         return $this->belongsToMany(AssemblaUser::class);
     }
-
-
-    public function getFormattedName($length = 80)
-    {
-        $name = $this->name;
-        if (strlen($this->name) > $length) {
-            $name = substr($this->name,0,$length).'...';
-        }
-        return $name;
-    }
 }

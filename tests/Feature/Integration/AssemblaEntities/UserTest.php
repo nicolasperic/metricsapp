@@ -20,8 +20,7 @@ class UserTest
     /** @test */
     function can_get_authenticated_user()
     {
-        $this->loginWithAssemblaUser();
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($this->loginWithAssemblaUser());
 
         /** @var AssemblaUserDto $userDto */
         $userDto = $assemblaGateway->getAuthenticatedUser();
@@ -43,8 +42,7 @@ class UserTest
     /** @test */
     function can_get_authenticated_user_image()
     {
-        $this->loginWithAssemblaUser();
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($this->loginWithAssemblaUser());
         $authenticatedUserImagePath = $assemblaGateway->getUserImage('cvixt811Gr4PBcacwqjQYw');
 
         $this->assertEquals('https://s3.amazonaws.com/assembla-avatars/1e7f71fc/cvixt811Gr4PBcacwqjQYw:1571509138', $authenticatedUserImagePath);
@@ -54,8 +52,7 @@ class UserTest
     /** @test */
     function can_get_user_by_assembla_id()
     {
-        $this->loginWithAssemblaUser();
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($this->loginWithAssemblaUser());
         /** @var AssemblaUserDto $userDto */
         $userDto= $assemblaGateway->getUser('cvixt811Gr4PBcacwqjQYw');
 
@@ -66,8 +63,7 @@ class UserTest
     /** @test */
     function can_get_space_users()
     {
-        $this->loginWithAssemblaUser();
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($this->loginWithAssemblaUser());
         $spaceUsers = $assemblaGateway->getSpaceUsers('sommiercenter');
 
 

@@ -60,7 +60,7 @@ class TasksTimerController extends Controller
     protected function validateTicket()
     {
         $project = Project::getProjectByAssemblaId(request('project'));
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway(Auth::user());
         return $assemblaGateway->validateTicketExistsBySpaceAndNumber($project->wikiname, request('ticket_number'), ['is_story' => false]);
     }
 }

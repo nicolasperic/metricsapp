@@ -25,7 +25,8 @@ class AssemblaGatewayTest
      */
     function can_list_all_spaces()
     {
-        $assemblaGateway = new AssemblaGateway();
+        $user = $this->loginWithAssemblaUser();
+        $assemblaGateway = new AssemblaGateway($user);
         $spaces = $assemblaGateway->getSpaces();
 
         if ($spaces) {
@@ -118,7 +119,7 @@ class AssemblaGatewayTest
     {
         $this->loginWithAssemblaUser();
         $queryParams = ['ticket_ids' => '231804182'];
-        $response = AssemblaRequest::get("tasks", $queryParams);
+        $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
         $result = json_decode($response->getBody()->getContents(), 1);
 
 

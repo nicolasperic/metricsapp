@@ -54,7 +54,7 @@ class ProcessHoursByUsersReport implements ShouldQueue
             $this->reportModel->status = Report::RUNNING_STATUS;
             $this->reportModel->save();
 
-            $report = new HoursByUserReport($this->requestData);
+            $report = new HoursByUserReport($this->requestData, $this->reportModel->user);
             $reportResults = $report->execute();
 
             $reportBody = '';

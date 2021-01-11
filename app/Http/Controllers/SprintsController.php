@@ -40,7 +40,7 @@ class SprintsController extends Controller
 
         try {
             $sprintImporter = new SprintImporter();
-            $sprintImporter->importProjectMilestonesAsSprints($project);
+            $sprintImporter->importProjectMilestonesAsSprints(Auth::user(), $project);
             SessionMessage::infoMessage('Milestones were correctly imported');
         } catch (Exception $e) {
             SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');

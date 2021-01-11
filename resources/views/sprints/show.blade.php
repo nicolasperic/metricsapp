@@ -162,6 +162,10 @@ $users = [
 
 
 @section('content')
+    <?php
+        $percentCompletedStores = $sprint->getPercentCompletedStories();
+        $percentCompletedSubtasks = $sprint->getPercentCompletedSubtasks();
+    ?>
     <div class="container">
 
         <div class="row">
@@ -210,9 +214,9 @@ $users = [
                                     <div class="col-auto">
                                         <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $sprint->getTotalStories() }}</div>
                                     </div>
-                                    <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $sprint->getCompletedStories() }} completed stories {{ $sprint->getPercentCompletedStories() }}%">
+                                    <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $sprint->getCompletedStories() }} completed stories {{ $percentCompletedStores }}%">
                                         <div class="progress progress-sm mr-2">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $sprint->getPercentCompletedStories() }}%" aria-valuenow="{{ $sprint->getPercentCompletedStories() }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div class="progress-bar {{Helper::getPercentageClass($percentCompletedStores)}}" role="progressbar" style="width: {{ $percentCompletedStores }}%" aria-valuenow="{{ $percentCompletedStores }}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -236,9 +240,9 @@ $users = [
                                     <div class="col-auto">
                                         <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $sprint->getTotalSubtasks() }}</div>
                                     </div>
-                                    <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $sprint->getCompletedSubtasks() }} completed subtasks {{ $sprint->getPercentCompletedSubtasks() }}%">
+                                    <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $sprint->getCompletedSubtasks() }} completed subtasks {{ $percentCompletedSubtasks }}%">
                                         <div class="progress progress-sm mr-2">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $sprint->getPercentCompletedSubtasks() }}%" aria-valuenow="{{ $sprint->getPercentCompletedSubtasks() }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div class="progress-bar {{ Helper::getPercentageClass($percentCompletedSubtasks)  }}" role="progressbar" style="width: {{ $percentCompletedSubtasks }}%" aria-valuenow="{{ $percentCompletedSubtasks }}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -456,8 +460,8 @@ $users = [
                         - Total tickets: {{ $sprint->getTotalTickets() }}<br>
                         - Total Stories: {{ $sprint->getTotalStories() }}<br>
                         - Total Subtasks: {{ $sprint->getTotalSubtasks() }}<br>
-                        - Completed Stories: {{$sprint->getCompletedStories()}} {{ $sprint->getPercentCompletedStories()  }}%<br>
-                        - Completed Subtasks: {{$sprint->getCompletedSubtasks()}} {{ $sprint->getPercentCompletedSubtasks() }}%<br>
+                        - Completed Stories: {{$sprint->getCompletedStories()}} {{ $percentCompletedStores  }}%<br>
+                        - Completed Subtasks: {{$sprint->getCompletedSubtasks()}} {{ $percentCompletedSubtasks }}%<br>
 
                         - Completed Tickets: {{ $sprint->getCompletedTickets()->count() }}<br>
                         - Completed Story Points: {{ $sprint->getCompletedStoryPoints() }} ({{ $sprint->getTotalCompletedEstimatePercentage() }}%)<br>
@@ -519,7 +523,7 @@ $users = [
                                             ?>
                                         @endif
                                     <tr>
-                                        <td><?php echo $status;?>{{ $ticket->number }} {{ $ticket->getFormattedName() }}</td>
+                                        <td><?php echo $status;?>{{ $ticket->number }} {{ Helper::substrIf($ticket->name, 75)}}</td>
                                         <td>{{ $ticket->status }}</td>
                                         <td>{{ $ticket->story_points }}</td>
                                         <td>{{ $ticket->total_invested_hours }}</td>

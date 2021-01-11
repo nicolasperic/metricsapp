@@ -50,7 +50,7 @@ class ProjectsController extends Controller
         $projectImporter = new ProjectImporter();
 
         try {
-            $projectImporter->importAllAssemblaSpacesAsProjects();
+            $projectImporter->importAllAssemblaSpacesAsProjects(Auth::user());
             SessionMessage::infoMessage("Projects were correctly imported");
         } catch (ClientException $e) {
 

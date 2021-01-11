@@ -56,7 +56,7 @@ class SettingsController extends Controller
     private function _setUserImageAndId($user)
     {
         $success = false;
-        $gateway = new AssemblaGateway();
+        $gateway = new AssemblaGateway(Auth::user());
         try {
             /** @var AssemblaUserDto $assemblaUserDto */
             $assemblaUserDto = $gateway->getAuthenticatedUser();

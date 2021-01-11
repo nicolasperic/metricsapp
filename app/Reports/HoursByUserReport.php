@@ -4,6 +4,7 @@ namespace App\Reports;
 
 use App\Integration\AssemblaRequest;
 use App\Project;
+use App\User;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -19,8 +20,12 @@ class HoursByUserReport
      */
     private $requestData;
     private $projects;
+    /**
+     * @var User
+     */
+    private $user;
 
-    public function __construct($requestData)
+    public function __construct($requestData, User $user)
     {
         $this->requestData= $requestData;
         //$project = Project::getProjectByAssemblaId(request('project'));//fuck! obtener todos los wikinames?
@@ -34,6 +39,7 @@ class HoursByUserReport
             $this->requestData['users'] = array_combine($this->requestData['users'],$this->requestData['users']);
         }
 
+        $this->user = $user;
     }
 
 
@@ -239,7 +245,10 @@ class HoursByUserReport
                     'page' => $page,
                 ];
                 Log::info('About to get tasks for '.$wikiname.' page '.$page);
-                $response = AssemblaRequest::get("tasks", $queryParams);
+
+                $applicationKey = $this->user->assembla_key;
+                $applicationSecret = $this->user->assembla_secret;
+                $response = AssemblaRequest::get("tasks", $applicationKey, $applicationSecret, $queryParams);
                 $apicalls++;
                 $result = json_decode($response->getBody()->getContents(), 1);
                 Log::info('Response for '.$wikiname.' is '.$response->getStatusCode());

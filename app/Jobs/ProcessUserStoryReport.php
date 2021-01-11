@@ -50,7 +50,7 @@ class ProcessUserStoryReport implements ShouldQueue
             $this->reportModel->status = Report::RUNNING_STATUS;
             $this->reportModel->save();
 
-            $report = new HoursByUSReport($this->requestData);
+            $report = new HoursByUSReport($this->requestData, $this->reportModel->user);
             $reportResults = $report->execute();
 
             $reportBody = '';//TODO this function is 95% like the handle function from Users report

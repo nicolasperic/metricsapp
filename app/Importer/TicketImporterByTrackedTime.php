@@ -10,7 +10,9 @@ use App\Integration\AssemblaRequest;
 use App\Project;
 use App\Ticket;
 use App\TicketTime;
+use App\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class TicketImporterByTrackedTime
@@ -23,9 +25,9 @@ class TicketImporterByTrackedTime
      */
     private $requestData;
 
-    function __construct($requestData)
+    function __construct($requestData, User $user)
     {
-        $this->assemblaGateway = new AssemblaGateway();
+        $this->assemblaGateway = new AssemblaGateway($user);
         $this->requestData= $requestData;
     }
 
@@ -79,7 +81,10 @@ TASK DATA
 
 
             Log::info('query params '.print_r($queryParams, 1));
-            $response = AssemblaRequest::get("tasks", $queryParams);//TODO para probar esto más rápido, guardar esta data con los DTO's local y usar eso para el importer
+            $user = Auth::user();//TODO if this is used on a JOB AUth will need to be replaced with the user instance
+            $applicationKey = $user->assembla_key;
+            $applicationSecret = $user->assembla_secret;
+            $response = AssemblaRequest::get("tasks", $applicationKey, $applicationSecret, $queryParams);//TODO para probar esto más rápido, guardar esta data con los DTO's local y usar eso para el importer
             $this->apicalls++;
             $result = json_decode($response->getBody()->getContents(), 1);
             if (!is_array($result)) {

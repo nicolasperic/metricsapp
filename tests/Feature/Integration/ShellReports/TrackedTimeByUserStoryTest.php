@@ -26,6 +26,7 @@ class TrackedTimeByUserStoryTest
      */
     function can_get_project_hs_per_us()
     {
+        $this->loginWithAssemblaUser();
         $projects = [
             'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc'
             //'sommiercenter' => 'dxD3_KI5ur6ky6dmr6QqzO',
@@ -43,7 +44,7 @@ class TrackedTimeByUserStoryTest
                 'spaces' => 'sommiercenter',
                 'page'   => $page,
             ];
-            $response = AssemblaRequest::get("spaces/sommiercenter/tickets", $queryParams);
+            $response = AssemblaRequest::get("spaces/sommiercenter/tickets", $queryParams, $this->user->assembla_key, $this->user->assembla_secret);
             $result = json_decode($response->getBody()->getContents(), 1);
             if (!is_array($result)) {
                 break;
@@ -96,6 +97,7 @@ class TrackedTimeByUserStoryTest
      */
     function barbieri_horas_sinticket()
     {
+        $this->loginWithAssemblaUser();
         $from = '2020/01/01 00:00';
         $to = '2020/05/30 23:59';
 
@@ -108,7 +110,7 @@ class TrackedTimeByUserStoryTest
                     'to' => $to,
                     'page' => $page,
                 ];
-                $response = AssemblaRequest::get("tasks", $queryParams);
+                $response = AssemblaRequest::get("tasks", $queryParams, $this->user->assembla_key, $this->user->assembla_secret);
                 $result = json_decode($response->getBody()->getContents(), 1);
 
                 if (!is_array($result)) {
@@ -136,7 +138,8 @@ class TrackedTimeByUserStoryTest
 
     private function _retrieveAndSetTicketInformation($space, $ticketNumber, $ticketArray)
     {
-        $assemblaGateway = new AssemblaGateway();
+        $user = $this->loginWithAssemblaUser();
+        $assemblaGateway = new AssemblaGateway($user);
         /** @var TicketDto $ticketDto */
         $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber($space, $ticketNumber);
 
@@ -151,7 +154,8 @@ class TrackedTimeByUserStoryTest
 
     private function _retrieveTicketAssociation($space, $ticketNumber)
     {
-        $assemblaGateway = new AssemblaGateway();
+        $user = $this->loginWithAssemblaUser();
+        $assemblaGateway = new AssemblaGateway($user);
         $ticketAssociations = $assemblaGateway->getTicketAssociationsBySpaceAndNumber($space, $ticketNumber);
         if ($ticketAssociations !== false) {
             /** @var TicketAssociationDto $association */
@@ -172,6 +176,7 @@ class TrackedTimeByUserStoryTest
      */
     function can_get_projects_time_by_user_story()
     {
+        $user = $this->loginWithAssemblaUser();
         $projects = [
             //'AD-Barbieri' => 'ce1LaCpjCr6O96aH8tHBnc',
             //'canaldeautopartes' => 'dpT43eCVCr54kBacwqjQYw',
@@ -205,7 +210,7 @@ class TrackedTimeByUserStoryTest
                     'page' => $page,
                 ];
 
-                $response = AssemblaRequest::get("tasks", $queryParams);
+                $response = AssemblaRequest::get("tasks", $queryParams, $this->user->assembla_key, $this->user->assembla_secret);
                 $result = json_decode($response->getBody()->getContents(), 1);
                 if (!is_array($result)) {
                     break;
@@ -304,6 +309,7 @@ class TrackedTimeByUserStoryTest
      */
     function can_get_grouped_tickets_report()
     {
+        $this->loginWithAssemblaUser();
         //barbieri,3 231480216
         //;cda,517 211385954
         //cemaco,2054; 179091233
@@ -396,7 +402,7 @@ class TrackedTimeByUserStoryTest
                 'to' => $to,
                 'page' => $page,
             ];
-            $response = AssemblaRequest::getMultiple("tasks", $queryParams);
+            $response = AssemblaRequest::getMultiple("tasks", $queryParams, $this->user->assembla_key, $this->user->assembla_secret);
             $result = json_decode($response->getBody()->getContents(), 1);
 
             //dd($result);

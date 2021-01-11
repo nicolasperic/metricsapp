@@ -27,12 +27,12 @@ class AssemblaRequest extends Model
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function get($endpoint, $queryParams = [])
+    public static function get($endpoint, $applicationKey, $applicationSecret, $queryParams = [])
     {
         $requestData = [
             'headers' => [
-                'X-Api-Key'    => self::getApplicationKey(),
-                'X-Api-Secret' => self::getApplicationSecret(),
+                'X-Api-Key'    => $applicationKey,
+                'X-Api-Secret' => Crypt::decrypt($applicationSecret),
             ],
             'allow_redirects' => [
                 'max'             => 10,        // allow at most 10 redirects.
@@ -64,12 +64,12 @@ class AssemblaRequest extends Model
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function getMultiple($endpoint, $queryParams = [])
+    public static function getMultiple($endpoint, $applicationKey, $applicationSecret, $queryParams = [])
     {
         $requestData = [
             'headers' => [
-                'X-Api-Key'    => self::getApplicationKey(),
-                'X-Api-Secret' => self::getApplicationSecret(),
+                'X-Api-Key'    => $applicationKey,
+                'X-Api-Secret' => Crypt::decrypt($applicationSecret),
                 'Content-Type' => 'application/x-www-form-urlencoded'//this is different on the get function
             ],
             'allow_redirects' => [
@@ -109,12 +109,12 @@ class AssemblaRequest extends Model
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function post($endpoint, $params)
+    public static function post($endpoint, $applicationKey, $applicationSecret, $params)
     {
         $requestData = [
             'headers' => [
-                'X-Api-Key'    => self::getApplicationKey(),
-                'X-Api-Secret' => self::getApplicationSecret(),
+                'X-Api-Key'    => $applicationKey,
+                'X-Api-Secret' => Crypt::decrypt($applicationSecret),
             ],
             'form_params' => $params,
         ];
@@ -123,30 +123,5 @@ class AssemblaRequest extends Model
         return $client->post(self::ASSEMBLA_API_URL.$endpoint, $requestData);
     }
 
-    /**
-     * This function will return the application key from the logged in user
-     * https://app.assembla.com/user/edit/manage_clients
-     *
-     * @return mixed
-     */
-    private static function getApplicationKey()
-    {
-        if (Auth::check()) {
-            return Auth::user()->assembla_key;
-        }
-    }
-
-    /**
-     * This function will return the application secret from the logged in user
-     * https://app.assembla.com/user/edit/manage_clients
-     *
-     * @return mixed
-     */
-    private static function getApplicationSecret()
-    {
-        if (Auth::check()) {
-            return Crypt::decrypt(Auth::user()->assembla_secret);
-        }
-    }
 
 }

@@ -8,12 +8,24 @@ use App\Dto\SprintDto;
 use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Dto\TicketTimeDto;
+use App\User;
 use GuzzleHttp\Exception\ClientException;
 
 class AssemblaGateway
 {
     /** relationship is 5 - ticket2 is story and ticket1 is subtask of the story */
     const STORY_RELATION = 5;
+    /**
+     * @var User
+     */
+    private $user;
+
+    function __construct(User $user)
+    {
+
+        $this->user = $user;
+    }
+
 
     /**
      * Returns currently authenticated user.
@@ -24,7 +36,7 @@ class AssemblaGateway
     public function getAuthenticatedUser()
     {
         $user = false;
-        $response =  AssemblaRequest::get('user');
+        $response =  AssemblaRequest::get('user', $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
             $userData = json_decode($response->getBody()->getContents(), 1);
             $user = new AssemblaUserDto($userData);
@@ -44,7 +56,7 @@ class AssemblaGateway
      */
     public function getUserImage($userId)
     {
-        $response = AssemblaRequest::get('users/'.$userId.'/picture');
+        $response = AssemblaRequest::get('users/'.$userId.'/picture', $this->user->assembla_key, $this->user->assembla_secret);
 
         return $response->getHeaderLine('X-Guzzle-Redirect-History');
     }
@@ -60,7 +72,7 @@ class AssemblaGateway
     public function getUser($userId)
     {
         $user = false;
-        $response = AssemblaRequest::get("users/{$userId}");
+        $response = AssemblaRequest::get("users/{$userId}", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
             $userData = json_decode($response->getBody()->getContents(), 1);
             $user = new AssemblaUserDto($userData);
@@ -78,7 +90,7 @@ class AssemblaGateway
     public function getSpaces()
     {   //TODO spaces could be more than just one page, we need to update this function (and others) to continue asking for more pages
         $spaces = false;
-        $response = AssemblaRequest::get("spaces");
+        $response = AssemblaRequest::get("spaces", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
             $spaces = [];
             $result = json_decode($response->getBody()->getContents(), 1);
@@ -101,7 +113,7 @@ class AssemblaGateway
     public function getSpaceUsers($space)
     {
         $spaceUsers = false;
-        $response = AssemblaRequest::get("spaces/{$space}/users");
+        $response = AssemblaRequest::get("spaces/{$space}/users", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
             $spaceUsers = [];
             $result = json_decode($response->getBody()->getContents(), 1);
@@ -125,7 +137,7 @@ class AssemblaGateway
     {
         $ticket = false;
 
-        $response = AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}");
+        $response = AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
             $ticketData = json_decode($response->getBody()->getContents(), 1);
             $ticket = new TicketDto($ticketData);
@@ -147,7 +159,7 @@ class AssemblaGateway
     public function getTicketAssociationsBySpaceAndNumber($space, $ticketNumber)
     {
         $ticketAssociations = false;
-        $response = AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}/ticket_associations");
+        $response = AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}/ticket_associations", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
             $result = json_decode($response->getBody()->getContents(), 1);
             foreach ($result as $associationData) {
@@ -171,7 +183,7 @@ class AssemblaGateway
     public function getTicketsForMilestone($space, $milestoneId, $queryParams = [])
     {
         $tickets = false;
-        $response = AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $queryParams);
+        $response = AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
         if ($response->getStatusCode() == 200) {
             $tickets = [];
             $result = json_decode($response->getBody()->getContents(), 1);
@@ -198,7 +210,7 @@ class AssemblaGateway
         //TODO generar nuevo getTrackedTime() para sobregarcargar en esta función
 
         $tasks = false;
-        $response = AssemblaRequest::get("tasks", $queryParams);
+        $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
         if ($response->getStatusCode() == 200) {
             $tasks = [];
             $result = json_decode($response->getBody()->getContents(), 1);
@@ -221,7 +233,7 @@ class AssemblaGateway
     public function getMilestonesForSpace($space)
     {
         $milestones = false;
-        $response = AssemblaRequest::get("spaces/{$space}/milestones/all");//todo this endpoint only returns open milestones > /milestones/all will return all milestones
+        $response = AssemblaRequest::get("spaces/{$space}/milestones/all", $this->user->assembla_key, $this->user->assembla_secret);//todo this endpoint only returns open milestones > /milestones/all will return all milestones
         if ($response->getStatusCode() == 200) {
             $result = json_decode($response->getBody()->getContents(), 1);
 

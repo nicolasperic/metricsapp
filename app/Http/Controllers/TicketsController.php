@@ -14,7 +14,7 @@ class TicketsController extends Controller
         $sprint = Auth::user()->sprints()->findOrFail($sprintId);
 
         try {
-            $ticketImporter = new TicketImporter();
+            $ticketImporter = new TicketImporter(Auth::user());
             $ticketImporter->importMilestoneTickets($sprint);
             SessionMessage::infoMessage('Tickets were correctly imported');
         } catch (\Exception $e) {

@@ -10,15 +10,17 @@ use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use App\Project;
 use App\Ticket;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class TicketImporter
 {
     private $assemblaGateway;
-    function __construct()
+
+    function __construct(User $user)
     {
-        $this->assemblaGateway = new AssemblaGateway();
+        $this->assemblaGateway = new AssemblaGateway($user);
     }
 
     /**

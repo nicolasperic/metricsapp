@@ -16,7 +16,7 @@ class UsersController extends Controller
         $project = Auth::user()->projects()->findOrFail($spaceId);
 
         try {
-            $userImporter = new UserImporter();
+            $userImporter = new UserImporter(Auth::user());
             $userImporter->importSpaceUsers($project);
             SessionMessage::infoMessage('Users were correctly imported');
         } catch (Exception $e) {

@@ -6,6 +6,7 @@ use App\Dto\Mapper\ProjectMapper;
 use App\Dto\ProjectDto;
 use App\Integration\AssemblaGateway;
 use App\Project;
+use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -15,13 +16,13 @@ class ProjectImporter
     /**
      *
      */
-    public function importAllAssemblaSpacesAsProjects()
+    public function importAllAssemblaSpacesAsProjects(User $user)
     {
         Log::info('[Projects Importer] Starting import process');
         $allProjectsFromAPI = array();
         $startTime = time();
 
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($user);
         $spaces = $assemblaGateway->getSpaces();
 
         $APIEndTime = time();

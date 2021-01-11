@@ -6,6 +6,7 @@ use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
+use App\User;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -50,11 +51,15 @@ class HoursByUSReport
      * KEYS: wikiname, space_id, from_date and to_date
      */
     private $requestData;
+    /**
+     * @var User
+     */
+    private $user;
 
-    public function __construct($requestData)
+    public function __construct($requestData, User $user)
     {
         $this->requestData= $requestData;
-
+        $this->user = $user;
     }
 
 
@@ -253,7 +258,7 @@ class HoursByUSReport
             ];
 
             Log::info('query params '.print_r($queryParams, 1));
-            $response = AssemblaRequest::get("tasks", $queryParams);
+            $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
             $this->apicalls++;
             $result = json_decode($response->getBody()->getContents(), 1);
             if (!is_array($result)) {
@@ -290,7 +295,7 @@ class HoursByUSReport
                             $userStoryId = $this->_retrieveTicketAssociation($wikiname, $timeTracked['ticket_number']);
                             if ($userStoryId !== false) {
                                 if (!array_key_exists($userStoryId, $this->userStories)) {
-                                    $response = AssemblaRequest::get("spaces/{$wikiname}/tickets/id/{$userStoryId}");
+                                    $response = AssemblaRequest::get("spaces/{$wikiname}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);
                                     $this->apicalls++;
                                     if ($response->getStatusCode() == 200) {
                                         $bodyContents = json_decode($response->getBody()->getContents(), 1);
@@ -460,7 +465,7 @@ class HoursByUSReport
      */
     private function _retrieveAndSetTicketInformation($space, $ticketNumber)
     {
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($this->user);
         /** @var TicketDto $ticketDto */
         $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber($space, $ticketNumber);
         $this->apicalls++;
@@ -486,7 +491,7 @@ class HoursByUSReport
                 $userStoryId = $this->_retrieveTicketAssociation($space, $ticketNumber);
                 if ($userStoryId !== false) {
                     if (!array_key_exists($userStoryId, $this->userStories)) {
-                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}");
+                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);
                         $this->apicalls++;
                         if ($response->getStatusCode() == 200) {
                             $bodyContents = json_decode($response->getBody()->getContents(), 1);
@@ -552,7 +557,7 @@ class HoursByUSReport
 
     private function _retrieveTicketAssociation($space, $ticketNumber)
     {
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway($this->user);
         $ticketAssociations = $assemblaGateway->getTicketAssociationsBySpaceAndNumber($space, $ticketNumber);
         $this->apicalls++;
         if ($ticketAssociations !== false) {

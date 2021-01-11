@@ -69,15 +69,6 @@ class Ticket extends Model
         return TicketTime::where('ticket_assembla_id', $this->ticket_assembla_id)->sum('hours');
     }
 
-    public function getFormattedName()
-    {
-        $name = $this->name;
-        if (strlen($this->name) > 80) {
-            $name = substr($this->name,0,80).'...';
-        }
-        return $name;
-    }
-
     public function sprints()
     {
         return $this->belongsToMany(Sprint::class);
