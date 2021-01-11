@@ -5,6 +5,7 @@ namespace Tests\Feature\Integration;
 use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -14,9 +15,11 @@ use Tests\TestCase;
 class TicketTest
     extends TestCase
 {
+    use RefreshDatabase;
     /** @test */
     function can_retrieve_a_ticket_by_space_and_number()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
 
         /** @var TicketDto $ticketDto */
@@ -32,6 +35,7 @@ class TicketTest
     /** @test */
     function can_validate_a_ticket_exists_by_space_and_number()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
         /** @var TicketDto $existingTicket */
         $existingTicket = $assemblaGateway->validateTicketExistsBySpaceAndNumber('sommiercenter', '1022');
@@ -44,6 +48,7 @@ class TicketTest
     /** @test */
     function can_validate_a_ticket_exists_and_data_matches_by_space_and_number()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
 
         /** @var TicketDto $existingTicketSubtask */
@@ -63,6 +68,7 @@ class TicketTest
     /** @test */
     function can_retrieve_a_ticket_and_use_a_dto()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
 
         $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber('sommiercenter', '1578');
@@ -78,6 +84,7 @@ class TicketTest
     /** @test */
     function can_retrieve_a_ticket_associations_by_space_and_number()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
 
         $ticketAssociations = $assemblaGateway->getTicketAssociationsBySpaceAndNumber('sommiercenter', '1117');

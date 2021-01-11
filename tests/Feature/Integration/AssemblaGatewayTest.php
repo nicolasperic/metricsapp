@@ -8,6 +8,7 @@ use App\Dto\TicketTimeDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -17,7 +18,7 @@ use Tests\TestCase;
 class AssemblaGatewayTest
     extends TestCase
 {
-
+    use RefreshDatabase;
 
     /**
      * TODO define assets for can_list_all_spaces test
@@ -115,6 +116,7 @@ class AssemblaGatewayTest
     /** @test */
     function can_retrieve_tracked_time_and_use_a_dto()
     {
+        $this->loginWithAssemblaUser();
         $queryParams = ['ticket_ids' => '231804182'];
         $response = AssemblaRequest::get("tasks", $queryParams);
         $result = json_decode($response->getBody()->getContents(), 1);

@@ -23,6 +23,7 @@ class MilestoneTest
     /**  @test */
     function can_get_all_pages_of_tickets_for_a_milestone()
     {
+        $this->loginWithAssemblaUser();
         $space = 'sommiercenter';
         $milestoneId = 12982775;
         $assemblaGateway = new AssemblaGateway();
@@ -84,9 +85,10 @@ class MilestoneTest
 
 
     //TODO assets tarea
-    /** @test */
+    /**  */
     function can_get_all_milestones_for_a_space()
     {
+        $this->loginWithAssemblaUser();
         $space = 'sommiercenter';
 
         $assemblaGateway = new AssemblaGateway();
@@ -106,9 +108,7 @@ class MilestoneTest
     /** @test */
     function can_sync_milestone_tickets()
     {
-        //wikiname: canaldeautopartes
-        $wikiname = 'canaldeautopartes';
-        $milestoneId = '13040067';
+        $this->loginWithAssemblaUser();
 
         $project = factory(Project::class)->create([
             'name'                  => 'Project C',

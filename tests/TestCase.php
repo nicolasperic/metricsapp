@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\User;
 use PHPUnit\Framework\Assert;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -24,5 +25,16 @@ abstract class TestCase extends BaseTestCase
         Collection::macro('assertNotContains', function($value) {
             Assert::assertFalse($this->contains($value), 'Failed asserting that the collection did not cotain the specified value.');
         });
+    }
+
+    protected function loginWithAssemblaUser()
+    {
+        $user = factory(User::class)->create([
+            'assembla_key' => config('services.assemblatesting.assembla_key'),
+            'assembla_secret' => config('services.assemblatesting.assembla_secret')
+        ]);
+        $this->be($user);
+
+        return $user;
     }
 }

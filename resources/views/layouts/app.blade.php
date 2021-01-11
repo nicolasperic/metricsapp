@@ -90,11 +90,11 @@
 
         <!-- Nav Item - Pages Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link Notcollapsed" href="#" data-toggle="collapse" data-target="#collapseSprints" aria-expanded="true" aria-controls="collapseSprints">
+            <a class="nav-link Notcollapsed" href="#" data-toggle="collapse" data-target="#collapseReports" aria-expanded="true" aria-controls="collapseReports">
                 <i class="fas fa-fw fa-folder"></i>
                 <span>Reports</span>
             </a>
-            <div id="collapseSprints" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div id="collapseReports" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <div class="collapse-divider"></div>
                     <a class="collapse-item" href="{{route('reports.weekly')}} ">Weekly Report</a>

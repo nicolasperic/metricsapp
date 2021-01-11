@@ -19,7 +19,7 @@ class SprintImporter
     {
         Log::info('[Milestones Importer] Starting import process');
         $startTime = time();
-
+        $allProjectMilestonesFromAPI = array();
         $assemblaGateway = new AssemblaGateway();
         $sprints = $assemblaGateway->getMilestonesForSpace($project->wikiname);
 
@@ -28,7 +28,9 @@ class SprintImporter
         Log::info('[Milestones Importer] API response time '.$minutes.' minutes');
 
         if ($sprints !== false) {
+            /** @var SprintDTO $sprintDto */
             foreach ($sprints as $sprintDto) {
+                $allProjectMilestonesFromAPI[$sprintDto->getSprintAssemblaId()] = true;
                 if (!Sprint::sprintExists($sprintDto->getSprintAssemblaId())) {
                     $sprint = SprintMapper::createSprintFromDTO($sprintDto);
                     $this->_addSprintToProject($sprint, $project);
@@ -39,6 +41,14 @@ class SprintImporter
 
                 if (!Auth::user()->hasSprint($sprintDto->getSprintAssemblaId())) {
                     $this->_addSprintToUser($sprint);
+                }
+            }
+
+            //sync milestones received from API with project->sprints
+            foreach ($project->sprints as $sprint) {
+                if (!array_key_exists($sprint->sprint_assembla_id, $allProjectMilestonesFromAPI)) {
+                    $project->sprints()->detach($sprint->id);
+                    Auth::user()->sprints()->detach($sprint->id);
                 }
             }
         }

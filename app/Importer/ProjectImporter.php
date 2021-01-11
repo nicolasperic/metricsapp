@@ -18,6 +18,7 @@ class ProjectImporter
     public function importAllAssemblaSpacesAsProjects()
     {
         Log::info('[Projects Importer] Starting import process');
+        $allProjectsFromAPI = array();
         $startTime = time();
 
         $assemblaGateway = new AssemblaGateway();
@@ -30,6 +31,7 @@ class ProjectImporter
         if ($spaces) {
             /** @var ProjectDto $projectDto */
             foreach ($spaces as $projectDto) {
+                $allProjectsFromAPI[$projectDto->getProjectAssemblaId()] = true;
                 if (!Project::projectExists($projectDto->getProjectAssemblaId())) {
                     ProjectMapper::createProjectFromDTO($projectDto);
                 } else {
@@ -48,6 +50,13 @@ class ProjectImporter
 
                 if (!Auth::user()->hasProject($projectDto->getProjectAssemblaId())) {
                     $this->_addProjectToUser($projectDto);
+                }
+            }
+
+            //sync milestones received from API with project->sprints
+            foreach (Auth::user()->projects as $project) {
+                if (!array_key_exists($project->project_assembla_id, $allProjectsFromAPI)) {
+                    Auth::user()->projects()->detach($project->id);
                 }
             }
         }

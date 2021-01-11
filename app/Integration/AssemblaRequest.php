@@ -134,8 +134,6 @@ class AssemblaRequest extends Model
         if (Auth::check()) {
             return Auth::user()->assembla_key;
         }
-
-        return 'a5aa5632989ec768d71d';//TODO this is only for testing purposes
     }
 
     /**
@@ -149,8 +147,6 @@ class AssemblaRequest extends Model
         if (Auth::check()) {
             return Crypt::decrypt(Auth::user()->assembla_secret);
         }
-
-        return '497e452c605c29f8971aeb367e6c15a872749efe';//TODO this is only for testing purposes
     }
 
 }

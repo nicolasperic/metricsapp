@@ -5,6 +5,7 @@ namespace Tests\Feature\Integration;
 use App\Dto\AssemblaUserDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -14,10 +15,12 @@ use Tests\TestCase;
 class UserTest
     extends TestCase
 {
+    use RefreshDatabase;
 
     /** @test */
     function can_get_authenticated_user()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
 
         /** @var AssemblaUserDto $userDto */
@@ -40,6 +43,7 @@ class UserTest
     /** @test */
     function can_get_authenticated_user_image()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
         $authenticatedUserImagePath = $assemblaGateway->getUserImage('cvixt811Gr4PBcacwqjQYw');
 
@@ -50,14 +54,10 @@ class UserTest
     /** @test */
     function can_get_user_by_assembla_id()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
         /** @var AssemblaUserDto $userDto */
-
-        //aVzzeMlw0r6RhdaIC_Qgzw ezegomez, dUHuyGkPGr44k-acwqEsg8 Pedro Rigoli, aSD9Sgwzqr6OoBaH8tHBnc ealvian
-        $userDto= $assemblaGateway->getUser('blHTwYuger44kaacwqjQYw');
-        dd($userDto->getName());
         $userDto= $assemblaGateway->getUser('cvixt811Gr4PBcacwqjQYw');
-
 
         $this->assertEquals('nicoperic', $userDto->getLogin());
         $this->assertEquals('nperic@summasolutions.net', $userDto->getEmail());
@@ -66,11 +66,12 @@ class UserTest
     /** @test */
     function can_get_space_users()
     {
+        $this->loginWithAssemblaUser();
         $assemblaGateway = new AssemblaGateway();
         $spaceUsers = $assemblaGateway->getSpaceUsers('sommiercenter');
 
 
-        $this->assertEquas(count($spaceUsers));
+        $this->assertTrue(count($spaceUsers) > 0);
     }
 
 }
