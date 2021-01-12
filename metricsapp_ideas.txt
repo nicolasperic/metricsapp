@@ -50,12 +50,11 @@ Features
     - Tracking de horas (por tickets que tenés asignados, timer & send all, send each reporta a Assembla)
         de todos los spaces importados, definir cuales son los trackable para filtrado.
         Tenés entonces un dropdown con los spaces y pones el # de ticket a manopla > genera un counter y después submit!
-    - Manejar los sprints, crearlos (armar grupo de tickets)
-        -> tener en cuenta carry over de S1 para crear S2
 
 
 Atributos configs de space:
-- Starred: favorito, lo agrego en el menú (+ current, + auto importing Assembla API) | esto es por usuario en un PIVOT en project_user
+- Starred: favorito, lo agrego en el menú (+ current) | esto es por usuario en un PIVOT en project_user
+- Auto_importing Assembla API (por usario en PIVOT)
 - espacio "trackeable": para los dropdowns de reportes y task timer (muy verde aún)
 - espacio compartido (para usar el filtro de equipo en el reporte de horas)
 - estimate: hours, story points, [small, medium, large]
@@ -84,11 +83,42 @@ Laravel Socialite > Facebook/Google login
 > Register page con estilos del theme
 
 > US Report on background with queued jobs
-> once the job is created we keep track of the report on a custom table i.e reports report_id, user_id, requestData, response, status, created_at, finished_at
-> the customer will be able to see the new registry for the report and as soon it ends a download link to get the report content (or open/print it on the browser)
-> once the job ends we store the report data on the database
-> only display the reports on the last 7 days
-> cronjob to clear reports older than 7 days
+    > cronjob to clear reports older than 7 days
+
+DONE CRON WEEKLY REPORT LUNES
+    DONE > calcular last monday y last sunday (from y to dates) | tomar eso del sprint, ya tengo hecho esa lógca
+    DONE > buscar usuarios que tengan weekly_report_projects seteados (usuarios no es required)
+    DONE > armar el request y generar el reporte tal cual el controller y job dispatch!
+    DONE > mandar un mail (el reporte además quedaría guardadito > Nombre: weekly report) :h5:
+
+TODO JOB SYNC "current milestones de spaces sincronizables"
+    1> Obtener los spaces cuyo "aut_sync" is true
+    2> Sincronizar los milestones
+    3> Obtengo el current actual y lo sincronizo
+    4> "Flag" en sprints para validar último sync
+
+Distinto tipos de planes | PRICING (7 días gratis, medium plan, pro plan)
+- Reportes (duración en días) Ej: US story máximo una semana (no podes sacar el mes entero o el año)
+- Cantidad de spaces que podes auto-sincronizar
+- Cantidad de spaces que podes starrear
+- No tenes weekly report!
+- Job para sync current milestons (solo plan pro)
+- TODO: ya de base debería limitar la cantidad de días a consultar a la API en los reportes (me matan el sitio si eligen la totalidad de tickets)
+
+> la cantidad que puede cada plan debería tenerlo en una variable de entorno
+ej: syncable_sprints_pro: 10; syncable_sprints_med = 3; syncable_sprints_free = 0
+escribir testing de todo esto para ser un user pro, medium, free
+
+
+TODO investigar sobre queues
+- Unique jobs ej: solo oquiero un space mylestone en cola por espacio (no encoles sommier center más de una vez)
+- Rate limiting
+- ProcessPodcast::dispatchSync($podcast);//con esto al parecer hago dispatch sin pasar por la cola,
+//tal vez me sirva para que el CRON ejecute al instante el proceso (vale la pena probarlo)
+
+
+- Validar el USO de la API de los usuarios
+ (ej: si tengo un HDP que se la pasa llamando a la API con muchos años, bloquear por un rato)
 
 php artisan queue:work --timeout=1200
 php artisan queue:table

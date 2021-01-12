@@ -8,7 +8,10 @@ use App\Integration\AssemblaRequest;
 use App\Project;
 use App\Sprint;
 use App\Ticket;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
@@ -182,6 +185,87 @@ class MilestoneTest
 
 
         $this->assertEquals(7, $sprint->getTotalTickets());
+    }
+
+    /** @test */
+    function can_validate_hours_for_sync_job()
+    {
+        $sixHour = Carbon::parse("2020-01-08 06:14");
+        $sevenHour = Carbon::parse("2020-01-08 07:23");
+        $twelveHour = Carbon::parse("2020-01-08 12:19");
+        $eighteenHour = Carbon::parse("2020-01-08 18:55");
+        $twentyHour = Carbon::parse("2020-01-08 20:03");
+
+        $decimMin = (strlen($sixHour->minute) > 1)? substr($sixHour->minute, 0, 1): 0;
+        dd(($sixHour->minute % 10 == 4).' '.$sixHour->minute. ' decim '.$decimMin);
+        $this->assertTrue($sixHour->hour % 6 == 0);
+        $this->assertTrue($twelveHour->hour % 6 == 0);
+        $this->assertTrue($eighteenHour->hour % 6 == 0);
+        $this->assertFalse($sevenHour->hour % 6 == 0);
+        $this->assertFalse($twentyHour->hour % 6 == 0);
+
+    }
+
+    /**  */
+    function can_retrieve_syncable_spaces()
+    {
+
+        $userA = factory(User::class)->create();
+        $userB = factory(User::class)->create();
+
+        $projectA = factory(Project::class)->create([
+            'name'                  => 'Project A',
+            'wikiname'              => 'canaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+        $projectB = factory(Project::class)->create([
+            'name'                  => 'Project B',
+            'wikiname'              => 'banaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+        $projectC = factory(Project::class)->create([
+            'name'                  => 'Project C',
+            'wikiname'              => 'canaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+        $projectD = factory(Project::class)->create([
+            'name'                  => 'Project D',
+            'wikiname'              => 'danaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+        $userA->projects()->save($projectA, ['syncable' => true]);
+        $userB->projects()->save($projectA, ['syncable' => true]);
+        $userB->projects()->save($projectB, ['syncable' => true]);
+        $userB->projects()->save($projectC, ['syncable' => true]);
+
+
+        foreach ($userA->syncableProjects as $project) {
+            dump('User A '.$userA->name.' '. $project->name);
+        }
+
+        foreach ($userB->syncableProjects as $project) {
+            dump('User B '.$userB->name.' '. $project->name);
+        }
+
+        $projects = DB::table('projects')->get();
+
+
+        foreach ($projects as $project){
+            dump('Projects '.$project->name);
+        }
+
+        $syncableProjects = DB::table('projects') ->join('project_user', function ($join)
+        { $join->on('projects.id', '=', 'project_user.project_id') ->where('project_user.syncable',
+            '=', true); })->groupBy('projects.id')->distinct()->get();
+
+        foreach ($syncableProjects as $project){
+            //dd($project);
+            $user = User::find($project->user_id);
+            $projectModel = Project::find($project->project_id);
+
+            dump('Sync PR '.$projectModel->name.' user '.$user->name);
+        }
+
 
     }
 }
