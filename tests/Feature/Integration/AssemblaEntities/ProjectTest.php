@@ -117,8 +117,8 @@ class ProjectTest
         $this->assertEquals(6, count($user->sprints));
 
 
-        $sprintImporter = new SprintImporter();
-        $sprintImporter->importProjectMilestonesAsSprints($user, $project);
+        $sprintImporter = new SprintImporter($user);
+        $sprintImporter->importProjectMilestonesAsSprints($project);
 
         $this->assertEquals(11, count($project->fresh()->sprints));
         $this->assertEquals(11, count($user->fresh()->sprints));

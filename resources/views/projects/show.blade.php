@@ -12,6 +12,7 @@
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">{{ $project->name }}</h6>
                         <a href="{{url("users/importUsers/{$project->id}")}}" style="float:right;">Import Users</a>
+                        <a href="{{url("sprints/syncSprints/{$project->id}")}}" style="float:right;margin-right: 5px;">Sync Milestones</a>
                         <a href="{{url("sprints/importSprints/{$project->id}")}}" style="float:right;margin-right: 5px;">Import Milestones</a>
                     </div>
 

@@ -7,6 +7,7 @@
  */
 
 namespace App\Helper;
+use Carbon\Carbon;
 
 /**
  * Using this class for functions I've needed as helpers to reduce repeating code
@@ -44,5 +45,10 @@ class Helper {
         }
 
         return $percentageClass;
+    }
+
+    public static function getTimeDiff($time)
+    {
+        return $time->diffForHumans(Carbon::now());
     }
 }

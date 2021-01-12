@@ -32,6 +32,7 @@ class UserImporter
             'page' => $page,
         ];
 
+        $allSpaceUsersFromAPI = array();
         do {
 
             $assemblaUsers = $this->assemblaGateway->getSpaceUsers($project->wikiname, $queryParams);
@@ -42,6 +43,8 @@ class UserImporter
 
                 /** @var AssemblaUserDto $assemblaUserDto */
                 foreach ($assemblaUsers as $assemblaUserDto) {
+                    $allSpaceUsersFromAPI[$assemblaUserDto->getUserAssemblaId()] = true;
+
                     if (!AssemblaUser::userExists($assemblaUserDto->getUserAssemblaId())) {
                         Log::info('[AssemblaUsers Importer] about to create user '.$assemblaUserDto->getName());
                         $this->_createUserFromDTO($assemblaUserDto, $project);
@@ -56,6 +59,12 @@ class UserImporter
                 break;
             }
         } while(count($assemblaUsers) === AssemblaRequest::PER_PAGE);
+
+        foreach ($project->assemblaUsers as $user) {
+            if (!array_key_exists($user->user_assembla_id, $allSpaceUsersFromAPI)) {
+                $project->assemblaUsers()->detach($user->id);
+            }
+        }
         Log::info('[AssemblaUsers Importer] Ended');
     }
 

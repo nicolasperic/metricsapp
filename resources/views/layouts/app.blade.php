@@ -68,6 +68,11 @@
                     @foreach (Auth::user()->starredProjects as $project)
                         <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{ Helper::substrIf($project->name, 23) }}</a>
                     @endforeach
+
+                    <h6 class="collapse-header">Syncable Projects:</h6>
+                    @foreach (Auth::user()->syncableProjects as $project)
+                        <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{ Helper::substrIf($project->name, 23) }}</a>
+                    @endforeach
                 </div>
             </div>
         </li>
@@ -221,7 +226,7 @@
                 <!-- Page Heading -->
                 <div class="d-sm-flex align-items-center justify-content-between mb-4">
                     <h1 class="h3 mb-0 text-gray-800"><!--@yield('container-title','Dashboard')--></h1>
-                    <a href="{{ url('/reports') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Reports</a>
+                    <a href="{{ url('/reports') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-file-excel fa-sm text-white-50"></i> Generate Reports</a>
                 </div>
 
                 <div class="row">

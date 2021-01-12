@@ -35,6 +35,8 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::get('/sprints', 'SprintsController@index')->name('sprints.index')->middleware('auth');
     Route::get('/sprints/current', 'SprintsController@current')->name('sprints.current')->middleware('auth');
     Route::get('/sprints/importSprints/{projectId}', 'SprintsController@importSprints')->name('sprints.import')->middleware('auth');
+    Route::get('/sprints/syncSprints/{projectId}', 'SprintsController@syncSprints')->name('sprints.sync')->middleware('auth');
+    Route::get('/sprints/syncAllCurrentSprints', 'SprintsController@syncAllCurrentSprints')->name('sprints.sync-all-current-sprints')->middleware('auth');
     Route::get('/sprints/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
     Route::get('/tickets/importTickets/{sprintId}', 'TicketsController@importTickets')->name('tickets.import')->middleware('auth');
     Route::get('/users/importUsers/{userId}', 'UsersController@importUsers')->name('users.import')->middleware('auth');

@@ -30,7 +30,16 @@ class Kernel extends ConsoleKernel
         $schedule->command('weekly:report')->everyMinute()->when(function (){
             //workaround for Heroku scheduler
             $today = new Carbon();
-            return $today->dayOfWeek == Carbon::MONDAY;
+
+            $decimMin = (strlen($today->minute) > 1)? substr($today->minute, 0, 1): 0;
+            return $today->dayOfWeek == Carbon::MONDAY
+                &&$today->hour == 8 && $decimMin == 1;
+        });
+
+        $schedule->command('assembla:sync')->everyMinute()->when(function (){
+            //workaround for Heroku scheduler
+            $now = new Carbon();
+            return $now->hour % 6;//every six hours
         });
     }
 

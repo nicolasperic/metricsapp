@@ -67,12 +67,17 @@ class User extends Authenticatable
 
     public function projects()
     {
-        return $this->belongsToMany(Project::class)->withPivot('starred');
+        return $this->belongsToMany(Project::class)->withPivot(['starred','syncable']);
     }
 
     public function starredProjects()
     {
         return $this->belongsToMany(Project::class)->withPivot('starred')->where('starred', 1);
+    }
+
+    public function syncableProjects()
+    {
+        return $this->belongsToMany(Project::class)->withPivot('syncable')->where('syncable', 1);
     }
 
     /**

@@ -5,10 +5,15 @@
 @section('breadcrumbs',  Breadcrumbs::render('sprints'))
 
 @section('content')
+
+    <div class="actions" style="margin-left: 9%; position: relative; top: -55px;">
+        <a href="{{ url('sprints/syncAllCurrentSprints') }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync All Current Sprints</a>
+    </div>
+
     <div class="container-fluid">
         <div class="row justify-content-center">
 
-            <?php $totalEstimate = 0;$totalRemainingEstimate = 0;$totalCompletedEstimate = 0; $totalWorkedHours = 0; $totalRemainingHours = 0; $totalStories = 0;?>
+            <?php $totalEstimate = 0;$totalRemainingEstimate = 0;$totalCompletedEstimate = 0; $totalWorkedHours = 0; $totalRemainingHours = 0; $totalStories = 0; $olderUpdatedAt = false;?>
             @forelse ($currentSprints as $sprint)
             <div class="col-10" style="margin-bottom:20px">
                 <div>
@@ -19,7 +24,9 @@
                             @endforeach
                             &nbsp;>&nbsp; <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>  &nbsp;<?= $sprint->getFormattedPlannerType()?>
                             &nbsp;&nbsp;|&nbsp;&nbsp;<a href="https://app.assembla.com/spaces/{{ $project->wikiname }}/milestones/{{ $sprint->sprint_assembla_id }}" target="_blank">View in Assembla</a>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;<i>Last synced on {{$sprint->updated_at }}</i>
                         </div>
+                        <?php $olderUpdatedAt = ($olderUpdatedAt === false || $sprint->updated_at < $olderUpdatedAt)?$sprint->updated_at: $olderUpdatedAt;?>
                         <div class="card-bg-secondary">
                             <div class="d-flex">
                                 <div class="w-33 border-right border-bottom">
@@ -84,6 +91,7 @@
                         <div class="card">
                             <div class="card-header d-flex align-items-center ">
                                 <h5>Total</h5>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<i>Oldest synced sprint on <?= $olderUpdatedAt?> ({{Helper::getTimeDiff($olderUpdatedAt)}})</i>
                             </div>
                             <div class="card-bg-secondary">
                                 <div class="d-flex">

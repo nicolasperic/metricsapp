@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Importer\TicketImporter;
 use App\Sprint;
+use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,15 +32,20 @@ class SyncCurrentMilestone implements ShouldQueue
      * @var Sprint
      */
     private $sprint;
+    /**
+     * @var User
+     */
+    private $user;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Sprint $sprint)
+    public function __construct(User $user, Sprint $sprint)
     {
         //
+        $this->user = $user;
         $this->sprint = $sprint;
     }
 
@@ -52,8 +58,10 @@ class SyncCurrentMilestone implements ShouldQueue
     {
         //this jobs needs to listen SYncSpaceMilestones
         try {
-            $ticketImporter = new TicketImporter();
+            Log::info('SyncCurrentMilestone executing for '.$this->sprint->title);
+            $ticketImporter = new TicketImporter($this->user);
             $ticketImporter->importMilestoneTickets($this->sprint);
+            Log::info('SyncCurrentMilestone ended for '.$this->sprint->title);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());

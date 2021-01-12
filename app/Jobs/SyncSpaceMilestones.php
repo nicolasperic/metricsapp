@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Events\SpaceMilestonesSynced;
 use App\Importer\SprintImporter;
 use App\Project;
+use App\User;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,13 +31,18 @@ class SyncSpaceMilestones implements ShouldQueue
      * @var Project
      */
     private $project;
+    /**
+     * @var User
+     */
+    private $user;
 
     /**
      * Create a new job instance.
      * @param Project $project
      */
-    public function __construct(Project $project)
+    public function __construct(User $user, Project $project)
     {
+        $this->user = $user;
         $this->project = $project;
     }
 
@@ -47,8 +54,11 @@ class SyncSpaceMilestones implements ShouldQueue
     public function handle()
     {
         try {
-            $sprintImporter = new SprintImporter();
+            $sprintImporter = new SprintImporter($this->user);
             $sprintImporter->importProjectMilestonesAsSprints($this->project);
+
+            Log::info("Dispatching event for Current Milestone after ".$this->project->name. " milestones sync");
+            SpaceMilestonesSynced::dispatch($this->user, $this->project);
         } catch (Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());

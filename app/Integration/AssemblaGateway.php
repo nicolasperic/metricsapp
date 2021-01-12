@@ -233,7 +233,7 @@ class AssemblaGateway
     public function getMilestonesForSpace($space)
     {
         $milestones = false;
-        $response = AssemblaRequest::get("spaces/{$space}/milestones/all", $this->user->assembla_key, $this->user->assembla_secret);//todo this endpoint only returns open milestones > /milestones/all will return all milestones
+        $response = AssemblaRequest::get("spaces/{$space}/milestones/all", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
             $result = json_decode($response->getBody()->getContents(), 1);
 

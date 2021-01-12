@@ -7,21 +7,30 @@ use App\Dto\SprintDto;
 use App\Integration\AssemblaGateway;
 use App\Sprint;
 use App\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class SprintImporter
 {
+    /**
+     * @var User
+     */
+    private $user;
+
+    function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
 
     /**
      *
      */
-    public function importProjectMilestonesAsSprints(User $user, $project)
+    public function importProjectMilestonesAsSprints($project)
     {
         Log::info('[Milestones Importer] Starting import process');
         $startTime = time();
         $allProjectMilestonesFromAPI = array();
-        $assemblaGateway = new AssemblaGateway($user);
+        $assemblaGateway = new AssemblaGateway($this->user);
         $sprints = $assemblaGateway->getMilestonesForSpace($project->wikiname);
 
         $APIEndTime = time();
@@ -40,7 +49,7 @@ class SprintImporter
                     SprintMapper::updateSprintFromDTO($sprint, $sprintDto);
                 }
 
-                if (!Auth::user()->hasSprint($sprintDto->getSprintAssemblaId())) {
+                if (!$this->user->hasSprint($sprintDto->getSprintAssemblaId())) {
                     $this->_addSprintToUser($sprint);
                 }
             }
@@ -49,7 +58,7 @@ class SprintImporter
             foreach ($project->sprints as $sprint) {
                 if (!array_key_exists($sprint->sprint_assembla_id, $allProjectMilestonesFromAPI)) {
                     $project->sprints()->detach($sprint->id);
-                    Auth::user()->sprints()->detach($sprint->id);
+                    $this->user->sprints()->detach($sprint->id);
                 }
             }
         }
@@ -57,7 +66,7 @@ class SprintImporter
 
     private function _addSprintToUser($sprint)
     {
-        Auth::user()->sprints()->save($sprint);
+        $this->user->sprints()->save($sprint);
     }
 
     private function _addSprintToProject($sprint, $project)
