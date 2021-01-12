@@ -31,9 +31,9 @@ class Kernel extends ConsoleKernel
             //workaround for Heroku scheduler
             $today = new Carbon();
 
-            $decimMin = (strlen($today->minute) > 1)? substr($today->minute, 0, 1): 0;
+            //$decimMin = (strlen($today->minute) > 1)? substr($today->minute, 0, 1): 0;
             return $today->dayOfWeek == Carbon::MONDAY
-                &&$today->hour == 8 && $decimMin == 1;
+                && $today->hour == 8; //&& $decimMin == 1;
         });
 
         $schedule->command('assembla:sync')->everyMinute()->when(function (){

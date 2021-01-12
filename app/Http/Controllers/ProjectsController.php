@@ -34,7 +34,7 @@ class ProjectsController extends Controller
 
         $starred = (request('starred_project') !== null)?1:0;
 
-        Auth::user()->find(1)->projects()->updateExistingPivot($project->id,['starred' => $starred]);
+        Auth::user()->projects()->updateExistingPivot($project->id,['starred' => $starred]);
 
 
         return response()->json(['id' => $project->id]);
