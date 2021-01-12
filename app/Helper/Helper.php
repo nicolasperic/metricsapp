@@ -51,4 +51,12 @@ class Helper {
     {
         return $time->diffForHumans(Carbon::now());
     }
+
+    public static function getPercentageValue($subtotal, $total, $decimals = 0)
+    {
+        if ($total == 0) {
+            return 0;
+        }
+        return number_format(($subtotal / $total) * 100, $decimals);
+    }
 }

@@ -13,7 +13,7 @@
     <div class="container-fluid">
         <div class="row justify-content-center">
 
-            <?php $totalEstimate = 0;$totalRemainingEstimate = 0;$totalCompletedEstimate = 0; $totalWorkedHours = 0; $totalRemainingHours = 0; $totalStories = 0; $olderUpdatedAt = false;?>
+            <?php $totalEstimate = 0;$totalRemainingEstimate = 0;$totalCompletedEstimate = 0; $totalWorkedHours = 0; $totalRemainingHours = 0; $totalStories = 0; $totalCompletedStories = 0; $olderUpdatedAt = false;?>
             @forelse ($currentSprints as $sprint)
             <div class="col-10" style="margin-bottom:20px">
                 <div>
@@ -44,7 +44,7 @@
                                 <div class="w-33 border-bottom">
                                     <div class="p-4">
                                         <small class="text-uppercase">Stories</small>
-                                        <h4 class="mt-4 mb-0">{{ $sprintTotalStories = $sprint->getTotalStories() }}</h4>
+                                        <h4 class="mt-4 mb-0">{{ $sprintTotalStories = $sprint->getTotalStories() }} [{{ $sprintTotalCompletedStories = $sprint->getCompletedStories() }} completed, {{$sprint->getPercentCompletedStories()}}% ]</h4>
                                     </div>
                                 </div>
                             </div>
@@ -79,6 +79,7 @@
                 $totalWorkedHours       += $sprintTotalWorkedHours;
                 $totalRemainingHours    += $sprintTotalRemainingHours;
                 $totalStories           += $sprintTotalStories;
+                $totalCompletedStories  += $sprintTotalCompletedStories;
             ?>
             @empty
                 <p>No currents sprints created yet</p>
@@ -110,7 +111,7 @@
                                     <div class="w-33 border-bottom">
                                         <div class="p-4">
                                             <small class="text-uppercase">Total Stories</small>
-                                            <h4 class="mt-4 mb-0">{{ $totalStories }}</h4>
+                                            <h4 class="mt-4 mb-0">{{ $totalStories }} [{{$totalCompletedStories}} completed, {{Helper::getPercentageValue($totalCompletedStories, $totalStories)}}%]</h4>
                                         </div>
                                     </div>
                                 </div>
