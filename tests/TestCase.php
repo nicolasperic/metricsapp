@@ -29,7 +29,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function loginWithAssemblaUser()
     {
-        $user = factory(User::class)->create([
+        $user = User::factory()->create([
             'assembla_key' => config('services.assemblatesting.assembla_key'),
             'assembla_secret' => config('services.assemblatesting.assembla_secret')
         ]);

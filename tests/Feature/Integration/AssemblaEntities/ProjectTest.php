@@ -26,27 +26,27 @@ class ProjectTest
     function can_sync_projects()
     {
         $user = $this->loginWithAssemblaUser();
-        $projectA = factory(Project::class)->create([
+        $projectA = Project::factory()->create([
             'name'                  => 'AD Barbieri',
             'wikiname'              => 'AD-Barbieri',
             'project_assembla_id'   => 'ce1LaCpjCr6O96aH8tHBnc'
         ]);
-        $projectB = factory(Project::class)->create([
+        $projectB = Project::factory()->create([
             'name'                  => 'Canal de Autopartes',
             'wikiname'              => 'canaldeautopartes',
             'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
         ]);
-        $projectC = factory(Project::class)->create([
+        $projectC = Project::factory()->create([
             'name'                  => 'ClubDeBeneficios',
             'wikiname'              => 'clubdebeneficios',
             'project_assembla_id'   => 'cDK4RGOoar6RfhaIC_Qgzw'
         ]);
-        $projectD = factory(Project::class)->create([
+        $projectD = Project::factory()->create([
             'name'                  => 'Not Existing Project',
             'wikiname'              => 'not-existing-project',
             'project_assembla_id'   => 'SOME_ID_NOT_EXISTING'
         ]);
-        $projectE = factory(Project::class)->create([
+        $projectE = Project::factory()->create([
             'name'                  => 'Grupo Grassi',
             'wikiname'              => 'Grupo-Grassi',
             'project_assembla_id'   => 'dTomygY3Gr6P7dbK8JiBFu'
@@ -66,7 +66,7 @@ class ProjectTest
     function can_sync_project_milestones()
     {
         $user = $this->loginWithAssemblaUser();
-        $project = factory(Project::class)->create([
+        $project = Project::factory()->create([
             'name'                  => 'Canal de Autopartes',
             'wikiname'              => 'canaldeautopartes',
             'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
@@ -77,32 +77,32 @@ class ProjectTest
         //milestone name: Closed SE - Noviembre 2
         //Total tickets 7 > 904, 905, 906, 907, 908, 909, 910
 
-        $sprintA = factory(Sprint::class)->create([
+        $sprintA = Sprint::factory()->create([
             'name' => 'Soporte Evolutivo',
             'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
             'sprint_assembla_id'  => '12136093',
         ]);
-        $sprintB = factory(Sprint::class)->create([
+        $sprintB = Sprint::factory()->create([
             'name' => 'Current',
             'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
             'sprint_assembla_id'  => '11669313',
         ]);
-        $sprintC = factory(Sprint::class)->create([
+        $sprintC = Sprint::factory()->create([
             'name' => 'Kanban Board',
             'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
             'sprint_assembla_id'  => '11768063',
         ]);
-        $sprintD = factory(Sprint::class)->create([
+        $sprintD = Sprint::factory()->create([
             'name' => 'Diseño',
             'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
             'sprint_assembla_id'  => '11770923',
         ]);
-        $sprintE = factory(Sprint::class)->create([
+        $sprintE = Sprint::factory()->create([
             'name' => 'Backlog',
             'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
             'sprint_assembla_id'  => '11669303',
         ]);
-        $sprintF = factory(Sprint::class)->create([
+        $sprintF = Sprint::factory()->create([
             'name' => 'Eliminado',
             'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
             'sprint_assembla_id'  => '11669XXX',

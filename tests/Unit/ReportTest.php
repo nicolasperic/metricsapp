@@ -14,10 +14,10 @@ class ReportTest extends TestCase
     /** @test */
     function can_retrieve_user_reports()
     {
-        $report = factory(Report::class)->states('processed')->create();
+        $report = Report::factory()->processed()->create();
 
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $user->reports()->save($report);
 
         $this->assertEquals(count($user->reports),1);
@@ -28,21 +28,21 @@ class ReportTest extends TestCase
     /** @test */
     function can_retrieve_user_reports_from_last_week()
     {
-        $reportA = factory(Report::class)->states('processed')->create([
+        $reportA = Report::factory()->processed()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
         ]);
-        $reportB = factory(Report::class)->states('processed')->create([
+        $reportB = Report::factory()->processed()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(2),
         ]);
-        $reportC = factory(Report::class)->states('processed')->create([
+        $reportC = Report::factory()->processed()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(5),
         ]);
-        $reportD = factory(Report::class)->states('processed')->create([
+        $reportD = Report::factory()->processed()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(3),
         ]);
 
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $user->reports()->saveMany([$reportA, $reportB, $reportC, $reportD]);
 
 
@@ -54,19 +54,19 @@ class ReportTest extends TestCase
     /** @test */
     function can_retrive_report_status_label()
     {
-        $pending = factory(Report::class)->create([
+        $pending = Report::factory()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
             'status' => Report::PENDING_STATUS,
         ]);
-        $processed = factory(Report::class)->create([
+        $processed = Report::factory()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
             'status' => Report::PROCESSED_STATUS,
         ]);
-        $running  = factory(Report::class)->create([
+        $running  = Report::factory()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
             'status' => Report::RUNNING_STATUS,
         ]);
-        $failed  = factory(Report::class)->create([
+        $failed  = Report::factory()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
             'status' => Report::FAILED_STATUS,
         ]);

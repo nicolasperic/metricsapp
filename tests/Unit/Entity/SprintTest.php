@@ -16,10 +16,10 @@ class SprintTest extends TestCase
     /** @test */
     function can_create_a_sprint_holding_tickets()
     {
-        $sprint = factory(Sprint::class)->create();
-        $ticketA = factory(Ticket::class)->create();
-        $ticketB = factory(Ticket::class)->create();
-        $ticketC = factory(Ticket::class)->create();
+        $sprint = Sprint::factory()->create();
+        $ticketA = Ticket::factory()->create();
+        $ticketB = Ticket::factory()->create();
+        $ticketC = Ticket::factory()->create();
 
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC]);
@@ -30,15 +30,15 @@ class SprintTest extends TestCase
     /** @test */
     function a_sprint_can_have_multiple_projects()
     {
-        $sprint = factory(Sprint::class)->create();
+        $sprint = Sprint::factory()->create();
 
-        $projectA = factory(Project::class)->create([
+        $projectA = Project::factory()->create([
             'name' => 'Project A'
         ]);
-        $projectB = factory(Project::class)->create([
+        $projectB = Project::factory()->create([
             'name' => 'Project B'
         ]);
-        $projectC = factory(Project::class)->create([
+        $projectC = Project::factory()->create([
             'name' => 'Project C'
         ]);
 

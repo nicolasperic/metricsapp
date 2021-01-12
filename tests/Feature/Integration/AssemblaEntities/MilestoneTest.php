@@ -114,7 +114,7 @@ class MilestoneTest
     {
         $user = $this->loginWithAssemblaUser();
 
-        $project = factory(Project::class)->create([
+        $project = Project::factory()->create([
             'name'                  => 'Project C',
             'wikiname'              => 'canaldeautopartes',
             'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
@@ -125,36 +125,36 @@ class MilestoneTest
         //milestone name: Closed SE - Noviembre 2
         //Total tickets 7 > 904, 905, 906, 907, 908, 909, 910
 
-        $sprint = factory(Sprint::class)->create([
+        $sprint = Sprint::factory()->create([
             'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
             'sprint_assembla_id'  => '13040067',
         ]);
 
-        $ticketA = factory(Ticket::class)->states('completed')->create([
+        $ticketA = Ticket::factory()->completed()->create([
             'id' => 1,
             'ticket_assembla_id' => '232538824',
             'is_story' => true,
             'number' => 908,
         ]);
-        $ticketB = factory(Ticket::class)->states('completed')->create([
+        $ticketB = Ticket::factory()->completed()->create([
             'id' => 2,
             'ticket_assembla_id' => '232533924',
             'is_story' => true,
             'number' => 904,
         ]);
-        $ticketC = factory(Ticket::class)->states('completed')->create([
+        $ticketC = Ticket::factory()->completed()->create([
             'id' => 3,
             'ticket_assembla_id' => '232534968',
             'is_story' => false,
             'number' => 905,
         ]);
-        $ticketD = factory(Ticket::class)->create([
+        $ticketD = Ticket::factory()->create([
             'id' => 4,
             'ticket_assembla_id' => '232538091',
             'is_story' => false,
             'number' => 906,
         ]);
-        $ticketE = factory(Ticket::class)->create([
+        $ticketE = Ticket::factory()->create([
             'id' => 5,
             'ticket_assembla_id' => '232538583',
             'is_story' => false,
@@ -162,7 +162,7 @@ class MilestoneTest
         ]);
 
         //this ticket doesn' belong to the sprint the importer should remove it
-        $ticketF = factory(Ticket::class)->create([
+        $ticketF = Ticket::factory()->create([
             'id' => 6,
             'ticket_assembla_id' => '232538999',
             'is_story' => false,
@@ -195,9 +195,7 @@ class MilestoneTest
         $twelveHour = Carbon::parse("2020-01-08 12:19");
         $eighteenHour = Carbon::parse("2020-01-08 18:55");
         $twentyHour = Carbon::parse("2020-01-08 20:03");
-
-        $decimMin = (strlen($sixHour->minute) > 1)? substr($sixHour->minute, 0, 1): 0;
-        dd(($sixHour->minute % 10 == 4).' '.$sixHour->minute. ' decim '.$decimMin);
+        
         $this->assertTrue($sixHour->hour % 6 == 0);
         $this->assertTrue($twelveHour->hour % 6 == 0);
         $this->assertTrue($eighteenHour->hour % 6 == 0);
@@ -210,25 +208,25 @@ class MilestoneTest
     function can_retrieve_syncable_spaces()
     {
 
-        $userA = factory(User::class)->create();
-        $userB = factory(User::class)->create();
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
 
-        $projectA = factory(Project::class)->create([
+        $projectA = Project::factory()->create([
             'name'                  => 'Project A',
             'wikiname'              => 'canaldeautopartes',
             'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
         ]);
-        $projectB = factory(Project::class)->create([
+        $projectB = Project::factory()->create([
             'name'                  => 'Project B',
             'wikiname'              => 'banaldeautopartes',
             'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
         ]);
-        $projectC = factory(Project::class)->create([
+        $projectC = Project::factory()->create([
             'name'                  => 'Project C',
             'wikiname'              => 'canaldeautopartes',
             'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
         ]);
-        $projectD = factory(Project::class)->create([
+        $projectD = Project::factory()->create([
             'name'                  => 'Project D',
             'wikiname'              => 'danaldeautopartes',
             'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'

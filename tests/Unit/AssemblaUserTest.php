@@ -13,7 +13,9 @@ class AssemblaUserTest extends TestCase
     /** @test */
     function can_retrieve_user_by_assembla_id()
     {
-        factory(AssemblaUser::class)->create([
+
+        //factory(AssemblaUser::class)->create([
+        AssemblaUser::factory()->create([
             'user_assembla_id' => 'TESTID1234',
             'login' => 'johndoe',
             'name' => 'John Doe',

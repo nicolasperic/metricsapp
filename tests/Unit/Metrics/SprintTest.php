@@ -18,35 +18,35 @@ class SprintTest extends TestCase
     function can_calculate_us_types_percentages()
     {
         /** @var \App\Sprint $sprint */
-        $sprint = factory(Sprint::class)->create();
-        $ticketA = factory(Ticket::class)->create([
+        $sprint = Sprint::factory()->create();
+        $ticketA = Ticket::factory()->create([
             'type' => 'Requirement',
             'worked_hours' => 4.5,
         ]);
-        $ticketB = factory(Ticket::class)->create([
+        $ticketB = Ticket::factory()->create([
             'type' => 'Requirement',
             'worked_hours' => 1,
         ]);
-        $ticketC = factory(Ticket::class)->create([
+        $ticketC = Ticket::factory()->create([
             'type' => 'Bug',
             'worked_hours' => 7,
         ]);
-        $ticketD = factory(Ticket::class)->create([
+        $ticketD = Ticket::factory()->create([
             'type' => 'Support',
             'worked_hours' => 1,
         ]);
-        $ticketE = factory(Ticket::class)->create([
+        $ticketE = Ticket::factory()->create([
             'type' => 'Support',
             'worked_hours' => 0.5,
         ]);
-        $ticketF = factory(Ticket::class)->create([
+        $ticketF = Ticket::factory()->create([
             'type' => 'Support',
             'worked_hours' => 1.75,
         ]);
 
         /** @var \App\Sprint $sprint */
-        $sprintB = factory(Sprint::class)->create();
-        $ticketG = factory(Ticket::class)->create([
+        $sprintB = Sprint::factory()->create();
+        $ticketG = Ticket::factory()->create([
             'type' => 'Requirement',
             'total_invested_hours' => 4.5,
         ]);
@@ -70,22 +70,22 @@ class SprintTest extends TestCase
     function can_calculate_empty_types_percentage()
     {
         /** @var \App\Sprint $sprint */
-        $sprint = factory(Sprint::class)->create();
-        $ticketA = factory(Ticket::class)->create([
+        $sprint = Sprint::factory()->create();
+        $ticketA = Ticket::factory()->create([
             'type' => 'Requirement',
             'worked_hours' => 2.5,
         ]);
-        $ticketB = factory(Ticket::class)->create([
+        $ticketB = Ticket::factory()->create([
             'type' => 'Requirement',
             'worked_hours' => 1,
         ]);
-        $ticketC = factory(Ticket::class)->create([
+        $ticketC = Ticket::factory()->create([
             'worked_hours' => 2,
         ]);
-        $ticketD = factory(Ticket::class)->create([
+        $ticketD = Ticket::factory()->create([
             'worked_hours' => 3,
         ]);
-        $ticketF = factory(Ticket::class)->create([
+        $ticketF = Ticket::factory()->create([
             'worked_hours' => 4,
         ]);
 
@@ -103,14 +103,14 @@ class SprintTest extends TestCase
     /** @test */
     function can_calculate_sprint_total_story_points()
     {
-        $sprint = factory(Sprint::class)->create();
-        $ticketA = factory(Ticket::class)->create([
+        $sprint = Sprint::factory()->create();
+        $ticketA = Ticket::factory()->create([
             'story_points' => 5,
         ]);
-        $ticketB = factory(Ticket::class)->create([
+        $ticketB = Ticket::factory()->create([
             'story_points' => 8,
         ]);
-        $ticketC = factory(Ticket::class)->create([
+        $ticketC = Ticket::factory()->create([
             'story_points' => 13,
         ]);
 
@@ -124,14 +124,14 @@ class SprintTest extends TestCase
     /** @test */
     function can_calculate_sprint_completed_story_points()
     {
-        $sprint = factory(Sprint::class)->create();
-        $ticketA = factory(Ticket::class)->states('completed')->create([
+        $sprint = Sprint::factory()->create();
+        $ticketA = Ticket::factory()->completed()->create([
             'story_points' => 5,
         ]);
-        $ticketB = factory(Ticket::class)->states('completed')->create([
+        $ticketB = Ticket::factory()->completed()->create([
             'story_points' => 8,
         ]);
-        $ticketC = factory(Ticket::class)->create([
+        $ticketC = Ticket::factory()->create([
             'story_points' => 13,
         ]);
 
@@ -146,20 +146,20 @@ class SprintTest extends TestCase
     /** @test */
     function can_calculate_sprint_completed_stories()
     {
-        $sprint = factory(Sprint::class)->create();
-        $ticketA = factory(Ticket::class)->states('completed')->create([
+        $sprint = Sprint::factory()->create();
+        $ticketA = Ticket::factory()->completed()->create([
             'is_story' => true,
         ]);
-        $ticketB = factory(Ticket::class)->states('completed')->create([
+        $ticketB = Ticket::factory()->completed()->create([
             'is_story' => true,
         ]);
-        $ticketC = factory(Ticket::class)->states('completed')->create([
+        $ticketC = Ticket::factory()->completed()->create([
             'is_story' => false,
         ]);
-        $ticketD = factory(Ticket::class)->create([
+        $ticketD = Ticket::factory()->create([
             'is_story' => false,
         ]);
-        $ticketE = factory(Ticket::class)->create([
+        $ticketE = Ticket::factory()->create([
             'is_story' => true,
         ]);
 
@@ -173,20 +173,20 @@ class SprintTest extends TestCase
     /** @test */
     function can_calculate_sprint_completed_subtasks()
     {
-        $sprint = factory(Sprint::class)->create();
-        $ticketA = factory(Ticket::class)->states('completed')->create([
+        $sprint = Sprint::factory()->create();
+        $ticketA = Ticket::factory()->completed()->create([
             'is_story' => true,
         ]);
-        $ticketB = factory(Ticket::class)->states('completed')->create([
+        $ticketB = Ticket::factory()->completed()->create([
             'is_story' => true,
         ]);
-        $ticketC = factory(Ticket::class)->states('completed')->create([
+        $ticketC = Ticket::factory()->completed()->create([
             'is_story' => false,
         ]);
-        $ticketD = factory(Ticket::class)->create([
+        $ticketD = Ticket::factory()->create([
             'is_story' => false,
         ]);
-        $ticketE = factory(Ticket::class)->create([
+        $ticketE = Ticket::factory()->create([
             'is_story' => true,
         ]);
 
@@ -200,14 +200,14 @@ class SprintTest extends TestCase
     /** @test */
     function can_calculate_sprint_percent_completed_story_points()
     {
-        $sprint = factory(Sprint::class)->create();
-        $ticketA = factory(Ticket::class)->states('completed')->create([
+        $sprint = Sprint::factory()->create();
+        $ticketA = Ticket::factory()->completed()->create([
             'story_points' => 5,
         ]);
-        $ticketB = factory(Ticket::class)->states('completed')->create([
+        $ticketB = Ticket::factory()->completed()->create([
             'story_points' => 8,
         ]);
-        $ticketC = factory(Ticket::class)->create([
+        $ticketC = Ticket::factory()->create([
             'story_points' => 8,
         ]);
 
@@ -222,21 +222,21 @@ class SprintTest extends TestCase
     /** @test */
     function can_calculate_sprint_average_lead_time()
     {
-        $sprint = factory(Sprint::class)->create();
+        $sprint = Sprint::factory()->create();
 
-        $ticketA = factory(Ticket::class)->states('completed')->create([
+        $ticketA = Ticket::factory()->completed()->create([
             'created_at' => Carbon::parse('6 days ago'),
             'completed_at' => Carbon::parse('+1 week'),
         ]);//13 days of lead time for ticket A
-        $ticketB = factory(Ticket::class)->states('completed')->create([
+        $ticketB = Ticket::factory()->completed()->create([
             'created_at' => Carbon::parse('10 days ago'),
             'completed_at' => Carbon::parse('+5 days'),
         ]);//15 days of lead time for ticket B
-        $ticketC = factory(Ticket::class)->states('completed')->create([
+        $ticketC = Ticket::factory()->completed()->create([
             'created_at' => Carbon::parse('5 days ago'),
             'completed_at' => Carbon::parse('+2 days'),
         ]);//7 days of lead time for ticket C
-        $ticketD = factory(Ticket::class)->create([
+        $ticketD = Ticket::factory()->create([
             'created_at' => Carbon::parse('7 days ago'),
         ]);//Lead time can't be calculated since ticket D is not completed
 
@@ -250,21 +250,21 @@ class SprintTest extends TestCase
     /** @test */
     function can_calculate_sprint_average_cycle_time()
     {
-        $sprint = factory(Sprint::class)->create();
+        $sprint = Sprint::factory()->create();
 
-        $ticketA = factory(Ticket::class)->states('completed')->create([
+        $ticketA = Ticket::factory()->completed()->create([
             'started_at' => Carbon::parse('3 days ago'),
             'completed_at' => Carbon::parse('+1 week'),
         ]);//10 days of cycle time for ticket A
-        $ticketB = factory(Ticket::class)->states('completed')->create([
+        $ticketB = Ticket::factory()->completed()->create([
             'started_at' => Carbon::parse('15 days ago'),
             'completed_at' => Carbon::parse('+5 days'),
         ]);//20 days of cycle time for ticket B
-        $ticketC = factory(Ticket::class)->states('completed')->create([
+        $ticketC = Ticket::factory()->completed()->create([
             'started_at' => Carbon::parse('6 days ago'),
             'completed_at' => Carbon::parse('+1 days'),
         ]);//7 days of cycle time for ticket C
-        $ticketD = factory(Ticket::class)->create([
+        $ticketD = Ticket::factory()->create([
             'started_at' => Carbon::parse('7 days ago'),
         ]);//Cycle time can't be calculated since ticket D is not completed
 

@@ -28,7 +28,7 @@ class ViewSprintListingTest extends TestCase
     public function guest_cannot_view_a_sprint_page()
     {
 
-        $sprint =  factory(Sprint::class)->create([
+        $sprint =  Sprint::factory()->create([
             'name' => 'Sprint Test 1',
         ]);
         $response = $this->get('/sprints/'.$sprint->id);
@@ -42,15 +42,15 @@ class ViewSprintListingTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
-        $sprintA =  factory(Sprint::class)->create([
+        $sprintA =  Sprint::factory()->create([
             'name' => 'Sprint Test A',
         ]);
-        $sprintB =  factory(Sprint::class)->create([
+        $sprintB =  Sprint::factory()->create([
             'name' => 'Sprint Test B',
         ]);
-        $sprintC =  factory(Sprint::class)->create([
+        $sprintC =  Sprint::factory()->create([
             'name' => 'Sprint Test C',
         ]);
         $user->sprints()->saveMany([$sprintA, $sprintB, $sprintC]);
@@ -68,19 +68,19 @@ class ViewSprintListingTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $user = factory(User::class)->create();
-        $otherUser = factory(User::class)->create();
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
 
-        $sprintA =  factory(Sprint::class)->create([
+        $sprintA =  Sprint::factory()->create([
             'name' => 'Sprint Test A',
         ]);
-        $sprintB =  factory(Sprint::class)->create([
+        $sprintB =  Sprint::factory()->create([
             'name' => 'Sprint Test B',
         ]);
-        $sprintC =  factory(Sprint::class)->create([
+        $sprintC =  Sprint::factory()->create([
             'name' => 'Sprint Test C',
         ]);
-        $sprintD =  factory(Sprint::class)->create([
+        $sprintD =  Sprint::factory()->create([
             'name' => 'Sprint Test C',
         ]);
 
@@ -101,17 +101,17 @@ class ViewSprintListingTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $project =  factory(Project::class)->create([
+        $project =  Project::factory()->create([
             'name' => 'Project Test 1',
         ]);
 
-        $sprint =  factory(Sprint::class)->create([
+        $sprint =  Sprint::factory()->create([
             'name' => 'Sprint Test 1',
         ]);
 
         $project->sprints()->save($sprint);
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $user->sprints()->save($sprint);
 
         $response = $this->actingAs($user)->get('/sprints/'.$sprint->id);
@@ -123,11 +123,11 @@ class ViewSprintListingTest extends TestCase
     /** @test */
     function user_cannot_view_a_sprint_he_does_not_own()
     {
-        $sprint =  factory(Sprint::class)->create([
+        $sprint =  Sprint::factory()->create([
             'name' => 'Sprint Test 1',
         ]);
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $response = $this->actingAs($user)->get('/sprints/'.$sprint->id);
 
 

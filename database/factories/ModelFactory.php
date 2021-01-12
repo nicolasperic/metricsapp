@@ -24,7 +24,7 @@ use Illuminate\Support\Str;
 | model instances for testing / seeding your application's database.
 |
 */
-
+//migrated
 $factory->define(User::class, function (Faker $faker) {
     return [
         'name' => $faker->name,
@@ -37,6 +37,7 @@ $factory->define(User::class, function (Faker $faker) {
     ];
 });
 
+//migrated
 $factory->define(AssemblaUser::class, function (Faker $faker) {
     return [
         'user_assembla_id' => 'TESTID1234',
@@ -46,6 +47,7 @@ $factory->define(AssemblaUser::class, function (Faker $faker) {
     ];
 });
 
+//migrated
 $factory->define(Project::class, function (Faker $faker) {
     return [
         'name' => 'Test Project',
@@ -57,6 +59,7 @@ $factory->define(Project::class, function (Faker $faker) {
 });
 
 
+//migrated
 $factory->define(Ticket::class, function (Faker $faker) {
     return [
         'project_id' => function () {
@@ -70,6 +73,7 @@ $factory->define(Ticket::class, function (Faker $faker) {
     ];
 });
 
+//migrated
 $factory->state(Ticket::class, 'completed', function () {
     return [
         'ticket_assembla_id' => 'ticket123',
@@ -78,6 +82,7 @@ $factory->state(Ticket::class, 'completed', function () {
     ];
 });
 
+//migrated
 $factory->define(TicketTime::class, function(Faker $faker) {
     return [
         'ticket_time_assembla_id' => 1234,
@@ -92,6 +97,7 @@ $factory->define(TicketTime::class, function(Faker $faker) {
     ];
 });
 
+//migrated
 $factory->define(Sprint::class, function (Faker $faker) {
     return [
         'name' => 'Sprint 1',
@@ -102,6 +108,7 @@ $factory->define(Sprint::class, function (Faker $faker) {
     ];
 });
 
+//migrated
 $factory->define(Report::class, function (Faker $faker) {
     return [
         'user_id' => 1,
@@ -110,6 +117,7 @@ $factory->define(Report::class, function (Faker $faker) {
     ];
 });
 
+//migrated
 $factory->state(Report::class, 'processed', function () {
     return [
         'status' => Report::PROCESSED_STATUS,

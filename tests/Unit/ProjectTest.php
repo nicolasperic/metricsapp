@@ -14,7 +14,7 @@ class ProjectTest extends TestCase
     /** @test */
     function can_create_a_project()
     {
-        $project = factory(Project::class)->create([
+        $project = Project::factory()->create([
             'name' => 'Test Project'
         ]);
 
@@ -24,15 +24,15 @@ class ProjectTest extends TestCase
     /** @test */
     function can_assign_tickets_to_a_project()
     {
-        $project = factory(Project::class)->create();
+        $project = Project::factory()->create();
 
-        $ticketA = factory(Ticket::class)->create([
+        $ticketA = Ticket::factory()->create([
             'project_id' => $project
         ]);
-        $ticketB = factory(Ticket::class)->create([
+        $ticketB = Ticket::factory()->create([
             'project_id' => $project
         ]);
-        $ticketC = factory(Ticket::class)->create([
+        $ticketC = Ticket::factory()->create([
             'project_id' => $project
         ]);
 

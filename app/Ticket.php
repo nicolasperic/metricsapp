@@ -4,11 +4,14 @@ namespace App;
 
 use App\Integration\AssemblaGateway;
 use DateTime;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Ticket extends Model
 {
+    use HasFactory;
+
     const CLOSED_STATE = 0;
     const OPEN_STATE = 1;
     protected $guarded = [];
