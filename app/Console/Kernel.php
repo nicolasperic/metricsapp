@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('assembla:sync')->everyMinute()->when(function (){
             //workaround for Heroku scheduler
             $now = new Carbon();
-            return $now->hour % 6;//every six hours
+            return $now->hour % 6 == 0;//every six hours
         });
     }
 
