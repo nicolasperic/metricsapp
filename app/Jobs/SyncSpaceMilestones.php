@@ -7,7 +7,9 @@ use App\Importer\SprintImporter;
 use App\Project;
 use App\User;
 use Exception;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -24,9 +26,9 @@ use Illuminate\Support\Facades\Log;
  *
  * @package App\Jobs
  */
-class SyncSpaceMilestones implements ShouldQueue
+class SyncSpaceMilestones implements ShouldQueue, ShouldBeUnique
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     /**
      * @var Project
      */
@@ -53,16 +55,31 @@ class SyncSpaceMilestones implements ShouldQueue
      */
     public function handle()
     {
+        if ($this->batch() && $this->batch()->cancelled()) {
+            // Determine if the batch has been cancelled...
+            return;
+        }
+
         try {
             $sprintImporter = new SprintImporter($this->user);
             $sprintImporter->importProjectMilestonesAsSprints($this->project);
 
-            Log::info("Dispatching event for Current Milestone after ".$this->project->name. " milestones sync");
-            SpaceMilestonesSynced::dispatch($this->user, $this->project);
+            //Log::info("Dispatching event for Current Milestone after ".$this->project->name. " milestones sync");
+            //SpaceMilestonesSynced::dispatch($this->user, $this->project);
         } catch (Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
         }
 
+    }
+
+    /**
+     * The unique ID of the job.
+     *
+     * @return string
+     */
+    public function uniqueId()
+    {
+        return $this->project->project_assembla_id;
     }
 }

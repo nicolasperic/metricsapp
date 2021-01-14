@@ -90,6 +90,11 @@ class Sprint extends Model
         return '';
     }
 
+    public function getProject()
+    {
+        return $this->projects->first();
+    }
+
     public function getFormattedPlannerType()
     {//TODO this function could easily go to a Helper (how can we use a helper on blade?)
         //0 None, 1 Backlog, 2 Current

@@ -35,6 +35,8 @@ class SprintDto
     private $title;
     private $status;
     private $plannerType;//0 None, 1 Backlog, 2 Current
+    private $startDate;
+    private $endDate;
 
     private $responseData;
 
@@ -59,6 +61,8 @@ class SprintDto
         $data = $this->getResponseData();
         $this->setTitle($data['title']);
         $this->setStatus(!boolval($data['is_completed']));
+        $this->setStartDate($data['start_date']);
+        $this->setEndDate($data['due_date']);
         $this->setSprintAssemblaId($data['id']);
         $this->setProjectAssemblaId($data['space_id']);
         $this->setPlannerType($data['planner_type']);
@@ -144,12 +148,48 @@ class SprintDto
         $this->plannerType = $plannerType;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * @param mixed $startDate
+     */
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    /**
+     * @param mixed $endDate
+     */
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
+    }
+
+
+
 
 
     public function toString()
     {
         return "Name: ".$this->getTitle().PHP_EOL.
         "Status: ".$this->getStatus().PHP_EOL.
+        "Start Date: ".$this->getStartDate().PHP_EOL.
+        "End Date: ".$this->getEndDate().PHP_EOL.
         "Sprint ID: ".$this->getSprintAssemblaId().
         "Project ID: ".$this->getProjectAssemblaId().
         "Planner Type: ".$this->getPlannerType();

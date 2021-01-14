@@ -16,6 +16,8 @@ class SprintMapper extends AbstractMapper
              'name' => $sprintDto->getTitle(),
              'sprint_assembla_id' => $sprintDto->getSprintAssemblaId(),
              'project_assembla_id' => $sprintDto->getProjectAssemblaId(),
+             'start_date' => $sprintDto->getStartDate(),
+             'end_date' => $sprintDto->getEndDate(),
              'is_active' => $sprintDto->getStatus(),
              'planner_type' => $sprintDto->getPlannerType()
          ]);
@@ -43,6 +45,16 @@ class SprintMapper extends AbstractMapper
 
         if ($sprintDto->getPlannerType() !== $sprint->planner_type) {
             $sprint->planner_type = $sprintDto->getPlannerType();
+            $changed = true;
+        }
+
+        if ($sprintDto->getStartDate() !== $sprint->start_date) {
+            $sprint->start_date = $sprintDto->getStartDate();
+            $changed = true;
+        }
+
+        if ($sprintDto->getEndDate() !== $sprint->end_date) {
+            $sprint->end_date = $sprintDto->getEndDate();
             $changed = true;
         }
 

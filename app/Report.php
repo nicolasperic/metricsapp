@@ -40,6 +40,12 @@ class Report extends Model
     {
         $requestData = unserialize($this->request_data);
         $wikiname = (array_key_exists('wikiname', $requestData))?$requestData['wikiname']:'';
-        return $wikiname. ' from '.$requestData['from_date']. ' to '.$requestData['to_date'];
+
+        if (array_key_exists('from_date', $requestData) && array_key_exists('to_date', $requestData)) {
+            return $wikiname. ' from '.$requestData['from_date']. ' to '.$requestData['to_date'];
+        }
+
+        return $wikiname;
+
     }
 }

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Events\SpaceMilestonesSynced;
+use App\Events\SprintsForReportProcessed;
 use App\Listeners\ScheduleCurrentMylestoneSync;
+use App\Listeners\ScheduleSprintReportContent;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -20,8 +22,8 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        SpaceMilestonesSynced::class => [
-            ScheduleCurrentMylestoneSync::class
+        SprintsForReportProcessed::class => [
+            ScheduleSprintReportContent::class
         ],
     ];
 

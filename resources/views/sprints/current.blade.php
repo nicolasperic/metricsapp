@@ -17,13 +17,13 @@
             @forelse ($currentSprints as $sprint)
             <div class="col-10" style="margin-bottom:20px">
                 <div>
-                    <div class="card">
-                        <div class="card-header d-flex align-items-center ">
+                    <div class="card shadow mb-12">
+                        <div class="card-header d-flex align-items-center">
                             @foreach ($sprint->projects as $project)
-                            <a href="{{url("projects/{$project->id}")}}">{{$project->name}}</a>
+                            <a href="{{url("projects/{$project->id}")}}" class="font-weight-bold">{{$project->name}}</a>
                             @endforeach
-                            &nbsp;>&nbsp; <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>  &nbsp;<?= $sprint->getFormattedPlannerType()?>
-                            &nbsp;&nbsp;|&nbsp;&nbsp;<a href="https://app.assembla.com/spaces/{{ $project->wikiname }}/milestones/{{ $sprint->sprint_assembla_id }}" target="_blank">View in Assembla</a>
+                            &nbsp;>&nbsp; <a href="{{url("sprints/{$sprint->id}")}}" class="font-weight-bold">{{ $sprint->name}}</a>  &nbsp;<?= $sprint->getFormattedPlannerType()?>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;<a href="https://app.assembla.com/spaces/{{ $project->wikiname }}/milestones/{{ $sprint->sprint_assembla_id }}" class="font-weight-bold" target="_blank">View in Assembla <img width="25" src="{{url('/img/assembla_logo.png')}}" alt="Image" style="position: relative; top: -3px;"/></a>
                             &nbsp;&nbsp;|&nbsp;&nbsp;<i>Last synced on {{$sprint->updated_at }}</i>
                         </div>
                         <?php $olderUpdatedAt = ($olderUpdatedAt === false || $sprint->updated_at < $olderUpdatedAt)?$sprint->updated_at: $olderUpdatedAt;?>
@@ -153,7 +153,6 @@
             border-radius: 3px;
             line-height: 17px;
             font-size: 11px;
-            cursor: pointer;
             color: white;
             position: relative;
             top: -3px;

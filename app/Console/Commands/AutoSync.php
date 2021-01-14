@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SyncSpaceCurrentMilestone;
 use App\Jobs\SyncSpaceMilestones;
 use App\Project;
 use App\User;
+use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -43,21 +46,33 @@ class AutoSync extends Command
     public function handle()
     {
 
-        //Retrieve all syncable projects
-        //Dispatch SyncSpaceMilestones job
-
+        //Retrieve all syncable projects to dispatch the required jobs
         $syncableProjects = DB::table('projects') ->join('project_user', function ($join)
         { $join->on('projects.id', '=', 'project_user.project_id') ->where('project_user.syncable',
             '=', true); })->groupBy('projects.id')->distinct()->get();
 
-        foreach ($syncableProjects as $projectData){
-            $user = User::find($projectData->user_id);
+        //Preparing Space and Current Milestone sync jobs for batch processing
+        $jobs = $syncableProjects->map(function (\stdClass $projectData)  {
             $project = Project::find($projectData->project_id);
+            $user = User::find($projectData->user_id);
 
-            Log::info("Dispatch $project->name milestones sync on AutoSync");
-            SyncSpaceMilestones::dispatch($user, $project);
+            return [
+                new SyncSpaceMilestones($user, $project),
+                new SyncSpaceCurrentMilestone($user, $project)
+            ];
+        })
+            ->filter()
+            ->collapse()
+            ->toArray();
 
-        }
+        Bus::batch($jobs)
+            ->then(function (Batch $batch) {
+                // All jobs completed successfully...
+            })->catch(function (Batch $batch, Throwable $e) {
+                // First batch job failure detected...
+            })->finally(function (Batch $batch) {
+                print 'AutoSync batches are done'.PHP_EOL;
+            })->dispatch();;
         return 0;
     }
 }

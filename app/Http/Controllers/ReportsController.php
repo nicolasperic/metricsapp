@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helper\SessionMessage;
 use App\Jobs\ProcessHoursByUsersReport;
+use App\Jobs\ProcessSprintsReport;
 use App\Jobs\ProcessUserStoryReport;
 use App\Project;
 use App\Report;
@@ -19,6 +20,7 @@ class ReportsController extends Controller
         $projects = Auth::user()->projects;
         return view('reports.index', [
             'projects' => $projects,
+            'sprints' => Auth::user()->sprints,
             'users' => self::_getUsersInProjects($projects),
             'results' => request('results'),
             'reports' => Auth::user()->lastWeekReports(),
@@ -157,6 +159,38 @@ class ReportsController extends Controller
             'projects'   => 'required',
             'hours_user_from_date' => 'date',
             'hours_user_to_date'   => 'date|after_or_equal:from_date',
+        ]);
+    }
+
+
+
+    public function generateSprintsReport()
+    {
+        $this->validateSprintsRequest();
+
+        $requestData = [
+            'sprints' => request('sprints'),
+        ];
+
+        $reportModel = Report::create([
+            'title' => 'Milestones',
+            'request_data' => serialize($requestData)
+        ]);
+
+        Auth::user()->reports()->save($reportModel);
+        ProcessSprintsReport::dispatch($requestData, $reportModel);
+        SessionMessage::infoMessage('The report has been added to the queue');
+
+        return redirect()->route('reports.index');
+    }
+
+    /**
+     * @return array
+     */
+    protected function validateSprintsRequest()
+    {
+        return request()->validate([
+            'sprints'   => 'required|array|max:6',
         ]);
     }
 }

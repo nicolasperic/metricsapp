@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\SpaceMilestonesSynced;
-use App\Jobs\SyncCurrentMilestone;
+use App\Jobs\SyncSpaceCurrentMilestone;
 use App\Project;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -32,11 +32,11 @@ class ScheduleCurrentMylestoneSync
     {
         //retrieve current milestone on project and dispatch sync job
         /** @var Project $project */
-        $project = $event->getProject();
-        Log::info('Listening to SpaceMilestonesSynced for '.$project->name);
-        $currentSprint = $project->getCurrentSprint();
-        Log::info('Dispatching SyncCurrentMilestone for '.$project->name);
-        SyncCurrentMilestone::dispatch($event->getUser(), $currentSprint);
+        //$project = $event->getProject();
+        //Log::info('Listening to SpaceMilestonesSynced for '.$project->name);
+
+        //Log::info('Dispatching SyncSpaceCurrentMilestone for '.$project->name);
+        //SyncSpaceCurrentMilestone::dispatch($event->getUser(), $project);
 
     }
 }

@@ -26,6 +26,7 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::get('/reports/{id}', 'ReportsController@show')->name('reports.show')->middleware('auth');
     Route::post('/reports/hoursByUs', 'ReportsController@generateHoursByUsReport')->middleware('auth');
     Route::post('/reports/hoursByUser', 'ReportsController@generateHoursByUserReport')->middleware('auth');
+    Route::post('/reports/generateSprintsReport', 'ReportsController@generateSprintsReport')->middleware('auth');
     Route::get('/tasks-timer', 'TasksTimerController@index')->name('taskstimer.index')->middleware('auth');
     Route::post('/tasks-timer', 'TasksTimerController@store')->middleware('auth');
     Route::get('/projects', 'ProjectsController@index')->name('projects.index')->middleware('auth');

@@ -2,8 +2,11 @@
 @section('head')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/css/bootstrap-datepicker.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 @endsection
 
 @section('content')
@@ -184,6 +187,40 @@
                         </div>
                     </form>
                 </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-header">Sprints Report</div>
+                        <form method="POST" action="{{url("reports/generateSprintsReport")}}" style="padding: 20px;">
+                            @csrf
+
+                            <div class="field">
+                                <label class="label" for="title">Sprints</label>
+
+
+                                <div class="control">
+                                    @if (count($sprints))
+                                        <select name="sprints[]"  id="sprints" class="selectpicker" data-size="10" multiple data-live-search="true">
+                                            @foreach($sprints as $sprint)
+                                                <option value="{{ $sprint->sprint_assembla_id }}" @if($sprint->sprint_assembla_id == old('sprints')) selected @endif>{{ $sprint->getProjectName() .' > ' . $sprint->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('sprints')
+                                        <p class="help is-danger">{{ $errors->first('sprints') }}</p>
+                                        @enderror
+                                    @else
+                                        No sprints yet, <a href="{{url("projects/importProjects")}}">Import Projects</a> and then import sprints from a project page
+                                    @endif
+                                </div>
+                            </div>
+
+
+                            <div class="field is-grouped">
+                                <div class="control">
+                                    <button class="button is-link" type="submit">Generate Report</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
             </div>
         </div>
     </div>
@@ -193,6 +230,8 @@
             format: 'yyyy/mm/dd',
             autoclose: true
         });
+
+        $('#sprints').selectpicker();
     </script>
 @endsection
 
@@ -312,7 +351,7 @@
         border-top: 7px solid rgba(0,0,0,.1);
     }
 
-    #users, #projects {
+    #users, #projects, #sprints {
         height: 200px;
     }
 
@@ -323,6 +362,12 @@
     .datepicker.datepicker-dropdown.dropdown-menu {
         z-index: 10000 !important;
     }
+
+    .btn.dropdown-toggle.bs-placeholder.btn-light, .btn.dropdown-toggle.btn-light {
+        height: 35px !important;
+    }
+
+
 
 
 </style>
