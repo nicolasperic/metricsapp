@@ -10,7 +10,7 @@
         <a href="{{ url('sprints/syncAllCurrentSprints') }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync All Current Sprints</a>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid current-sprints">
         <div class="row justify-content-center">
 
             <?php $totalEstimate = 0;$totalRemainingEstimate = 0;$totalCompletedEstimate = 0; $totalWorkedHours = 0; $totalRemainingHours = 0; $totalStories = 0; $totalCompletedStories = 0; $olderUpdatedAt = false;?>
@@ -20,11 +20,12 @@
                     <div class="card shadow mb-12">
                         <div class="card-header d-flex align-items-center">
                             @foreach ($sprint->projects as $project)
-                            <a href="{{url("projects/{$project->id}")}}" class="font-weight-bold">{{$project->name}}</a>
+                            <a href="{{url("projects/{$project->id}")}}" class="font-weight-bold d-none d-md-block">{{$project->name}}</a>
+                            <a href="{{url("projects/{$project->id}")}}" class="font-weight-bold d-block d-md-none">{{$project->code}}</a>
                             @endforeach
                             &nbsp;>&nbsp; <a href="{{url("sprints/{$sprint->id}")}}" class="font-weight-bold">{{ $sprint->name}}</a>  &nbsp;<?= $sprint->getFormattedPlannerType()?>
-                            &nbsp;&nbsp;|&nbsp;&nbsp;<a href="https://app.assembla.com/spaces/{{ $project->wikiname }}/milestones/{{ $sprint->sprint_assembla_id }}" class="font-weight-bold" target="_blank">View in Assembla <img width="25" src="https://assets2.assembla.com/assets/favicon/apple-touch-icon-152x152-62313763336639636561616137656631316139363330643166373263366434336331636664333539336231633165396334626630633630383665636661306165.png" alt="Image" style="position: relative; top: -3px;"/></a>
-                            &nbsp;&nbsp;|&nbsp;&nbsp;<i>Last synced on {{$sprint->updated_at }}</i>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;<a href="https://app.assembla.com/spaces/{{ $project->wikiname }}/milestones/{{ $sprint->sprint_assembla_id }}" class="font-weight-bold" target="_blank"><span class="assembla-link-text">View in Assembla</span> <img width="25" src="https://assets2.assembla.com/assets/favicon/apple-touch-icon-152x152-62313763336639636561616137656631316139363330643166373263366434336331636664333539336231633165396334626630633630383665636661306165.png" alt="Image" style="position: relative; top: -3px;"/></a>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;<i class="d-none d-md-block">Last synced on {{$sprint->updated_at }}</i>
                         </div>
                         <?php $olderUpdatedAt = ($olderUpdatedAt === false || $sprint->updated_at < $olderUpdatedAt)?$sprint->updated_at: $olderUpdatedAt;?>
                         <div class="card-bg-secondary">

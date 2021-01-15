@@ -60,7 +60,7 @@
                 <i class="fas fa-fw fa-folder"></i>
                 <span>Projects</span>
             </a>
-            <div id="collapseProjects" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div id="collapseProjects" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <div class="collapse-divider"></div>
                     <a class="collapse-item" href="{{url('/projects')}} ">All Projects</a>
@@ -83,7 +83,7 @@
                 <i class="fas fa-fw fa-folder"></i>
                 <span>Sprints</span>
             </a>
-            <div id="collapseSprints" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div id="collapseSprints" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <div class="collapse-divider"></div>
                     <a class="collapse-item" href="{{url('/sprints')}} ">All Sprints</a>
@@ -104,7 +104,7 @@
                 <i class="fas fa-fw fa-folder"></i>
                 <span>Reports</span>
             </a>
-            <div id="collapseReports" class="collapse show" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+            <div id="collapseReports" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <div class="collapse-divider"></div>
                     <a class="collapse-item" href="{{route('reports.weekly')}} ">Weekly Report</a>

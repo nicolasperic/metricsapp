@@ -10897,3 +10897,19 @@ a.text-dark:focus {
   border-color: #ff3860;
 }
 
+@media (max-width: 767.98px) {
+  .current-sprints .planner-type.current,
+  .current-sprints .assembla-link-text {
+    display: none;
+  }
+
+  .current-sprints h4.mt-4 {
+    font-size: 1rem;
+  }
+
+  .current-sprints .row.justify-content-center div.col-10 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
