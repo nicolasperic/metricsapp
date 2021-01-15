@@ -38,14 +38,25 @@ class Report extends Model
 
     public function getRequestDataFormatted()
     {
-        $requestData = unserialize($this->request_data);
-        $wikiname = (array_key_exists('wikiname', $requestData))?$requestData['wikiname']:'';
+        $requestDataFormatted = '';
 
-        if (array_key_exists('from_date', $requestData) && array_key_exists('to_date', $requestData)) {
-            return $wikiname. ' from '.$requestData['from_date']. ' to '.$requestData['to_date'];
+        $serializedRequest = $this->request_data;
+        $requestData = unserialize($this->request_data);
+        if (strpos($serializedRequest, 'sprints') !== false) {
+            $sprintTotal = (count($requestData['sprints'])  > 1)? 'milestones' : 'milestone';
+            $requestDataFormatted = count($requestData['sprints']) .' '.$sprintTotal;
+
+        } else if (strpos($serializedRequest, 'wikiname') !== false) {
+            $requestData = unserialize($this->request_data);
+            $requestDataFormatted = $requestData['wikiname'];
         }
 
-        return $wikiname;
+
+        if (array_key_exists('from_date', $requestData) && array_key_exists('to_date', $requestData)) {
+            return $requestDataFormatted. ' from '.$requestData['from_date']. ' to '.$requestData['to_date'];
+        }
+
+        return $requestDataFormatted;
 
     }
 }

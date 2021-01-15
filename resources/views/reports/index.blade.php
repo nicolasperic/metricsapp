@@ -15,7 +15,7 @@
             <div class="col-md-8">
 
                 @if ($reports)
-
+                    <p class="help">Only displaying reports from the last 7 days</p>
                     <table style="width: 100%;margin-bottom: 20px;">
                         <thead>
                         <th>Status</th>
@@ -58,7 +58,7 @@
 
                             <div class="control">
                                 @if (count($projects))
-                                    <select name="project">
+                                    <select name="project" id="project" class="selectpicker" data-size="10" data-live-search="true">
                                         @foreach($projects as $project)
                                             <option value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('project')) selected @endif>{{ $project->name }}</option>
                                         @endforeach
@@ -71,7 +71,16 @@
                                 @endif
                             </div>
                         </div>
-
+                        <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
+                        <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastMonthFirstDay() }}" data-to="{{ Helper::getLastMonthLastDay() }}" >Last month</a>
+                        <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >This week</a>
+                        <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >This month</a>
+                        <style>
+                            .set-hours-us-date-links, .set-hours-user-date-links {
+                                font-size: .75rem;
+                                margin-rigt: 5px;
+                            }
+                        </style>
                         <div class="field">
                             <label class="label" for="title">From Date</label>
 
@@ -119,7 +128,7 @@
 
                             <div class="control">
                                 @if (count($projects))
-                                    <select name="projects[]"  id="projects" multiple>
+                                    <select name="projects[]"  id="projects" multiple class="selectpicker" data-size="10"  data-live-search="true">
                                         @foreach($projects as $project)
                                             <option value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('projects')) selected @endif data-wikiname="{{ $project->wikiname }}">{{ $project->name }}</option>
                                         @endforeach
@@ -139,7 +148,7 @@
 
                             <div class="control">
                                 @if (count($users))
-                                    <select name="users[]" id="users" multiple>
+                                    <select name="users[]" id="users" multiple class="selectpicker" data-size="10"  data-live-search="true">
                                         @foreach($users as $userAssemblaId => $userName)
                                             <option value="{{ $userAssemblaId }}" @if($userAssemblaId == old('users')) selected @endif>{{ $userName }}</option>
                                         @endforeach
@@ -153,6 +162,10 @@
                             </div>
                         </div>
 
+                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
+                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getLastMonthFirstDay() }}" data-to="{{ Helper::getLastMonthLastDay() }}" >Last month</a>
+                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >This week</a>
+                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >This month</a>
                         <div class="field">
                             <label class="label" for="title">From Date</label>
 
@@ -204,6 +217,8 @@
                                                 <option value="{{ $sprint->sprint_assembla_id }}" @if($sprint->sprint_assembla_id == old('sprints')) selected @endif>{{ $sprint->getProjectName() .' > ' . $sprint->name }}</option>
                                             @endforeach
                                         </select>
+
+                                        <p class="help">A maximum of 12 sprints can be selected</p>
                                         @error('sprints')
                                         <p class="help is-danger">{{ $errors->first('sprints') }}</p>
                                         @enderror
@@ -231,7 +246,19 @@
             autoclose: true
         });
 
-        $('#sprints').selectpicker();
+        $('.set-hours-us-date-links').click(function(e) {
+            $('#hours_us_from_date').val($(this).data('from'));
+            $('#hours_us_to_date').val($(this).data('to'));
+            e.preventDefault();
+        });
+
+        $('.set-hours-user-date-links').click(function(e) {
+            $('#hours_user_from_date').val($(this).data('from'));
+            $('#hours_user_to_date').val($(this).data('to'));
+            e.preventDefault();
+        });
+
+
     </script>
 @endsection
 

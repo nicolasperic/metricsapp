@@ -59,4 +59,78 @@ class Helper {
         }
         return number_format(($subtotal / $total) * 100, $decimals);
     }
+
+    /**
+     * Will return last week first day based on the current date
+     * @return string
+     */
+    public static function getLastWeekMonday()
+    {
+        $now = Carbon::now();
+        return $now->subDays($now->dayOfWeek-1)->subWeek()->format('Y/m/d');
+    }
+
+    /**
+     * Will return last week last day based on the current date
+     * @return string
+     */
+    public static function getLastWeekSunday()
+    {
+        $now = Carbon::now();
+        return $now->subDays($now->dayOfWeek)->format('Y/m/d');
+    }
+
+    /**
+     * Will return this week first day based on the current date
+     * @return mixed
+     */
+    public static function getThisWeekMonday()
+    {
+        return Carbon::now()->startOfWeek()->format('Y-m-d');
+    }
+
+    /**
+     * Will return this week last day based on the current date
+     * @return string
+     */
+    public static function getThisWeekSunday()
+    {
+        return Carbon::now()->endOfWeek()->format('Y-m-d');
+    }
+
+    /**
+     * Will return this month first day based on the current date
+     * @return string
+     */
+    public static function getThisMonthFirstDay()
+    {
+        return Carbon::now()->startOfMonth()->format('Y-m-d');
+    }
+
+    /**
+     * Will return this month last day based on the current date
+     * @return string
+     */
+    public static function getThisMonthLastDay()
+    {
+        return Carbon::now()->endOfMonth()->format('Y-m-d');
+    }
+
+    /**
+     * Will return last month first day based on the current date
+     * @return string
+     */
+    public static function getLastMonthFirstDay()
+    {
+        return Carbon::now()->startOfMonth()->subMonth()->format('Y-m-d');
+    }
+
+    /**
+     * Will return last month last day based on the current date
+     * @return string
+     */
+    public static function getLastMonthLastDay()
+    {
+        return Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d');
+    }
 }
