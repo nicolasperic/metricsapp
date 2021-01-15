@@ -190,7 +190,7 @@ class ReportsController extends Controller
     protected function validateSprintsRequest()
     {
         return request()->validate([
-            'sprints'   => 'required|array|max:6',
+            'sprints'   => 'required|array|max:12',
         ]);
     }
 }
