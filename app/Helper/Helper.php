@@ -86,7 +86,7 @@ class Helper {
      */
     public static function getThisWeekMonday()
     {
-        return Carbon::now()->startOfWeek()->format('Y-m-d');
+        return Carbon::now()->startOfWeek()->format('Y/m/d');
     }
 
     /**
@@ -95,7 +95,7 @@ class Helper {
      */
     public static function getThisWeekSunday()
     {
-        return Carbon::now()->endOfWeek()->format('Y-m-d');
+        return Carbon::now()->endOfWeek()->format('Y/m/d');
     }
 
     /**
@@ -104,7 +104,7 @@ class Helper {
      */
     public static function getThisMonthFirstDay()
     {
-        return Carbon::now()->startOfMonth()->format('Y-m-d');
+        return Carbon::now()->startOfMonth()->format('Y/m/d');
     }
 
     /**
@@ -113,7 +113,7 @@ class Helper {
      */
     public static function getThisMonthLastDay()
     {
-        return Carbon::now()->endOfMonth()->format('Y-m-d');
+        return Carbon::now()->endOfMonth()->format('Y/m/d');
     }
 
     /**
@@ -122,7 +122,7 @@ class Helper {
      */
     public static function getLastMonthFirstDay()
     {
-        return Carbon::now()->startOfMonth()->subMonth()->format('Y-m-d');
+        return Carbon::now()->startOfMonth()->subMonth()->format('Y/m/d');
     }
 
     /**
@@ -131,6 +131,6 @@ class Helper {
      */
     public static function getLastMonthLastDay()
     {
-        return Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d');
+        return Carbon::now()->subMonth()->endOfMonth()->format('Y/m/d');
     }
 }
