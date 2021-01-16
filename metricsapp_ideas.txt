@@ -24,11 +24,31 @@ max_execution_time
     - releases
 
 > FILTERS para validaciones en atributos de tickets | Name > validaciones | Ícono/color/badge
-    1. Subtask working hours > 6hs//DOS atributos SUBTASK && HOURS
-    2. User Stories total inv hours > 15hs (?) //DOS attr US %% HOURS
-    3. Completed US with open subtasks (or not in Done)//complicado armar esta regla :think: US && completed > subtasks status != Done
-    4. US without story points//ATRIUTO
-    5. US con horas trackeadas//ATRIBUTO
+- Poder generar un filtro tipo Feed que basado en las condiciones retorne tickets de los spaces elegidos
+- Generar condiciones ej: ALL/ANY of these are TRUE/FALSE
+            - state  is/is not opened/closed
+
+- operadores: is, is not,  equals or greater than, equals or less than, greater than, less than, contains, does not contains, is one of, is not one of
+Atributos para condiciones:
+    - state: 0 closed, 1 opened
+    - status: string
+    - is_story:
+    - estimate
+    - total_estimate
+    - total_invested_hours
+    - worked_hours
+    - working_hours
+
+Ejemplos:
+    OK 1. Subtask working hours > 6hs//DOS atributos SUBTASK && HOURS
+    OK 2. User Stories total inv hours > 15hs (?) //DOS attr US %% HOURS
+    3. Completed US with open subtasks (or not in Done)
+        //complicado armar esta regla :think: US && completed > subtasks status != Done
+        is_story YES
+        state is closed
+        [US subtasks statuses] is one of [In Progress, Accepted, Delivered, Paused, etc]
+    OK 4. US without story points//ATRIUTO
+    OK 5. US con horas trackeadas//ATRIBUTO
 
 
 Indicadores

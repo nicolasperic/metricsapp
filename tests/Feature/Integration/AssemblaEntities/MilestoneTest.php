@@ -5,7 +5,12 @@ namespace Tests\Feature\Integration;
 use App\Importer\TicketImporter;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
+use App\Jobs\ProcessSprintsReport;
+use App\Jobs\SyncMilestone;
+use App\Jobs\SyncSpaceCurrentMilestone;
+use App\Jobs\SyncSpaceMilestones;
 use App\Project;
+use App\Report;
 use App\Sprint;
 use App\Ticket;
 use App\User;
@@ -195,7 +200,7 @@ class MilestoneTest
         $twelveHour = Carbon::parse("2020-01-08 12:19");
         $eighteenHour = Carbon::parse("2020-01-08 18:55");
         $twentyHour = Carbon::parse("2020-01-08 20:03");
-        
+
         $this->assertTrue($sixHour->hour % 6 == 0);
         $this->assertTrue($twelveHour->hour % 6 == 0);
         $this->assertTrue($eighteenHour->hour % 6 == 0);
@@ -266,4 +271,122 @@ class MilestoneTest
 
 
     }
+
+    /**  */
+    function can_dispatch_batch_of_jobs()
+    {
+        $userA = User::factory()->create();
+
+        $projectA = Project::factory()->create([
+            'name'                  => 'Project A',
+            'wikiname'              => 'canaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+        $sprintA = Sprint::factory()->create([
+            'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
+            'name'                  => 'Sprint A',
+            'sprint_assembla_id'  => '13040067',
+            'is_active'              => 1,
+            'planner_type'        => 2,
+        ]);
+
+        $projectA->sprints()->save($sprintA);
+
+        $projectB = Project::factory()->create([
+            'name'                  => 'Project B',
+            'wikiname'              => 'banaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+        $sprintB = Sprint::factory()->create([
+            'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
+            'name'                  => 'Sprint B',
+            'sprint_assembla_id'  => '13040067',
+            'is_active'              => 1,
+            'planner_type'        => 2,
+        ]);
+        $projectB->sprints()->save($sprintB);
+        $projectC = Project::factory()->create([
+            'name'                  => 'Project C',
+            'wikiname'              => 'canaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+        $sprintC = Sprint::factory()->create([
+            'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
+            'name'                  => 'Sprint C',
+            'sprint_assembla_id'  => '13040067',
+            'is_active'              => 1,
+            'planner_type'        => 2,
+        ]);
+
+        $projectC->sprints()->save($sprintC);
+        $userA->projects()->save($projectA, ['syncable' => true]);
+        $userA->projects()->save($projectB, ['syncable' => true]);
+        $userA->projects()->save($projectC, ['syncable' => true]);
+
+        print PHP_EOL;
+        //TODO I would like to have a Batch of jobs and be able to determine when all finished to notify the user
+        foreach ($userA->syncableProjects as $project ) {
+            print $project->name.PHP_EOL;
+        }
+        $this->assertTrue(true);
+
+        $jobs = $userA->syncableProjects->map(function (Project $project) use($userA)  {
+            print "map inner for $userA->name and $project->name".PHP_EOL;
+            return [new SyncSpaceMilestones($userA, $project),new SyncSpaceCurrentMilestone($userA, $project)];
+
+        //    return $this->createSendMailJob($userA, $project);
+        })
+        ->filter()
+        ->collapse()
+        ->toArray();
+        dd($jobs);
+    }
+
+    function createSendMailJob($userA, $project) {
+        return "JOB for $userA->name and $project->name".PHP_EOL;
+    }
+
+    /** @test */
+    function can_sync_a_milestone()
+    {
+        $userA = User::factory()->create();
+
+        $projectA = Project::factory()->create([
+            'name'                  => 'Project A',
+            'wikiname'              => 'canaldeautopartes',
+            'project_assembla_id'   => 'dpT43eCVCr54kBacwqjQYw'
+        ]);
+        $sprintA = Sprint::factory()->create([
+            'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
+            'name'                  => 'Sprint A',
+            'sprint_assembla_id'  => '13040067',
+            'is_active'              => 1,
+            'planner_type'        => 2,
+        ]);
+        $sprintB = Sprint::factory()->create([
+            'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
+            'name'                  => 'Sprint B',
+            'sprint_assembla_id'  => '13041228',
+            'is_active'              => 1,
+            'planner_type'        => 2,
+        ]);
+        $projectA->sprints()->saveMany([$sprintA, $sprintB]);
+        $userA->projects()->save($projectA);
+
+
+
+        $requestData['sprints'] = [
+            0 => '13040067',
+            1 => '13041228',
+        ];
+        $reportModel = Report::factory()->create([
+            'title' => 'Milestones',
+            'request_data' => serialize($requestData)
+        ]);
+
+        $userA->reports()->save($reportModel);
+        ProcessSprintsReport::dispatch($requestData, $reportModel);
+    }
+
+
 }

@@ -73,8 +73,8 @@
                         </div>
                         <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
                         <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastMonthFirstDay() }}" data-to="{{ Helper::getLastMonthLastDay() }}" >Last month</a>
-                        <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >This week</a>
-                        <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >This month</a>
+                        <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >Current week</a>
+                        <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >Current month</a>
                         <style>
                             .set-hours-us-date-links, .set-hours-user-date-links {
                                 font-size: .75rem;
@@ -164,8 +164,8 @@
 
                         <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
                         <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getLastMonthFirstDay() }}" data-to="{{ Helper::getLastMonthLastDay() }}" >Last month</a>
-                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >This week</a>
-                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >This month</a>
+                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >Current week</a>
+                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >Current month</a>
                         <div class="field">
                             <label class="label" for="title">From Date</label>
 
