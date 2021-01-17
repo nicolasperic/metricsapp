@@ -235,7 +235,7 @@
             </div>
 
             <!-- Pie Chart -->
-            <div class="col-xl-4 col-lg-5">
+            <div class="col-xl-6 col-lg-6">
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -255,18 +255,54 @@
                     </div>
                     <!-- US Type Body -->
                     <div class="card-body">
-                        <div class="chart-pie pt-4 pb-2">
-                            <canvas id="usTypeCount"></canvas>
+                        <div class="col-xl-6 col-lg-6" style="float: left;">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="usTypeCount"></canvas>
+                            </div>
+                            <div class="text-center small">
+                                <span>External: amount of US for each type</span><br>
+                                <span>Internal: amount of hours for each type</span>
+                            </div>
                         </div>
-                        <div class="mt-4 text-center small">
-                            @foreach($sprint->getUserStoriesTypePercentages() as $i => $usType)
-                                <span class="mr-2">
+                        <div class="col-xl-6 col-lg-6" style="float: right; padding-right: 0px;">
+                            <div class="mt-4 small">
+                                @foreach($sprint->getUserStoriesTypePercentages() as $i => $usType)
+                                    <div class="user-story-type">
+                                        <i class="fas fa-circle" style="color: {{$usType['color']['main']}}"></i>
+                                        <span class="type-label">{{$usType['label']}}</span>
+                                        <div class="user-story-type-stats">
+                                            <span class="count">{{($usType['total']>1)? $usType['total'].' user stories': $usType['total'].' user story'}}  ({{$usType['count_percentage']}}%)</span>
+                                            <span class="hours">{{$usType['total_invested_hours']}} hours ({{$usType['hours_percentage']}}%)</span>
+                                        </div>
+
+                                    </div>
+
+
+                                <style>
+                                    .user-story-type {
+
+                                    }
+                                    .type-label {
+                                        text-transform: uppercase;
+                                        font-weight: bold;
+                                        font-size: 1.2em;
+                                    }
+                                    .count, .hours {
+                                        display: block;
+                                    }
+                                </style>
+
+
+
+
+                                    <!-- span class="mr-2">
                                     <i class="fas fa-circle" style="color: {{$usType['color']['main']}}"></i> {{$usType['label']}}
-                                </span>
-                            @endforeach
-                            <br/><span>Externo: cantidad de us de este tipo</span><br>
-                            <span>Iterno: cantidad de horas de este tipo</span>
+                                </span -->
+                                @endforeach
+                            </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>
