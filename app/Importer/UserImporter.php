@@ -80,4 +80,57 @@ class UserImporter
     {
         $project->assemblaUsers()->save($assemblaUser);//adding assembla user to project
     }
+
+    /**
+     * This function will receive an ID from a user in Assembla
+     * retrieve it from the API and store it locally
+     *
+     * @param $userAssemblaId
+     * @return bool | \App\AssemblaUser
+     * @throws \Exception if an exception is received from the Assembla Gateway is passed on
+     */
+    public function importUser($userAssemblaId)
+    {
+        $user = false;
+        try {
+            Log::info('[AssemblaUser Importer] Started');
+            $assemblaUserDto = $this->assemblaGateway->getUser($userAssemblaId);
+            if ($assemblaUserDto !== false) {
+                $user = AssemblaUserMapper::createAssemblaUserFromDTO($assemblaUserDto);
+            } else {
+                Log::error('User Assembla ID '.$userAssemblaId. ' not found with API');
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+            throw $e;//rethrowing the logged exception to be correctly handled later
+        }
+
+        return $user;
+
+    }
+
+    /**
+     * Returns the user assembla ID name
+     * if the assembla user is already on the DB we return the stored name
+     * if not it will import the user, store it and return the name
+     *
+     * @param $userAssemblaId
+     *
+     * @return String
+     * @throws \Exception
+     */
+    public function getUserName($userAssemblaId)
+    {
+        $assemblaUser = AssemblaUser::where('user_assembla_id', $userAssemblaId)->first();
+        if ($assemblaUser !== null) {
+            $userName = $assemblaUser->name;
+        } else {
+            $assemblaUser = $this->importUser($userAssemblaId);
+            $userName = ($assemblaUser)? $assemblaUser->name : $userAssemblaId;
+        }
+
+        return $userName;
+    }
+
 }

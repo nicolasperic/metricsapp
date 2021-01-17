@@ -67,7 +67,7 @@ class AssemblaGateway
      *
      * @param $userId
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return AssemblaUserDto|bool //TODO update return documentation on all functions (no longer using ResponseInterface, using DTO)
      */
     public function getUser($userId)
     {

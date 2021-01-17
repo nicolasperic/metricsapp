@@ -26,17 +26,6 @@ class UserTest
         $userDto = $assemblaGateway->getAuthenticatedUser();
         $this->assertEquals('nicoperic', $userDto->getLogin());
         $this->assertEquals('nperic@summasolutions.net', $userDto->getEmail());
-        /*
-           array:7 [
-          "id" => "cvixt811Gr4PBcacwqjQYw"
-          "login" => "nicoperic"
-          "name" => "Nicolás Peric"
-          "picture" => "https://www.assembla.com/v1/users/cvixt811Gr4PBcacwqjQYw/picture"
-          "email" => "nperic@summasolutions.net"
-          "organization" => ""
-          "phone" => ""
-]
-         */
     }
 
     /** @test */
