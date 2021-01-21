@@ -143,10 +143,6 @@ class ReportsController extends Controller
             'to_date' => request('hours_user_to_date').' 23:59',
         ];
 
-        $testData = $requestData;
-        unset($testData['users']);
-        unset($testData['projects']);
-
         $reportModel = HoursByUserReport::forUser(Auth::user(), $requestData);
         Auth::user()->reports()->save($reportModel);
         ProcessHoursByUsersReport::dispatch($requestData, $reportModel);

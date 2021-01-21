@@ -2,11 +2,13 @@
 
 namespace App\Notifications;
 
+use App\Helper\Helper;
 use App\Report;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class WeeklyReportNotification extends Notification
 {
@@ -50,12 +52,13 @@ class WeeklyReportNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $reportContent = explode("\n", $this->report->body);
+        $reportContent = $this->getReportHtmlContent(json_decode($this->report->body));
         $mailMessage = new MailMessage;
-        foreach($reportContent as $line) {
-            $mailMessage->line($line);
-        }
+
+        $mailMessage->line(new HtmlString($reportContent));
+
         $mailMessage->subject($this->subject)
+            //->view('reports.hoursbyuser', ['report' => $this->report])
             ->greeting("Hello, your weekly report is ready!")
             ->action('View Report', url("/reports/{$this->report->id}"))
             ->line('Thank you for using our application!');
@@ -74,5 +77,87 @@ class WeeklyReportNotification extends Notification
         return [
             //
         ];
+    }
+
+    private function getReportHtmlContent($reportBody)
+    {
+        $htmlContent = '';
+
+
+        $header = $reportBody->header;
+        $projects = $reportBody->projects;
+        $users = $reportBody->users;
+
+
+
+        $htmlContent .= '<div class="report-header">';
+        $htmlContent .= '<h4>Hours by Users and Spaces Report</h4>';
+
+        $htmlContent .= '<div class="report-dates-totals">
+                                <span style="display: block;">From <strong>'.$header->from.'</strong> to <strong>'.$header->to.'</strong></span>
+                                <span style="display: block;">Total Hours <strong>'.$header->total_hours.'</strong> Total Tasks <strong>'.$header->total_tasks.'</strong></span>
+                        </div>
+                        </div>';
+
+        $htmlContent .= '<h4>Hours by Projects</h4>';
+    foreach($projects as $project) {
+        $htmlContent .=  '<div class="report-table-header">
+                            <h4>'.$project->wikiname.'</h4>
+                            <span>Total hours: '.$project->total_hours.' ('. Helper::getPercentageValue($project->total_hours, $header->total_hours, $decimals = 2) .'%)</span>
+                            <span>Total tasks: '.$project->total_tasks.' ('. Helper::getPercentageValue($project->total_tasks, $header->total_tasks, $decimals = 2) .'%)</span>
+                        </div>
+                        <div class="report-user-stories">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="text-align: left;">User</th>
+                                        <th scope="col" style="text-align: left;">Hours</th>
+                                        <th scope="col" style="text-align: left;">Tasks</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>';
+
+        foreach($project->users as $user) {
+            $htmlContent .= '<tr>
+                            <td>' . $user->username . '</td>
+                            <td>' . $user->total_hours . ' hours (' . Helper::getPercentageValue($user->total_hours, $project->total_hours, $decimals = 2) . '%)</td>
+                            <td>' . $user->total_tasks . ' tasks (' . Helper::getPercentageValue($user->total_tasks, $project->total_tasks, $decimals = 2) . '%)</td>
+                        </tr>';
+
+        }
+        $htmlContent .= '</tbody>
+                </table>
+            </div>';
+
+    }
+
+
+        $htmlContent .= '<div class="report-table-header">
+    <h4>Hours by User</h4>
+
+</div>
+<div class="report-user-stories">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col" style="text-align: left;">User</th>
+            <th scope="col" style="text-align: left;">Hours</th>
+            <th scope="col" style="text-align: left;">Tasks</th>
+        </tr>
+        </thead>
+        <tbody>';
+
+    foreach($users as $user) {
+        $htmlContent .= '<tr>
+                <td>'.$user->username.'</td>
+                <td>'.$user->total_hours.' hours ('. Helper::getPercentageValue($user->total_hours, $header->total_hours, $decimals = 2) .'%)</td>
+                <td>'.$user->total_tasks.' tasks ('. Helper::getPercentageValue($user->total_tasks, $header->total_tasks, $decimals = 2) .'%)</td>
+            </tr>';
+    }
+        $htmlContent .=  '</tbody>
+                    </table>
+                </div>';
+
+        return $htmlContent;
     }
 }

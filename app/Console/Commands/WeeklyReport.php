@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\ProcessHoursByUsersReport;
 use App\Report;
+use App\Reports\HoursByUserReport;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -64,14 +65,8 @@ class WeeklyReport extends Command
                 'to_date' => $this->weeklyReportToDate.' 23:59',
             ];
 
-            $testData = $requestData;
-            unset($testData['users']);
-            unset($testData['projects']);
 
-            $reportModel = Report::create([
-                'title' => 'Weekly Report',
-                'request_data' => serialize($testData)
-            ]);
+            $reportModel = HoursByUserReport::forUser($user, $requestData, 'Weekly Report');
 
             $user->reports()->save($reportModel);
             ProcessHoursByUsersReport::dispatch($requestData, $reportModel, $sendEmail = true);

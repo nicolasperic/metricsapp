@@ -37,7 +37,7 @@ class HoursByUserReport extends Report
     private $apiCalls;
     private $users;//used to keep the user name on memory and avoid DB calls
 
-    public static function forUser(User $user, $requestData)
+    public static function forUser(User $user, $requestData, $title = 'Hours by Users')
     {
         if ($requestData['users']) {
             $requestData['users'] = array_combine($requestData['users'],$requestData['users']);
@@ -46,7 +46,7 @@ class HoursByUserReport extends Report
         return self::create([
             'user_id' => $user->id,
             'request_data' => $requestData,
-            'title' => 'Hours by Users'
+            'title' => $title
         ]);
     }
 
