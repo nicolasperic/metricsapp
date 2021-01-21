@@ -421,6 +421,8 @@ class Sprint extends Model
         $this->monthlyHours = array();//month => total XY, users => [ foco => hs]
         $this->userHours = array();//user_id => hours, tasks
         $userImporter = new UserImporter(Auth::user());
+
+
         foreach ($this->tickets as $ticket) {
             $ticketTimes = TicketTime::where('ticket_assembla_id', $ticket->ticket_assembla_id)->get();
 
@@ -440,6 +442,10 @@ class Sprint extends Model
         ksort($this->userHours);
         //print print_r($this-?userHours, 1).PHP_EOL;
         $this->_trackUserHours();//this function uses the monthly hours data
+
+        usort($this->userHours, function ($a,$b){
+            return ($a['total_hours'] >= $b['total_hours']) ? -1 : 1;
+        });
         //dd($this->monthlyHours);
         return array(
             'weekly_hours' => $this->weeklyHours,
@@ -448,6 +454,10 @@ class Sprint extends Model
         );
     }
 
+
+
+
+
     private function _trackTime($ticketTime, UserImporter $userImporter)
     {
         $date = Carbon::parse($ticketTime->begin_at);
@@ -455,23 +465,24 @@ class Sprint extends Model
         $monday = Carbon::parse($ticketTime->begin_at)->startOfWeek()->format('Y-m-d'); // monday
         $sunday = Carbon::parse($ticketTime->begin_at)->endOfWeek()->format('Y-m-d');
         $weekOfYear = $date->weekOfYear;
+        $year = $date->year;
 
-        if (!array_key_exists($weekOfYear , $this->weeklyHours)) {
+        if (!array_key_exists($year , $this->weeklyHours) ||  !array_key_exists($weekOfYear , $this->weeklyHours[$year])) {
             //week data init
-            $this->weeklyHours[$weekOfYear]['hours'] = 0;
-            $this->weeklyHours[$weekOfYear]['tasks'] = 0;
-            $this->weeklyHours[$weekOfYear]['surr_monday'] = $monday;
-            $this->weeklyHours[$weekOfYear]['surr_sunday'] = $sunday;
-            $this->weeklyHours[$weekOfYear]['users'] = array();
-            $this->weeklyHours[$weekOfYear]['tickets'] = array();
+            $this->weeklyHours[$year][$weekOfYear]['hours'] = 0;
+            $this->weeklyHours[$year][$weekOfYear]['tasks'] = 0;
+            $this->weeklyHours[$year][$weekOfYear]['surr_monday'] = $monday;
+            $this->weeklyHours[$year][$weekOfYear]['surr_sunday'] = $sunday;
+            $this->weeklyHours[$year][$weekOfYear]['users'] = array();
+            $this->weeklyHours[$year][$weekOfYear]['tickets'] = array();
         }
-        if (!array_key_exists($month, $this->monthlyHours)) {
+        if (!array_key_exists($year, $this->monthlyHours) || !array_key_exists($month, $this->monthlyHours[$year])) {
             //month data init
-            $this->monthlyHours[$month]['hours'] = 0;
-            $this->monthlyHours[$month]['tasks'] = 0;
-            $this->monthlyHours[$month]['label'] = $date->format('F');
-            $this->monthlyHours[$month]['users'] = array();
-            $this->monthlyHours[$month]['tickets'] = array();
+            $this->monthlyHours[$year][$month]['hours'] = 0;
+            $this->monthlyHours[$year][$month]['tasks'] = 0;
+            $this->monthlyHours[$year][$month]['label'] = $date->format('F');
+            $this->monthlyHours[$year][$month]['users'] = array();
+            $this->monthlyHours[$year][$month]['tickets'] = array();
 
         }
 
@@ -479,12 +490,14 @@ class Sprint extends Model
             //user data init
             $this->userHours[$ticketTime->user_assembla_id]['hours'] = [];
             $this->userHours[$ticketTime->user_assembla_id]['tasks'] = [];
+            $this->userHours[$ticketTime->user_assembla_id]['total_hours'] = 0;
+            $this->userHours[$ticketTime->user_assembla_id]['total_tasks'] = 0;
             //TODO this should be improved for performance, currently N DB queries or API calls will get done for each user
             $this->userHours[$ticketTime->user_assembla_id]['label'] = $userImporter->getUserName($ticketTime->user_assembla_id);
         }
         
-        $this->_trackMonthlyHours($ticketTime, $month);
-        $this->_trackWeeklyHours($ticketTime, $weekOfYear);
+        $this->_trackMonthlyHours($ticketTime, $year, $month);
+        $this->_trackWeeklyHours($ticketTime, $year, $weekOfYear);
 
 
     }
@@ -505,31 +518,31 @@ class Sprint extends Model
             ]
         */
     //TODO la informacion mensual tiene que considerar el anyo!
-    private function _trackMonthlyHours($ticketTime, $month)
+    private function _trackMonthlyHours($ticketTime, $year, $month)
     {
-        $this->monthlyHours[$month]['hours'] += $ticketTime->hours;
-        $this->monthlyHours[$month]['tasks'] += 1;
+        $this->monthlyHours[$year][$month]['hours'] += $ticketTime->hours;
+        $this->monthlyHours[$year][$month]['tasks'] += 1;
 
-        if (!array_key_exists($ticketTime->user_assembla_id, $this->monthlyHours[$month]['users'])) {
+        if (!array_key_exists($ticketTime->user_assembla_id, $this->monthlyHours[$year][$month]['users'])) {
             //init user data
-            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['hours'] = 0;
-            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tasks'] = 0;
-            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tickets'] = array();
-            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['label'] = $this->userHours[$ticketTime->user_assembla_id]['label'];
+            $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['hours'] = 0;
+            $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['tasks'] = 0;
+            $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['tickets'] = array();
+            $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['label'] = $this->userHours[$ticketTime->user_assembla_id]['label'];
 
         }
 
-        $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['hours'] += $ticketTime->hours;
-        $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tasks'] += 1;
+        $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['hours'] += $ticketTime->hours;
+        $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['tasks'] += 1;
 
-        if (!array_key_exists($ticketTime->ticket_number, $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tickets'])) {
+        if (!array_key_exists($ticketTime->ticket_number, $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['tickets'])) {
             //init ticket data
-            $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tickets'][$ticketTime->ticket_number] = [
+            $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['tickets'][$ticketTime->ticket_number] = [
                 'description' => $ticketTime->description,
                 'hours' => 0,
             ];
         }
-        if (!array_key_exists($ticketTime->ticket_number, $this->monthlyHours[$month]['tickets'])) {
+        if (!array_key_exists($ticketTime->ticket_number, $this->monthlyHours[$year][$month]['tickets'])) {
             $ticket = Ticket::getTicketByAssemblaId($ticketTime->ticket_assembla_id);
 
             $parent = $ticket->parent();
@@ -537,78 +550,56 @@ class Sprint extends Model
             if ($parent) {
                 $parentLabel = $parent->number.' '.$parent->name;
             }
-            $this->monthlyHours[$month]['tickets'][$ticketTime->ticket_number] = [
+            $this->monthlyHours[$year][$month]['tickets'][$ticketTime->ticket_number] = [
                 'description' => $ticketTime->description,
                 'hours' => 0,
                 'parent' => $parentLabel,
             ];
         }
 
-        $this->monthlyHours[$month]['users'][$ticketTime->user_assembla_id]['tickets'][$ticketTime->ticket_number]['hours'] += $ticketTime->hours;
-        $this->monthlyHours[$month]['tickets'][$ticketTime->ticket_number]['hours'] += $ticketTime->hours;
+        $this->monthlyHours[$year][$month]['users'][$ticketTime->user_assembla_id]['tickets'][$ticketTime->ticket_number]['hours'] += $ticketTime->hours;
+        $this->monthlyHours[$year][$month]['tickets'][$ticketTime->ticket_number]['hours'] += $ticketTime->hours;
 
     }
 
     //TODO this function and all the reporting logic needs to be on a different class
-    private function _trackWeeklyHours($ticketTime, $weekOfYear)
+    private function _trackWeeklyHours($ticketTime, $year, $weekOfYear)
     {
-        $this->weeklyHours[$weekOfYear]['hours'] += $ticketTime->hours;
-        $this->weeklyHours[$weekOfYear]['tasks'] += 1;
+        $this->weeklyHours[$year][$weekOfYear]['hours'] += $ticketTime->hours;
+        $this->weeklyHours[$year][$weekOfYear]['tasks'] += 1;
 
-        if (array_key_exists($ticketTime->user_assembla_id, $this->weeklyHours[$weekOfYear])) {
-            $this->weeklyHours[$weekOfYear]['users'][$ticketTime->user_assembla_id]['hours'] += $ticketTime->hours;
-            $this->weeklyHours[$weekOfYear]['users'][$ticketTime->user_assembla_id]['tasks'] += 1;
+        if (array_key_exists($ticketTime->user_assembla_id, $this->weeklyHours[$year][$weekOfYear])) {
+            $this->weeklyHours[$year][$weekOfYear]['users'][$ticketTime->user_assembla_id]['hours'] += $ticketTime->hours;
+            $this->weeklyHours[$year][$weekOfYear]['users'][$ticketTime->user_assembla_id]['tasks'] += 1;
         } else {
-            $this->weeklyHours[$weekOfYear]['users'][$ticketTime->user_assembla_id]['hours'] = $ticketTime->hours;
-            $this->weeklyHours[$weekOfYear]['users'][$ticketTime->user_assembla_id]['tasks'] = 1;
+            $this->weeklyHours[$year][$weekOfYear]['users'][$ticketTime->user_assembla_id]['hours'] = $ticketTime->hours;
+            $this->weeklyHours[$year][$weekOfYear]['users'][$ticketTime->user_assembla_id]['tasks'] = 1;
         }
     }
 
     private function _trackUserHours()
     {
-        foreach ($this->monthlyHours as $monthNumber => $monthHours) {
-            foreach ($this->userHours as $userId => $userHour) {//$monthHours['users'] as $userId => $userHours) {
-                if (array_key_exists($userId, $monthHours['users'])) {
-                    $this->userHours[$userId]['hours'][] = $monthHours['users'][$userId]['hours'];
-                    $this->userHours[$userId]['tasks'][] = $monthHours['users'][$userId]['tasks'];
-                } else {
-                    $this->userHours[$userId]['hours'][] = 0;
-                    $this->userHours[$userId]['tasks'][] = 0;
-                }
+        foreach ($this->monthlyHours as $yearNumber => $months) {
 
+            foreach ($months as $monthNumber => $monthHours) {
+
+                foreach ($this->userHours as $userId => $userHour) {//$monthHours['users'] as $userId => $userHours) {
+                    if (array_key_exists($userId, $monthHours['users'])) {
+                        $this->userHours[$userId]['hours'][] = $monthHours['users'][$userId]['hours'];
+                        $this->userHours[$userId]['tasks'][] = $monthHours['users'][$userId]['tasks'];
+                        $this->userHours[$userId]['total_hours'] += $monthHours['users'][$userId]['hours'];
+                        $this->userHours[$userId]['total_tasks'] += $monthHours['users'][$userId]['tasks'];
+                    } else {
+                        $this->userHours[$userId]['hours'][] = 0;
+                        $this->userHours[$userId]['tasks'][] = 0;
+                    }
+
+                }
             }
+
+
         }
 
     }
-
-
-
-
-
-    /*{
-        foreach ($this->tickets as $ticket) {
-
-            $ticketTimes = TicketTime::where('ticket_assembla_id', $ticket->ticket_assembla_id)->get();
-            foreach ($ticketTimes as $ticketTime) {
-                dd($ticketTime->ticket_number . ' ' . $ticketTime->hours . ' ' . $ticketTime->begin_at);
-            }
-            //TODO armar horas por (mes, o semana)
-/*
- que te muestre las horas insumidas en los tickets por mes. Ej: Julio 34 hs; Junio 210 hs
-> el sprint podría tirar horas por persona; mostrando por semana y abajo el total
-ej:
-            w1(13 al 19)    w2(20 al 26)    w3 (26 a hoy/)
-Foco        28  			27		10
-Jona        40			40		16
-Nico         1			5		2
-            69 (+3% respecto av)			72
-
-             *
-             *
-             */
-            //dd($ticketTimes->count());
-            //dd($ticketTime->number+ ' '+$ticketTime->begin_at);
-        //}
-    //}
 }
 

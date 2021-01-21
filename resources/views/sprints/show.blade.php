@@ -1,8 +1,8 @@
 @extends('layouts.app')
+<?php $project = $sprint->projects->first();?>
+@section('breadcrumbs',  Breadcrumbs::render('sprints.show', $project, $sprint))
 
-@section('breadcrumbs',  Breadcrumbs::render('sprints.show',$sprint->projects->first(), $sprint))
-
-@section('container-title', $sprint->getProjectName(). " | $sprint->name")
+@section('container-title', $project->name. " | $sprint->name")
 
 @section('content')
     <?php
@@ -10,7 +10,9 @@
         $percentCompletedSubtasks = $sprint->getPercentCompletedSubtasks();
     ?>
     <div class="container">
-
+        <div class="actions" style="position: relative; top: -55px;">
+            <a href="{{ url("tickets/importTickets/{$sprint->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Import Tickets</a>
+        </div>
         <div class="row">
             <!-- Total Hours Card -->
             <div class="col-xl-3 col-md-6 mb-4">
@@ -157,7 +159,7 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Horas por Mes</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Hours per Month</h6>
                         <!--div class="dropdown no-arrow">
                             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
@@ -184,7 +186,7 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Horas por Semana</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Hours per Week</h6>
                         <!--div class="dropdown no-arrow">
                             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
@@ -211,24 +213,12 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Horas por usuario</h6>
-                        <!--div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                <div class="dropdown-header">Dropdown Header:</div>
-                                <a class="dropdown-item" href="#">Action</a>
-                                <a class="dropdown-item" href="#">Another action</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">Something else here</a>
-                            </div>
-                        </div-->
+                        <h6 class="m-0 font-weight-bold text-primary">Hours per user</h6>
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
                         <div class="chart-area">
-                            <canvas id="userHoursChart"></canvas>
+                            <canvas id="userHoursBarChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -239,7 +229,7 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">US Types</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">User Stories Types</h6>
                         <div class="dropdown no-arrow">
                             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
@@ -311,56 +301,9 @@
 
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">{{ $sprint->name }} <a href="{{url("tickets/importTickets/{$sprint->id}")}}" style="float:right;">Import Tickets</a></div>
-
-                    <div class="sprint-stats" style="margin-left: 40px">
-                        - Total Invested Hours: {{ $sprint->getTotalWorkedHours() }} hs
-                        <?php foreach ($sprint->getTimeReport()['monthly_hours'] as $key => $timeReport):?>
-                        <pre>    Mes: {{ $key }} ({{ $timeReport['label'] }}) Total: {{$timeReport['hours']}} <?php //echo print_r($timeReport, 1)?>horas <?php echo '('.number_format($timeReport['hours']/$sprint->getTotalWorkedHours()*100, 2).'%)'?></pre>
-                    <?php foreach ($timeReport['users'] as $assemblaUserId => $userHours):?>
-                                <pre>        {{$userHours['label']}} {{$userHours['hours']}} horas ({{$userHours['tasks']}} tasks)</pre>
-                            <?php endforeach;?>
-                        <?php endforeach?>
-
-                        <?php
-                        if (count($sprint->getTimeReport()['monthly_hours']) ) {
-                                //print print_r($sprint->getTimeReport()['monthly_hours'][9]['tickets'],1);
-                                //print print_r($sprint->getTimeReport(),1);
-                        }
-
-
-                            //print print_r($sprint->getUserStoriesTypePercentages());
-                        ?><br>
-
-
-                        - Stories without SP: {{ $sprint->getUserStoriesWithoutStoryPoints() }}<br>
-                        - Stories with inconsistent states: {{ $sprint->getUserStoriesWithInconsistentState()  }}<br>
-                        - Total tickets: {{ $sprint->getTotalTickets() }}<br>
-                        - Total Stories: {{ $sprint->getTotalStories() }}<br>
-                        - Total Subtasks: {{ $sprint->getTotalSubtasks() }}<br>
-                        - Completed Stories: {{$sprint->getCompletedStories()}} {{ $percentCompletedStores  }}%<br>
-                        - Completed Subtasks: {{$sprint->getCompletedSubtasks()}} {{ $percentCompletedSubtasks }}%<br>
-
-                        - Completed Tickets: {{ $sprint->getCompletedTickets()->count() }}<br>
-                        - Completed Story Points: {{ $sprint->getCompletedStoryPoints() }} ({{ $sprint->getTotalCompletedEstimatePercentage() }}%)<br>
-                        - Total story points: {{ $sprint->getTotalStoryPoints() }}<br>
-
-                        - Average Lead Time: {{ $sprint->getAverageLeadTime() }} days <br>
-                        - Average Cycle Time: {{ $sprint->getAverageCycleTime() }} days <br>
-                    </div>
-
-                    <div class="time-report" style="margin-left: 40px;">
-
-
-                        <?php
-                            //
-                            foreach ($sprint->getTimeReport()['weekly_hours'] as $key => $timeReport) {
-                            //    print $key .' weekly_hours '.print_r($timeReport,1);
-                            }
-                        ?>
-
-
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Tickets in {{ $sprint->name }}</h6>
 
                     </div>
 
@@ -371,75 +314,67 @@
                             </div>
                         @endif
 
-                            ❌: subtasks with invalid status<br/>
-                            ⏱: horas trackeadas en la US<br/>
-                            🚨: US sin story points estimados
-                        <table>
-                            <thead>
-                                <th>Ticket</th><th>Status</th><th>SP</th><th>Total Hs</th><th>Hs subs</th><th>Hs tracked</th><th># subtasks</th>
-                            </thead>
+                        <div class="small">
+                            <span>❌  subtasks with invalid status <strong>({{ $sprint->getUserStoriesWithInconsistentState() }})</strong></span>
+                            <span>⏱   tracked time directly on User Story</span>
+                            <span>🚨  User Story without estimate <strong>({{ $sprint->getUserStoriesWithoutStoryPoints() }})</strong></span>
+                        </div>
+
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">Ticket</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Estimate</th>
+                                    <th scope="col">Hours</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
                             @forelse ($sprint->tickets as $ticket)
                                 @if($ticket->is_story)
-
                                     <?php
                                     $status = '';
                                     ?>
                                     @if(count($ticket->getInvalidStatusSubtasks()) > 0)
-                                        <?php
-                                        $status = '❌';
-                                        ?>
+                                        <?php $status = '❌'; ?>
                                     @endif
 
                                     @if($ticket->worked_hours > 0)
-                                            <?php
-                                            $status .= '⏱';
-                                            ?>
+                                        <?php $status .= '⏱'; ?>
                                     @endif
 
-                                        @if($ticket->story_points == 0)
-                                            <?php
-                                            $status .= '🚨';
-                                            ?>
-                                        @endif
+                                    @if($ticket->story_points == 0)
+                                        <?php $status .= '🚨'; ?>
+                                    @endif
                                     <tr>
-                                        <td><?php echo $status;?>{{ $ticket->number }} {{ Helper::substrIf($ticket->name, 75)}}</td>
+                                        <th style="padding: 0.75rem 0px 0px 0px; letter-spacing: 2px; text-align: center;"> <span class="small">{{$status}}</span></th>
+                                        <th scope="row">
+                                            <a href="https://app.assembla.com/spaces/{{$project->wikiname}}/tickets/{{$ticket->number}}" target="_blank">{{ $ticket->number }} {{ Helper::substrIf($ticket->name, 75)}}</a>
+                                        </th>
                                         <td>{{ $ticket->status }}</td>
                                         <td>{{ $ticket->story_points }}</td>
                                         <td>{{ $ticket->total_invested_hours }}</td>
-                                        <td>{{ $ticket->getSubtasksTotalWorkedHours() }}</td>
-                                        <td>{{ $ticket->getTotalTrackedTime() }}</td>
-                                        <td>{{ $ticket->subtasks()->count() }}</td>
                                     </tr>
                                 @endif
 
                             @empty
                                 <p>No tickets assigned to this sprint yet.</p>
                             @endforelse
-                        </table>
-
-                        Users:
-                            <ul>
-                                @forelse ($sprint->users as $user)
-                                    <li>
-                                        {{ $user->name}}
-                                    </li>
-
-
-                                @empty
-                                    <p>No tickets assigned to this sprint yet.</p>
-                                @endforelse
-                            </ul>
+                                </tbody>
+                            </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script type="text/javascript">
+        var sprintName = "{!! $sprint->name !!}";
         var percentages = {!! json_encode($sprint->getUserStoriesTypePercentages()) !!};
         var timeReport = {!! json_encode($sprint->getTimeReport()) !!};
-
-        console.log(percentages);
-        //console.log(timeReport);
+        console.log(timeReport);
     </script>
 @endsection
 

@@ -51,34 +51,15 @@ class ProcessHoursByUsersReport implements ShouldQueue
     public function handle()
     {
         try {
-            $this->reportModel->status = Report::RUNNING_STATUS;
-            $this->reportModel->save();
-
-            $report = new HoursByUserReport($this->requestData, $this->reportModel->user);
-            $reportResults = $report->execute();
-
-            $reportBody = '';
-            foreach ($reportResults as $line) {
-                $reportBody .= $line;
-            }
-            $this->reportModel->body = $reportBody;
-            $this->reportModel->status = Report::PROCESSED_STATUS;
-
+            $this->reportModel->execute();
             if ($this->sendEmail) {
                 $user = $this->reportModel->user;
                 $subject = 'Weekly Report ('.$this->requestData['from_date'].' - '.$this->requestData['to_date'].')';
                 Notification::route('mail', $user->email)->notify(new WeeklyReportNotification($this->reportModel, $subject));
-                /*Mail::raw($reportBody, function ($mail) use ($user) {
-                    $mail->to($user->email)
-                        ->subject();
-                });*/
             }
         } catch (\Exception $e) {
-            $this->reportModel->status = Report::FAILED_STATUS;
+            $this->reportModel->failed();
             Log::info($e->getMessage());
-        } finally {
-            $this->reportModel->finished_at = Carbon::now();
-            $this->reportModel->save();
         }
 
     }

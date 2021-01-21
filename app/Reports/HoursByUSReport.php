@@ -6,7 +6,9 @@ use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
+use App\Report;
 use App\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -14,8 +16,13 @@ use Illuminate\Support\Facades\Log;
  *
  * @package App\Reports
  */
-class HoursByUSReport
+class HoursByUSReport extends Report
 {
+    use HasFactory;
+
+    protected $table = 'reports';
+
+    const REPORT_TYPE = 'hours_by_us_report';
 
     /** @var  array para agrupar las horas de cada US
      *  ticket_id > description (ticket_number + description )
@@ -51,17 +58,16 @@ class HoursByUSReport
      * KEYS: wikiname, space_id, from_date and to_date
      */
     private $requestData;
-    /**
-     * @var User
-     */
-    private $user;
 
     private $users;
 
-    public function __construct($requestData, User $user)
+    public static function forUser(User $user, $requestData)
     {
-        $this->requestData= $requestData;
-        $this->user = $user;
+        return self::create([
+            'user_id' => $user->id,
+            'request_data' => $requestData,
+            'title' => 'Hours by User Story'
+        ]);
     }
 
 
@@ -69,6 +75,8 @@ class HoursByUSReport
 
     function execute()
     {
+        $this->running();
+
         $this->apicalls = 0;
         $this->users = [];
         $startTime = time();
@@ -81,6 +89,8 @@ class HoursByUSReport
         $this->ticketsApiData = [];
         $totalHours = 0;
         $totalTasks = 0;
+
+        $this->requestData = $this->request_data;
 
         //setting request parameters
         $wikiname = $this->requestData['wikiname'];
@@ -98,7 +108,7 @@ class HoursByUSReport
                 'page' => $page,
             ];
 
-            Log::info('query params '.print_r($queryParams, 1));
+            Log::info('report query params '.print_r($queryParams, 1));
             $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
             $this->apicalls++;
             $result = json_decode($response->getBody()->getContents(), 1);
@@ -150,7 +160,7 @@ class HoursByUSReport
                                             Log::info('Tracking T3 '.$timeTracked['hours'].' ticket number'.$timeTracked['ticket_number'].' US hs '.$this->userStories[$userStoryId]['hours'].' US tasks '.$this->userStories[$userStoryId]['tasks']);
                                             $timetracked = true;
                                         } else {
-                                            dd('hmm it has a subtask but is not a user story??');
+                                            Log::error('hmm it has a subtask but is not a user story?? Ticket number '.$timeTracked['ticket_number'].' wikiname '.$wikiname);
                                         }
                                     }
                                 } else {
@@ -205,6 +215,19 @@ class HoursByUSReport
 
 
 
+        $reportBody['header'] = [
+            'from'          => $from,
+            'to'            => $to,
+            'total_hours'   => $totalHours,
+            'total_tasks'   => $totalTasks,
+            'wikiname'      => $wikiname,
+        ];
+
+        $reportBody['user_stories'] = ['tickets' => [], 'total_hours' => 0, 'header_columns' => []];
+        $reportBody['no_user_stories'] = ['tickets' => [], 'total_hours' => 0, 'header_columns' => []];
+        $reportBody['without_ticket'] = ['users' => [], 'total_hours' => 0, 'header_columns' => []];
+        $reportBody['types'] = [];
+        $reportBody['footer'] = ['total_api_calls' => 0, 'execution_time' => 0];
 
 
         $results = [];
@@ -223,12 +246,23 @@ class HoursByUSReport
         $userStoriesTotalHours = 0;
         ksort($this->userStories);
         $results[] = 'ticket,total_hours, hours, tasks, status, type'.PHP_EOL;
+        $reportBody['user_stories']['header_columns'] = ['ticket','total hours', 'hours', 'tasks', 'status', 'type'];
         foreach ($this->userStories as $id => $storyData) {
+            $reportBody['user_stories']['tickets'][$id] = [
+                'description' => $storyData['description'],
+                'total_invested_hours' => $storyData['total_invested_hours'],
+                'hours' => $storyData['hours'],
+                'tasks' => $storyData['tasks'],
+                'status' => $storyData['status'],
+                'type' => $storyData['type'],
+            ];
+
             $results[] = $storyData['description'].', '.$storyData['total_invested_hours'].', '.$storyData['hours'].', '.$storyData['tasks'].', '.$storyData['status'].', '.$storyData['type'].PHP_EOL;
             $userStoriesTotalHours += $storyData['hours'];
             self::_keepTrackOfTypeData($storyData);
         }
 
+        $reportBody['user_stories']['total_hours'] = $userStoriesTotalHours;
         $results[] = ''.PHP_EOL;
         $results[] = 'User Stories Total Hours: '.$userStoriesTotalHours.PHP_EOL;
         //$results[] = print_r($this->userStories, 1).PHP_EOL;
@@ -241,13 +275,24 @@ class HoursByUSReport
             $results[] = '======================================================'.PHP_EOL;
             ksort($this->noUserStories);
             $results[] = 'ticket,total_hours, hours, tasks, status'.PHP_EOL;
+            $reportBody['no_user_stories']['header_columns'] = ['ticket','total hours', 'hours', 'tasks', 'status'];
             foreach ($this->noUserStories as $id => $ticketData) {
                 $results[] = $ticketData['description'].', '.$ticketData['total_invested_hours'].', '.$ticketData['hours'].', '.$ticketData['tasks'].', '.$ticketData['status'].PHP_EOL;
+
+                $reportBody['no_user_stories']['tickets'][$id] = [
+                    'description' => $ticketData['description'],
+                    'total_invested_hours' => $ticketData['total_invested_hours'],
+                    'hours' => $ticketData['hours'],
+                    'tasks' => $ticketData['tasks'],
+                    'status' => $ticketData['status'],
+                ];
+
                 $noUserStoriesTotalHours += $ticketData['hours'];
             }
 
             $results[] = ''.PHP_EOL;
             $results[] = 'Tasks (not a User Story) Total Hours: '.$noUserStoriesTotalHours.PHP_EOL;
+            $reportBody['no_user_stories']['total_hours'] = $noUserStoriesTotalHours;
         }
 
 
@@ -255,6 +300,7 @@ class HoursByUSReport
 
         $withoutTicketTotalHours = 0;
         if (count($this->withoutTicket)) {
+            $reportBody['without_ticket']['header_columns'] = ['user', 'hours', 'tasks'];
             $results[] = '======================================================'.PHP_EOL;
             $results[] = ' Tracked time without ticket'.PHP_EOL;
             $results[] = '======================================================'.PHP_EOL;
@@ -262,11 +308,19 @@ class HoursByUSReport
             foreach ($this->withoutTicket as $userId => $data) {
                 $username = $this->getUserName($userId);
                 $results[] = $username.','.$data['hours'].','.$data['tasks'].PHP_EOL;
+                $reportBody['without_ticket']['users'][$userId] = [
+                    'username' => $username,
+                    'hours' => $data['hours'],
+                    'tasks' => $data['tasks']
+                ];
+
+                    //$userLine;
                 $withoutTicketTotalHours += $data['hours'];
             }
 
             $results[] = ''.PHP_EOL;
             $results[] = 'Tracked time without ticket Total Hours: '.$withoutTicketTotalHours.PHP_EOL;
+            $reportBody['without_ticket']['total_hours'] = $withoutTicketTotalHours;
         }
 
         $results[] = ''.PHP_EOL;//adding a breakline
@@ -280,6 +334,13 @@ class HoursByUSReport
 
             $results[] = str_pad($type, 20)."\t\t".$typeTotalTickets.' user stories ('.$typeTotalTicketsPercentage.'%)'.PHP_EOL;
             $results[] = str_pad('', 20)."\t\t".$typeTotalHours.' horas ('.$typeTotalHoursPercentage.'%)'.PHP_EOL;
+
+            $reportBody['types'][$type] = [
+                'type_count' => $typeTotalTickets,
+                'type_count_percentage' => $typeTotalTicketsPercentage,
+                'type_hours' => $typeTotalHours,
+                'type_hours_percentage' => $typeTotalHoursPercentage
+            ];
         }
 
 
@@ -293,7 +354,11 @@ class HoursByUSReport
         $results[] = "Execution time ". $minutes ." minutes".PHP_EOL;
         $results[] = 'Total API calls '.$this->apicalls.' (pages '.$page.')'.PHP_EOL;
 
-        return $results;
+        $reportBody['footer'] = [
+            'total_api_calls' => $this->apicalls,
+            'execution_time' => $minutes
+        ];
+        $this->processed($reportBody);
     }
 
 
@@ -414,23 +479,16 @@ class HoursByUSReport
         return false;//the received ticketNumber has no subtask relation
     }
 
-    /**
-     * //TODO this function should be shared by all reports > hierarchy AbstractReport should have it
-     * @param $userAssemblaId
-     *
-     * @return String
-     */
-    public function getUserName($userAssemblaId) {
-        if (array_key_exists($userAssemblaId, $this->users)) {
-            return $this->users[$userAssemblaId];
-        }
+    public static function boot()
+    {
+        parent::boot();
 
-        $userImporter = new UserImporter($this->user);
-        $userName = $userImporter->getUserName($userAssemblaId);
-        //storing the name on memory
-        $this->users[$userAssemblaId] = $userName;
-
-        return $userName;
+        // Save the type when creating this model
+        static::creating(function ($report) {
+            $report->forceFill([
+                'type' => HoursByUSReport::REPORT_TYPE,
+            ]);
+        });
     }
 
 }

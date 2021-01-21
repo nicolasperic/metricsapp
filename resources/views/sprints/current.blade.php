@@ -4,18 +4,19 @@
 
 @section('breadcrumbs',  Breadcrumbs::render('sprints'))
 
+@section('actions')
+    <a href="{{ url('sprints/syncAllCurrentSprints') }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync All Current Sprints</a>
+@endsection
+
 @section('content')
 
-    <div class="actions" style="margin-left: 9%; position: relative; top: -55px;">
-        <a href="{{ url('sprints/syncAllCurrentSprints') }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync All Current Sprints</a>
-    </div>
 
-    <div class="container-fluid current-sprints">
+    <div class="current-sprints">
         <div class="row justify-content-center">
 
             <?php $totalEstimate = 0;$totalRemainingEstimate = 0;$totalCompletedEstimate = 0; $totalWorkedHours = 0; $totalRemainingHours = 0; $totalStories = 0; $totalCompletedStories = 0; $totalOpenStories = 0; $olderUpdatedAt = false;?>
             @forelse ($currentSprints as $sprint)
-            <div class="col-10" style="margin-bottom:20px">
+            <div class="col-12" style="margin-bottom:20px">
                 <div>
                     <div class="card shadow mb-12">
                         <div class="card-header d-flex align-items-center">
@@ -105,7 +106,7 @@
 
             @if(count($currentSprints) > 1)
                 <?php $totalCompletedEstimatePercentage = ($totalEstimate != 0)? number_format($totalCompletedEstimate/$totalEstimate*100,2):0?>
-                <div class="col-10" style="margin-bottom:20px">
+                <div class="col-12" style="margin-bottom:20px">
                     <div>
                         <div class="card shadow mb-12">
                             <div class="card-header d-flex align-items-center ">

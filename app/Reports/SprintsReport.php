@@ -1,0 +1,292 @@
+<?php
+
+namespace App\Reports;
+
+use App\Dto\TicketAssociationDto;
+use App\Dto\TicketDto;
+use App\Helper\Helper;
+use App\Integration\AssemblaGateway;
+use App\Integration\AssemblaRequest;
+use App\Report;
+use App\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * Class HoursByUSReport
+ *
+ * @package App\Reports
+ */
+class SprintsReport extends Report
+{
+    use HasFactory;
+
+    protected $table = 'reports';
+
+    const REPORT_TYPE = 'sprints_report';
+
+    /**
+     * @var int tracking the amount of API calls made
+     */
+    private $apicalls = 0;
+
+    /**
+     * @var array information required for the report
+     * KEYS: wikiname, space_id, from_date and to_date
+     */
+    private $requestData;
+
+
+
+    public static function forUser(User $user, $requestData)
+    {
+        return self::create([
+            'user_id' => $user->id,
+            'request_data' => $requestData,
+            'title' => 'Milestones'
+        ]);
+    }
+
+
+
+
+    function execute()
+    {
+        $this->requestData = $this->request_data;
+
+
+
+        $reportBody = '';
+        $reportArrayBody = ['sprints' => []];
+        $totalEstimate = 0;$totalRemainingEstimate = 0;$totalCompletedEstimate = 0; $totalWorkedHours = 0; $totalRemainingHours = 0; $totalStories = 0; $totalCompletedStories = 0;
+        $totalSubtasks = 0; $totalCompletedSubtasks = 0;
+        $sprints = $this->user->sprints()->whereIn('sprint_assembla_id', $this->request_data['sprints'])->get();
+        Log::info(count($sprints). " cuenta de sprints");
+        foreach ($sprints as $sprint) {
+            $sprintTotalWorkedHours = $sprint->getTotalWorkedHours();
+            $sprintTotalRemainingHours = $sprint->getTotalWorkingHours();
+            $sprintTotalStories = $sprint->getTotalStories();
+            $sprintTotalCompletedStories = $sprint->getCompletedStories();
+            $sprintRemainingEstimate = $sprint->getTotalRemainingEstimate();
+            $sprintCompletedEstimate = $sprint->getTotalCompletedEstimate();
+            $sprintTotalEstimate = $sprint->getTotalEstimate();
+
+            $sprintTotalSubtasks = $sprint->getTotalSubtasks();
+            $sprintTotalCompletedSubtasks = $sprint->getCompletedSubtasks();
+
+
+            $remainingEstimatePercentage = ($sprint->getTotalCompletedEstimatePercentage() != 0)?100 - $sprint->getTotalCompletedEstimatePercentage():0;
+
+            $totalRemainingEstimate += $sprintRemainingEstimate;
+            $totalCompletedEstimate += $sprintCompletedEstimate;
+            $totalEstimate          += $sprintTotalEstimate;
+            $totalWorkedHours       += $sprintTotalWorkedHours;
+            $totalRemainingHours    += $sprintTotalRemainingHours;
+            $totalStories           += $sprintTotalStories;
+            $totalCompletedStories  += $sprintTotalCompletedStories;
+            $totalSubtasks          += $sprintTotalSubtasks;
+            $totalCompletedSubtasks += $sprintTotalCompletedSubtasks;
+
+            $sprintData = [
+                'project_name' => $sprint->getProjectName(),
+                'sprint_name'  => $sprint->name,
+                'worked_hours' => $sprintTotalWorkedHours,
+                'remaining_hours' => $sprintTotalRemainingHours,
+                'stories' => $sprintTotalStories,
+                'completed_stories' => $sprintTotalCompletedStories,
+                'completed_stories_percentage' => $sprint->getPercentCompletedStories(),
+                'subtasks' => $sprintTotalSubtasks,
+                'completed_subtasks' => $sprintTotalCompletedSubtasks,
+                'completed_subtasks_percentage' => $sprint->getPercentCompletedSubtasks(),
+                'remaining_estimate' => $sprintRemainingEstimate,
+                'remaining_estimate_percentage' => $remainingEstimatePercentage,
+                'completed_estimate' => $sprintCompletedEstimate,
+                'completed_estimate_percentage' => $sprint->getTotalCompletedEstimatePercentage(),
+                'total_estimate' => $sprintTotalEstimate,
+                'assembla_url' => "https://app.assembla.com/spaces/".$sprint->getProject()->wikiname ."/milestones/".$sprint->sprint_assembla_id,
+            ];
+            $reportArrayBody['sprints'][$sprint->sprint_assembla_id] = $sprintData;
+
+            $reportBody .= "========================================".PHP_EOL;
+            $reportBody .= $sprint->getProjectName().' > '.$sprint->name.PHP_EOL;
+            $reportBody .= "========================================".PHP_EOL;
+            $reportBody .= 'Worked hours '.$sprintTotalWorkedHours.PHP_EOL;
+            $reportBody .= 'Remaining hours '.$sprintTotalRemainingHours.PHP_EOL;
+            $reportBody .= 'Stories '.$sprintTotalStories."[ $sprintTotalCompletedStories completed, ".$sprint->getPercentCompletedStories()."%]".PHP_EOL;
+            $reportBody .= 'Subtasks '.$sprintTotalSubtasks."[ $sprintTotalCompletedSubtasks completed, ".$sprint->getPercentCompletedSubtasks()."%]".PHP_EOL;
+            $reportBody .= 'Remaining Estimates '.$sprintRemainingEstimate. '('.$remainingEstimatePercentage.'%)'.PHP_EOL;
+            $reportBody .= 'Completed Estimates '.$sprintCompletedEstimate.' ('.$sprint->getTotalCompletedEstimatePercentage().'%)'.PHP_EOL;
+            $reportBody .= 'Total Estimates '.$sprintTotalEstimate.PHP_EOL;
+            $reportBody .= 'Assembla URL '."https://app.assembla.com/spaces/".$sprint->getProject()->wikiname ."/milestones/".$sprint->sprint_assembla_id.PHP_EOL;
+        }
+
+        if (count($sprints) > 1) {
+            $totalCompletedEstimatePercentage = ($totalEstimate != 0)? number_format($totalCompletedEstimate/$totalEstimate*100,2):0;
+            $reportBody .= "========================================".PHP_EOL;
+            $reportBody .= "Total".PHP_EOL;
+            $reportBody .= "========================================".PHP_EOL;
+            $reportBody .= 'Total Worked hours '.$totalWorkedHours.PHP_EOL;
+            $reportBody .= 'Total Remaining hours '.$totalRemainingHours.PHP_EOL;
+            $reportBody .= 'Total Stories '.$totalStories."[ $totalCompletedStories completed, ".Helper::getPercentageValue($totalCompletedStories, $totalStories)."%]".PHP_EOL;
+            $reportBody .= 'Total Subtasks '.$totalSubtasks."[ $totalCompletedSubtasks completed, ".Helper::getPercentageValue($totalCompletedSubtasks, $totalSubtasks)."%]".PHP_EOL;
+            $remainingEstimate = 100 - $totalCompletedEstimatePercentage;
+            $reportBody .= 'Total Remaining Estimates '.$totalRemainingEstimate. '('. $remainingEstimate.'%)'.PHP_EOL;
+            $reportBody .= 'Total Completed Estimates '.$totalCompletedEstimate.' ('.$totalCompletedEstimatePercentage.'%)'.PHP_EOL;
+            $reportBody .= 'Total Estimates '.$totalEstimate.PHP_EOL;
+
+
+            $totalData = [
+                'worked_hours' => $totalWorkedHours,
+                'remaining_hours' => $totalRemainingHours,
+                'stories' => $totalStories,
+                'completed_stories' => $totalCompletedStories,
+                'completed_stories_percentage' => Helper::getPercentageValue($totalCompletedStories, $totalStories),
+                'subtasks' => $totalSubtasks,
+                'completed_subtasks' => $totalCompletedSubtasks,
+                'completed_subtasks_percentage' => Helper::getPercentageValue($totalCompletedSubtasks, $totalSubtasks),
+                'remaining_estimate' => $totalRemainingEstimate,
+                'remaining_estimate_percentage' => $remainingEstimate,
+                'completed_estimate' => $totalCompletedEstimate,
+                'completed_estimate_percentage' => $totalCompletedEstimatePercentage,
+                'total_estimate' => $totalEstimate,
+            ];
+            $reportArrayBody['total'] = $totalData;
+        }
+
+
+
+
+        $this->processed($reportArrayBody);
+    }
+
+
+    /**
+     * This beautiful function will retrieve the ticket information using the API
+     * If the ticket is a subtask it will fetch the associations to try to get the related user story
+     *
+     * @param $space
+     * @param $ticketNumber
+     */
+    private function _retrieveAndSetTicketInformation($space, $ticketNumber)
+    {
+        $assemblaGateway = new AssemblaGateway($this->user);
+        /** @var TicketDto $ticketDto */
+        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber($space, $ticketNumber);
+        $this->apicalls++;
+
+        if ($ticketDto !== false) {
+
+            $ticketId = $ticketDto->getTicketAssemblaId();
+            $this->ticketsApiData[$ticketId] = [
+                'is_story' => $ticketDto->isStory(),
+                'description' => $ticketDto->getDescription(),
+                'total_invested_hours' => $ticketDto->getTotalInvestedHours()
+            ];
+
+            if ($ticketDto->isStory() && !array_key_exists($ticketId, $this->userStories)) {
+                $this->userStories[$ticketId]['description'] = $ticketDto->getDescription();
+                $this->userStories[$ticketId]['total_invested_hours'] = $ticketDto->getTotalInvestedHours();
+                $this->userStories[$ticketId]['status'] = $ticketDto->getStatus();
+                $this->userStories[$ticketId]['hours'] = 0;
+                $this->userStories[$ticketId]['tasks'] = 0;
+                $this->userStories[$ticketId]['type'] = ($ticketDto->getType())? $ticketDto->getType() : 'Empty';
+
+            } else {
+                $userStoryId = $this->_retrieveTicketAssociation($space, $ticketNumber);
+                if ($userStoryId !== false) {
+                    if (!array_key_exists($userStoryId, $this->userStories)) {
+                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);
+                        $this->apicalls++;
+                        if ($response->getStatusCode() == 200) {
+                            $bodyContents = json_decode($response->getBody()->getContents(), 1);
+                            if ($bodyContents['is_story']) {
+                                $this->userStories[$bodyContents['id']]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
+                                $this->userStories[$bodyContents['id']]['total_invested_hours'] = $bodyContents['total_invested_hours'];
+                                $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
+                                $this->userStories[$bodyContents['id']]['hours'] = 0;
+                                $this->userStories[$bodyContents['id']]['tasks'] = 0;
+                                $this->userStories[$bodyContents['id']]['type'] = self::_getTicketType($bodyContents['custom_fields']);
+                            } else {
+                                dd('hmm it has a subtask but is not a user story??');
+                            }
+                        }
+                    }
+
+                } else {
+                    if (!array_key_exists($ticketId, $this->noUserStories)) {
+                        //the task is not a user story neither a subtask since it has no association as subtask
+                        $this->noUserStories[$ticketId]['description'] = $ticketDto->getDescription();
+                        $this->noUserStories[$ticketId]['total_invested_hours'] = $ticketDto->getTotalInvestedHours();
+                        $this->noUserStories[$ticketId]['status'] = $ticketDto->getStatus();
+                        $this->noUserStories[$ticketId]['hours'] = 0;
+                        $this->noUserStories[$ticketId]['tasks'] = 0;
+                    }
+
+                }
+            }
+        }
+    }
+
+    private function _getTicketType($customFields)
+    {
+        $type = 'Empty';
+        if (array_key_exists('Type',$customFields) && trim($customFields['Type']) != '') {
+            $type = $customFields['Type'];
+        }
+
+        return $type;
+    }
+
+    private function _keepTrackOfTypeData($storyData)
+    {
+        if (array_key_exists('type', $storyData)) {
+
+            $type = $storyData['type'];
+        } else {
+            $type = 'Empty';
+            dd($storyData);
+        }
+
+        if (!array_key_exists($type, $this->typePercentages)) {
+            $this->typePercentages[$type] = [
+                'total_hours' => 0,
+                'total_tickets' => 0,
+            ];
+        }
+
+        $this->typePercentages[$type]['total_hours'] += $storyData['hours'];
+        $this->typePercentages[$type]['total_tickets'] += 1;
+    }
+
+
+    private function _retrieveTicketAssociation($space, $ticketNumber)
+    {
+        $assemblaGateway = new AssemblaGateway($this->user);
+        $ticketAssociations = $assemblaGateway->getTicketAssociationsBySpaceAndNumber($space, $ticketNumber);
+        $this->apicalls++;
+        if ($ticketAssociations !== false) {
+            /** @var TicketAssociationDto $association */
+            foreach ($ticketAssociations as $association) {
+                if ($association->getRelationship() === AssemblaGateway::STORY_RELATION) {
+                    //$subtaskId = $association['ticket1_id'];
+                    return  $association->getTicket2Id();//returning user story ID
+                }
+            }
+        }
+
+        return false;//the received ticketNumber has no subtask relation
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        // Save the type when creating this model
+        static::creating(function ($report) {
+            $report->forceFill([
+                'type' => SprintsReport::REPORT_TYPE,
+            ]);
+        });
+    }
+
+}

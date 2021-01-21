@@ -1,0 +1,36 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+.report-container {
+    padding: 25px;
+
+    .table thead th {
+        text-transform: uppercase;
+    }
+
+    .report-header {
+        margin-bottom: 20px;
+        span {
+            display: block;
+        }
+        h4 {
+            text-transform: capitalize;
+        }
+    }
+
+    .report-table-header {
+        padding: 15px;
+        background-color: #333333;
+        color: #ded5d5;
+        h6 {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    }
+
+}
+
+

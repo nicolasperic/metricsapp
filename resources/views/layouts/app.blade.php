@@ -230,14 +230,24 @@
 
                 <!-- Page Heading -->
                 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                    <h1 class="h3 mb-0 text-gray-800"><!--@yield('container-title','Dashboard')--></h1>
-                    <a href="{{ url('/reports') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-file-excel fa-sm text-white-50"></i> Generate Reports</a>
+                    <!--<h1 class="h3 mb-0 text-gray-800">@yield('container-title','Dashboard')</h1>-->
+
+                    <div class="d-sm-flex align-items-left mb-4">
+                        @yield('actions')
+                    </div>
+
+
+                    <a href="{{ url('/reports') }}"
+                       class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                        <i class="fas fa-file-excel fa-sm text-white-50"></i> Generate Reports
+                    </a>
                 </div>
 
-                <div class="row">
+
+
                     <!-- Content loaded from partials -->
                     @yield('content')
-                </div>
+
             </div>
             <!-- /.container-fluid -->
 
@@ -309,6 +319,7 @@
 <!-- Page level custom scripts -->
 <script src="{{ asset('js/demo/chart-area-demo.js') }}"></script>
 <script src="{{ asset('js/demo/chart-pie-demo.js') }}"></script>
+<script src="{{ asset('js/demo/chart-bar-demo.js') }}"></script>
 
 </body>
 

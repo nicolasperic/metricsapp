@@ -2,79 +2,90 @@
 //TODO esta clase está repetida con USHoursReportTest!
 namespace App\Reports;
 
-use App\AssemblaUser;
-use App\Importer\UserImporter;
 use App\Integration\AssemblaRequest;
 use App\Project;
+use App\Report;
 use App\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Class HoursByUserReport
  *
+ * Report Body Structure
+ * - header > from_date, to_date, total_hours, total_tasks
+ *
+ * - Project hours
+ *      > project name, total_hours, total_tasks, users [ name, total_tasks, total_hours]
+ *
+ * - Users
+ *      > name, total_tasks, total_hours
+ *
+ * - footer > execution time, api calls (admin only)
+ *
  * @package App\Reports
  */
-class HoursByUserReport
+class HoursByUserReport extends Report
 {
-    /**
-     * @var array information required for the report
-     * KEYS: wikiname, space_id, from_date and to_date
-     */
-    private $requestData;
-    private $projects;
-    /**
-     * @var User
-     */
-    private $user;
+    use HasFactory;
+
+    protected $table = 'reports';
+
+    const REPORT_TYPE = 'hours_by_user_report';
+
     
     private $apiCalls;
     private $users;//used to keep the user name on memory and avoid DB calls
 
-    public function __construct($requestData, User $user)
+    public static function forUser(User $user, $requestData)
     {
-        $this->requestData= $requestData;
-
-        foreach ($this->requestData['projects'] as $projectAssemblaId) {
-            $project = Project::getProjectByAssemblaId($projectAssemblaId);
-            $this->projects[$project->wikiname] = $projectAssemblaId;
+        if ($requestData['users']) {
+            $requestData['users'] = array_combine($requestData['users'],$requestData['users']);
         }
 
-
-        if ($this->requestData['users']) {
-            $this->requestData['users'] = array_combine($this->requestData['users'],$this->requestData['users']);
-        }
-
-        $this->user = $user;
+        return self::create([
+            'user_id' => $user->id,
+            'request_data' => $requestData,
+            'title' => 'Hours by Users'
+        ]);
     }
-
 
 
     //TODO la lógica de esta función está repetida en USHoursReportTest
     function execute()
     {
+        $this->running();
+
+        $projects = [];
+        foreach ($this->request_data['projects'] as $projectAssemblaId) {
+            $project = Project::getProjectByAssemblaId($projectAssemblaId);
+            $projects[$project->wikiname] = $project;
+        }
+
+
         $this->apiCalls = 0;
         $this->users = [];
         $startTime = time();
 
         Log::info('Starting HoursByUserReport');
 
-        $teamMembers = $this->requestData['users'];
+        $teamMembers = $this->request_data['users'];
 
-        $projects = $this->projects;
+
 
         $hours = array();
         $totalHours = 0;
         $totalTasks = 0;
         $projectHours = array();
 
-        $from = $this->requestData['from_date'];//format > '2020/12/14 00:00';
-        $to = $this->requestData['to_date'];//format > '2020/12/20 23:59';
-        foreach ($projects as $wikiname => $spaceId) {
+        $from = $this->request_data['from_date'];//format > '2020/12/14 00:00';
+        $to = $this->request_data['to_date'];//format > '2020/12/20 23:59';
+        foreach ($projects as $wikiname => $project) {
 
             $page = 1;
             do {
                 $queryParams = [
-                    'spaces' => $spaceId,
+                    'spaces' => $project->project_assembla_id,
                     'from' => $from,
                     'to' => $to,
                     'page' => $page,
@@ -92,7 +103,7 @@ class HoursByUserReport
                 }
 
                 foreach ($result as $timeTracked) {
-                    if ($wikiname == 'summa-internal-projects') {
+                    if ($wikiname == 'summa-internal-projects') {//TODO this is hardcoded here, validate if project is "shared
                         if ($teamMembers && !array_key_exists($timeTracked['user_id'], $teamMembers)) {
                             continue;
                         }
@@ -127,73 +138,79 @@ class HoursByUserReport
         }
 
         Log::info('API Calls ended! Report output');
-        $results = [];
-        $results[] = '';
-        $results[] = '======================================================'.PHP_EOL;
-        $results[] = "Desde $from hasta $to".PHP_EOL;
-        $results[] = '======================================================'.PHP_EOL;
-        $results[] = 'Total Hours '.$totalHours.PHP_EOL;
-        $results[] = 'Total Tasks '.$totalTasks.PHP_EOL;
 
-        Log::info('Results first chunk');
+
+        $reportBody = [];
+        $reportBody['header'] = [
+            'from' => $from,
+            'to' => $to,
+            'total_hours' => $totalHours,
+            'total_tasks' => $totalTasks,
+        ];
+        $reportBody['projects'] = [];
+        $reportBody['users'] = [];
 
         foreach ($projectHours as $wikiname => $projectData) {
-            $results[] = '======================================================'.PHP_EOL;
-            $results[] = "\t".$wikiname.PHP_EOL;
-            $results[] = '======================================================'.PHP_EOL;
             $totalHours = 0;
             $totalTasks = 0;
+            $projectUsers = [];
             foreach ($projectData as $userId => $userHours) {
                 $totalHours += $userHours['hours'];
                 $totalTasks += $userHours['tasks'];
 
                 $userName = $this->getUserName($userId);
                 $results[] = str_pad($userName, 20)."\t".str_pad($userHours['tasks']. " tasks", 9) ." \t".$userHours['hours']. ' hours'.PHP_EOL;
+
+                $projectUsers[$userId] = [
+                    'username' => $userName,
+                    'total_hours' => $userHours['hours'],
+                    'total_tasks' => $userHours['tasks'],
+                ];
             }
-            $results[] = ''.PHP_EOL;
-            $results[] = 'Project total hours '.$totalHours.' in '.$totalTasks.' tasks'.PHP_EOL;
+
+            $reportBody['projects'][$wikiname] = [
+                'wikiname' => $wikiname,
+                'total_hours' => $totalHours,
+                'total_tasks' => $totalTasks,
+                'users' => $projectUsers
+            ];
+
         }
-        Log::info('Project hours iteration');
 
-        $results[] = PHP_EOL;
-        $results[] = '======================================================'.PHP_EOL;
-        $results[] = ' Hours grouped by Users '.PHP_EOL;
-        $results[] = '======================================================'.PHP_EOL;
-
+        //Hours grouped by users
         foreach ($hours as $userId => $hoursData) {
             $userName = $this->getUserName($userId);
             $results[] = str_pad($userName, 20)."\t".str_pad($hoursData['tasks']. " tasks", 9). " \t".$hoursData['hours']. ' hours'.PHP_EOL;
+            $reportBody['users'][$userId] = [
+                'username' => $userName,
+                'total_hours' => $hoursData['hours'],
+                'total_tasks' => $hoursData['tasks'],
+            ];
         }
-        Log::info('User hours iteration');
-        //Log::info(print_r($results, 1));
+
 
         $endTime = time();
         $minutes = round(($endTime - $startTime)/60, 2);
-        $results[] = ''.PHP_EOL;//adding a breakline
-        $results[] = ''.PHP_EOL;//adding a breakline
-        $results[] = "Execution time ". $minutes ." minutes".PHP_EOL;
-        $results[] = 'Total API calls '.$this->apiCalls.PHP_EOL;
 
-        return $results;
+        $reportBody['footer'] = [
+            'execution_time' => $minutes,
+            'total_api_calls' => $this->apiCalls
+        ];
+
+        $this->processed($reportBody);
+
     }
 
-    /**
-     * //TODO this function should be shared by all reports > hierarchy AbstractReport should have it
-     * @param $userAssemblaId
-     *
-     * @return String
-     */
-    public function getUserName($userAssemblaId) {
-        if (array_key_exists($userAssemblaId, $this->users)) {
-            return $this->users[$userAssemblaId];
-        }
+    public static function boot()
+    {
+        parent::boot();
 
-        $userImporter = new UserImporter($this->user);
-        $userName = $userImporter->getUserName($userAssemblaId);
-        //storing the name on memory
-        $this->users[$userAssemblaId] = $userName;
-
-        return $userName;
+        // Save the type when creating this model
+        static::creating(function ($report) {
+            $report->forceFill([
+                'type' => HoursByUserReport::REPORT_TYPE,
+            ]);
+        });
     }
 
 

@@ -28,15 +28,19 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 }
 
 
-console.log(timeReport);
+//console.log(timeReport);
 
 let monthLabels = [];//month labels
 let monthHours = [];
 let monthTasks = [];
-jQuery.each( timeReport['monthly_hours'], function( index, value ){
-    monthLabels.push(value['label']);
-    monthHours.push(value['hours']);
-    monthTasks.push(value['tasks']);
+jQuery.each( timeReport['monthly_hours'], function( yearIndex, value ){
+
+    jQuery.each( timeReport['monthly_hours'][yearIndex], function( index, value ){
+        monthLabels.push(value['label']);
+        monthHours.push(value['hours']);
+        monthTasks.push(value['tasks']);
+    });
+
 
 });
 
@@ -162,13 +166,17 @@ let weekTooltipTitle = [];
 let weekHours = [];
 let weekTasks = [];
 var i = 0;
-jQuery.each( timeReport['weekly_hours'], function( index, value ){
-    var weekLabel = "Semana " + index;// + " (" + value['surr_monday'] + " - " + value['surr_sunday'] + ")";
-    weekTooltipTitle[i] = " (" + value['surr_monday'] + " - " + value['surr_sunday'] + ")";
-    i++;
-    weekLabels.push(weekLabel);
-    weekHours.push(value['hours']);
-    weekTasks.push(value['tasks']);
+jQuery.each( timeReport['weekly_hours'], function( yearIndex, value ){
+
+    jQuery.each( timeReport['weekly_hours'][yearIndex], function( index, value ){
+        var weekLabel = "Semana " + index;// + " (" + value['surr_monday'] + " - " + value['surr_sunday'] + ")";
+        weekTooltipTitle[i] = " (" + value['surr_monday'] + " - " + value['surr_sunday'] + ")";
+        i++;
+        weekLabels.push(weekLabel);
+        weekHours.push(value['hours']);
+        weekTasks.push(value['tasks']);
+    });
+
 
 });
 
@@ -326,7 +334,7 @@ jQuery.each( timeReport['user_hours'], function( index, value ){
 
 });
 
-console.log(userHoursDataset);
+//console.log(userHoursDataset);
 //console.log(userNames);
 //console.log(userHours);
 
@@ -360,14 +368,90 @@ backgroundColor, borderColor, pointBackgroundColor, pointBorderColor, pointHover
 Iguales
 fill: false; lineTension: 0.3, pointRadius: 3, pointHoverRadius: 3, pointHitRadius: 10, pointBorderWidth: 2
  */
-var ctx = document.getElementById("userHoursChart");
+/*var ctx = document.getElementById("userHoursChart");
 var myLineChart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: monthLabels,//["Mayo", "Junio", "Julio"],
         datasets: userHoursDataset
+
+    },
+    options: {
+        responsive: true,
+        title: {
+            display: false,
+            text: 'Chart Title',
+        },
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 25,
+                top: 25,
+                bottom: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                display: true,
+                time: {
+                    unit: 'date'
+                },
+                gridLines: {
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    maxTicksLimit: 7
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    maxTicksLimit: 5,
+                    padding: 10,
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, values) {
+                        return number_format(value)+' hs';
+                    }
+                },
+                gridLines: {
+                    color: "rgb(234, 236, 244)",
+                    zeroLineColor: "rgb(234, 236, 244)",
+                    drawBorder: false,
+                    borderDash: [2],
+                    zeroLineBorderDash: [2]
+                }
+            }],
+        },
+        legend: {
+            display: true
+        },
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            titleMarginBottom: 10,
+            titleFontColor: '#6e707e',
+            titleFontSize: 14,
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: true,
+            intersect: false,
+            mode: 'index',
+            caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, chart) {
+                    var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                    return datasetLabel + ': ' + number_format(tooltipItem.yLabel, 2);
+                }
+            }
+        }
+    }
+});
+*/
 /*
-* datasets: [{
+ * datasets: [{
  label: "Nicolás",
  fill: false,
  lineTension: 0.3,
@@ -459,77 +543,3 @@ var myLineChart = new Chart(ctx, {
  data: [0, 0, 0.75],
  },
  ]*/
-    },
-    options: {
-        responsive: true,
-        title: {
-            display: false,
-            text: 'Chart Title',
-        },
-        maintainAspectRatio: false,
-        layout: {
-            padding: {
-                left: 10,
-                right: 25,
-                top: 25,
-                bottom: 0
-            }
-        },
-        scales: {
-            xAxes: [{
-                display: true,
-                time: {
-                    unit: 'date'
-                },
-                gridLines: {
-                    display: false,
-                    drawBorder: false
-                },
-                ticks: {
-                    maxTicksLimit: 7
-                }
-            }],
-            yAxes: [{
-                ticks: {
-                    maxTicksLimit: 5,
-                    padding: 10,
-                    // Include a dollar sign in the ticks
-                    callback: function(value, index, values) {
-                        return number_format(value)+' hs';
-                    }
-                },
-                gridLines: {
-                    color: "rgb(234, 236, 244)",
-                    zeroLineColor: "rgb(234, 236, 244)",
-                    drawBorder: false,
-                    borderDash: [2],
-                    zeroLineBorderDash: [2]
-                }
-            }],
-        },
-        legend: {
-            display: true
-        },
-        tooltips: {
-            backgroundColor: "rgb(255,255,255)",
-            bodyFontColor: "#858796",
-            titleMarginBottom: 10,
-            titleFontColor: '#6e707e',
-            titleFontSize: 14,
-            borderColor: '#dddfeb',
-            borderWidth: 1,
-            xPadding: 15,
-            yPadding: 15,
-            displayColors: true,
-            intersect: false,
-            mode: 'index',
-            caretPadding: 10,
-            callbacks: {
-                label: function(tooltipItem, chart) {
-                    var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                    return datasetLabel + ': ' + number_format(tooltipItem.yLabel, 2);
-                }
-            }
-        }
-    }
-});

@@ -10882,6 +10882,10 @@ a.text-dark:focus {
   }
 }
 
+.current-sprints {
+  width: 100%;
+}
+
 .current-sprints .w-33 {
   width: 34% !important;
 }
@@ -10937,5 +10941,24 @@ a.text-dark:focus {
 .is-danger.input,
 .is-danger.textarea {
   border-color: #ff3860;
+}
+
+.row {
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+}
+
+.container-fluid,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl {
+  padding-right: 1.5rem !important;
+  padding-left: 1.5rem !important;
+}
+
+.col-12 {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
 }
 

@@ -2,6 +2,12 @@
 
 @section('breadcrumbs',  Breadcrumbs::render('projects.show', $project))
 
+@section('actions')
+<a href="{{ url("users/importUsers/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Import Users</a>
+<a href="{{ url("sprints/syncSprints/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm ml-3"><i class="fas fa-download fa-sm text-white-50"></i> Sync Milestones</a>
+<a href="{{ url("sprints/importSprints/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm ml-3"><i class="fas fa-download fa-sm text-white-50"></i> Import Milestones</a>
+@endsection
+
 @section('container-title', $project->name . ' Milestones')
 
 @section('content')
@@ -11,9 +17,6 @@
                 <div class="card shadow mb-12">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">{{ $project->name }}</h6>
-                        <a href="{{url("users/importUsers/{$project->id}")}}" style="float:right;">Import Users</a>
-                        <a href="{{url("sprints/syncSprints/{$project->id}")}}" style="float:right;margin-right: 5px;">Sync Milestones</a>
-                        <a href="{{url("sprints/importSprints/{$project->id}")}}" style="float:right;margin-right: 5px;">Import Milestones</a>
                     </div>
 
                     <div class="card-body">

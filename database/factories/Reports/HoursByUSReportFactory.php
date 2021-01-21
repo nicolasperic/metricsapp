@@ -1,19 +1,20 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Reports;
 
 use App\Report;
+use App\Reports\HoursByUSReport;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ReportFactory extends Factory
+class HoursByUSReportFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Report::class;
+    protected $model = HoursByUSReport::class;
 
     /**
      * Define the model's default state.

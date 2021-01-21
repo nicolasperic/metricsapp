@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Report;
+use App\Reports\HoursByUSReport;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,8 +15,7 @@ class ReportTest extends TestCase
     /** @test */
     function can_retrieve_user_reports()
     {
-        $report = Report::factory()->processed()->create();
-
+        $report = HoursByUSReport::factory()->processed()->create();
 
         $user = User::factory()->create();
         $user->reports()->save($report);
@@ -28,16 +28,16 @@ class ReportTest extends TestCase
     /** @test */
     function can_retrieve_user_reports_from_last_week()
     {
-        $reportA = Report::factory()->processed()->create([
+        $reportA = HoursByUSReport::factory()->processed()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
         ]);
-        $reportB = Report::factory()->processed()->create([
+        $reportB = HoursByUSReport::factory()->processed()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(2),
         ]);
-        $reportC = Report::factory()->processed()->create([
+        $reportC = HoursByUSReport::factory()->processed()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(5),
         ]);
-        $reportD = Report::factory()->processed()->create([
+        $reportD = HoursByUSReport::factory()->processed()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(3),
         ]);
 
@@ -54,19 +54,19 @@ class ReportTest extends TestCase
     /** @test */
     function can_retrive_report_status_label()
     {
-        $pending = Report::factory()->create([
+        $pending = HoursByUSReport::factory()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
             'status' => Report::PENDING_STATUS,
         ]);
-        $processed = Report::factory()->create([
+        $processed = HoursByUSReport::factory()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
             'status' => Report::PROCESSED_STATUS,
         ]);
-        $running  = Report::factory()->create([
+        $running  = HoursByUSReport::factory()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
             'status' => Report::RUNNING_STATUS,
         ]);
-        $failed  = Report::factory()->create([
+        $failed  = HoursByUSReport::factory()->create([
             'created_at' => \Carbon\Carbon::today()->subDays(8),
             'status' => Report::FAILED_STATUS,
         ]);

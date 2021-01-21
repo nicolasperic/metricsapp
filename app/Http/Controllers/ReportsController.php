@@ -8,6 +8,9 @@ use App\Jobs\ProcessSprintsReport;
 use App\Jobs\ProcessUserStoryReport;
 use App\Project;
 use App\Report;
+use App\Reports\HoursByUserReport;
+use App\Reports\HoursByUSReport;
+use App\Reports\SprintsReport;
 use Illuminate\Support\Facades\Auth;
 
 class ReportsController extends Controller
@@ -57,8 +60,17 @@ class ReportsController extends Controller
     public function show($id)
     {
         $report = Auth::user()->reports()->findOrFail($id);
+        $view = 'reports.show';
+        if ($report->type == 'hours_by_user_report') {
+            $view = 'reports.hoursbyuser';
+        } else if ($report->type == 'hours_by_us_report') {
+            $view = 'reports.hoursbyus';
+        } else if ($report->type == 'sprints_report') {
+            $view = 'reports.sprints';
+        }
 
-        return view('reports.show', [
+
+        return view($view, [
             'report' => $report,
         ]);
     }
@@ -100,10 +112,7 @@ class ReportsController extends Controller
             'to_date' => request('hours_us_to_date').' 23:59',
         ];
 
-        $reportModel = Report::create([
-            'title' => 'Hours by User Story',
-            'request_data' => serialize($requestData)
-        ]);
+        $reportModel = HoursByUSReport::forUser(Auth::user(), $requestData);
         Auth::user()->reports()->save($reportModel);
         ProcessUserStoryReport::dispatch($requestData, $reportModel);
         SessionMessage::infoMessage('The report has been added to the queue');
@@ -138,11 +147,7 @@ class ReportsController extends Controller
         unset($testData['users']);
         unset($testData['projects']);
 
-        $reportModel = Report::create([
-            'title' => 'Hours by Users',
-            'request_data' => serialize($testData)
-        ]);
-
+        $reportModel = HoursByUserReport::forUser(Auth::user(), $requestData);
         Auth::user()->reports()->save($reportModel);
         ProcessHoursByUsersReport::dispatch($requestData, $reportModel);
         SessionMessage::infoMessage('The report has been added to the queue');
@@ -172,10 +177,7 @@ class ReportsController extends Controller
             'sprints' => request('sprints'),
         ];
 
-        $reportModel = Report::create([
-            'title' => 'Milestones',
-            'request_data' => serialize($requestData)
-        ]);
+        $reportModel = SprintsReport::forUser(Auth::user(), $requestData);
 
         Auth::user()->reports()->save($reportModel);
         ProcessSprintsReport::dispatch($requestData, $reportModel);
