@@ -1,2 +1,2 @@
-web: vendor/bin/heroku-php-apache2 -C apache_app.conf
+web: vendor/bin/heroku-php-apache2 public/
 worker: php artisan queue:restart && php artisan queue:work database --timeout=1200
