@@ -1,5 +1,5 @@
 <?php
-//TODO esta clase está repetida con USHoursReportTest!
+
 namespace App\Reports;
 
 use App\Integration\AssemblaRequest;
@@ -51,7 +51,6 @@ class HoursByUserReport extends Report
     }
 
 
-    //TODO la lógica de esta función está repetida en USHoursReportTest
     function execute()
     {
         $this->running();

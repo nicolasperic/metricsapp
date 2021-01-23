@@ -10,7 +10,7 @@ use App\Jobs\SyncMilestone;
 use App\Jobs\SyncSpaceCurrentMilestone;
 use App\Jobs\SyncSpaceMilestones;
 use App\Project;
-use App\Report;
+use App\Reports\HoursByUSReport;
 use App\Sprint;
 use App\Ticket;
 use App\User;
@@ -379,7 +379,7 @@ class MilestoneTest
             0 => '13040067',
             1 => '13041228',
         ];
-        $reportModel = Report::factory()->create([
+        $reportModel = HoursByUSReport::factory()->create([
             'title' => 'Milestones',
             'request_data' => serialize($requestData)
         ]);

@@ -46,15 +46,15 @@ class Report extends Model
 
         $requestData = $this->request_data;
 
-        if (array_key_exists('sprints', $requestData) !== false) {
+        if (is_array($requestData) && array_key_exists('sprints', $requestData) !== false) {
             $sprintTotal = (count($requestData['sprints'])  > 1)? 'milestones' : 'milestone';
             $requestDataFormatted = count($requestData['sprints']) .' '.$sprintTotal;
-        } else if (array_key_exists('wikiname', $requestData) !== false) {
+        } else if (is_array($requestData) &&  array_key_exists('wikiname', $requestData) !== false) {
             $requestDataFormatted = $requestData['wikiname'];
         }
 
 
-        if (array_key_exists('from_date', $requestData) && array_key_exists('to_date', $requestData)) {
+        if (is_array($requestData) &&  array_key_exists('from_date', $requestData) && array_key_exists('to_date', $requestData)) {
             return $requestDataFormatted. ' from '.$requestData['from_date']. ' to '.$requestData['to_date'];
         }
 

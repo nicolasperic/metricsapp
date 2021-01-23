@@ -10,6 +10,7 @@ use App\Integration\AssemblaRequest;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
+//TODO esta clase quedó desactualizadaa, revisar si algo de acá sirve sino BORRARLA!
 /**
  * @group reports
  */
@@ -31,7 +32,7 @@ class UsHoursReportTest extends TestCase
         $this->loginWithAssemblaUser();
         $this->apicalls = 0;
         $startTime = time();
-        //TODO add logic to remove hardcoded users
+
         $users = [
             'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
             'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',
@@ -326,7 +327,7 @@ class UsHoursReportTest extends TestCase
                 $userStoryId = $this->_retrieveTicketAssociation($space, $ticketNumber);
                 if ($userStoryId !== false) {
                     if (!array_key_exists($userStoryId, $this->userStories)) {
-                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);//TODO create a function in AssemblaGateway for this endpoint
+                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);
                         $this->apicalls++;
                         if ($response->getStatusCode() == 200) {
                             $bodyContents = json_decode($response->getBody()->getContents(), 1);
@@ -397,7 +398,6 @@ class UsHoursReportTest extends TestCase
     }
 
     /** @test  this tests will retrieve the tracked time
-     * //TODO esta es la tarea que ejecuto para tener las horas del equipo discrimiando por: documentar y clasificar (Reportes)
      *
      * - Proyecto
      * - Team member
@@ -415,7 +415,7 @@ class UsHoursReportTest extends TestCase
             'aAbtrS7fKr6y_dcP_HzTya' => 'Barbara Irizaga',
             'dDTcSCiNSr64ojaIC_Qgzw' => 'Julián García',
         ];
-        //TODO add logic to remove hardcoded users
+
         $users = [
             'c5sp9uUXyr6Ok5cK-zJOy8' => 'Julieta Pisani',
             'd8r95QiVer6zj-aH8tHBnc' => 'Franco Aller',

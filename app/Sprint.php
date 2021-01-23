@@ -517,7 +517,7 @@ class Sprint extends Model
                     ]
             ]
         */
-    //TODO la informacion mensual tiene que considerar el anyo!
+
     private function _trackMonthlyHours($ticketTime, $year, $month)
     {
         $this->monthlyHours[$year][$month]['hours'] += $ticketTime->hours;

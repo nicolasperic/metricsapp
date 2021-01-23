@@ -109,6 +109,7 @@ class HoursByUSReport extends Report
             ];
 
             Log::info('report query params '.print_r($queryParams, 1));
+            //TODO create an endpoint on AssemblaGateway for tasks action
             $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
             $this->apicalls++;
             $result = json_decode($response->getBody()->getContents(), 1);
@@ -146,6 +147,7 @@ class HoursByUSReport extends Report
                             $userStoryId = $this->_retrieveTicketAssociation($wikiname, $timeTracked['ticket_number']);
                             if ($userStoryId !== false) {
                                 if (!array_key_exists($userStoryId, $this->userStories)) {
+                                    //TODO create an endpoint on AssemblaGateway for this action
                                     $response = AssemblaRequest::get("spaces/{$wikiname}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);
                                     $this->apicalls++;
                                     if ($response->getStatusCode() == 200) {
