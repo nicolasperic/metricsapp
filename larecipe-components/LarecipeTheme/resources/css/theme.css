@@ -1,0 +1,48 @@
+/**************************************/
+/**************** Root ****************/
+/**************************************/
+:root {
+  --documentation: white;
+  --navbar: white;
+}
+
+/**************************************/
+/*************** Sidebar **************/
+/**************************************/
+.sidebar {
+  border: none;
+  background-image: linear-gradient(0deg, #12283A, #1C3D5A);
+}
+
+.sidebar ul li h2 {
+  color: #6CB2EB;
+}
+
+.sidebar ul li ul li a {
+  color: #DAE1E7;
+}
+
+.sidebar>ul>li>ul>li a {
+    font-size: 0.9rem!important;
+}
+
+.documentation > ul > li > ul > li {
+    border: none!important;
+}
+
+
+
+a {color: #3ca0ff;}         /* Unvisited link  */
+a:visited {color:#3ca0ff;} /* Visited link    */
+a:hover {color: #1C3D5A;}   /* Mouse over link */
+a:active {color:#12283A;}
+
+blockquote.alert.is-info a {
+    color: #12283A;
+}
+
+.documentation h1:first-of-type {
+    border-left-width: 3px;
+    margin-bottom: -1rem;
+    padding-bottom: 1rem;
+}
