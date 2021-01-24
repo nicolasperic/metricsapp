@@ -18,6 +18,16 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <script>
+        window.Laravel = <?php echo json_encode([
+            'csrfToken' => csrf_token(),
+        ]); ?>
+    </script>
+    @if(!Auth::guest())
+        <script>
+            window.Laravel.userId = <?php echo Auth::user()->id; ?>;
+        </script>
+    @endif
     @yield('head')
 </head>
 <body>

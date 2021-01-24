@@ -25,10 +25,12 @@ use Illuminate\Support\Facades\Log;
  *
  * @package App\Reports
  */
-class HoursByUserReport extends Report
+class HoursByUserReport extends Report implements ReportInterface
 {
     use HasFactory;
 
+    const VIEW = 'reports.hoursbyuser';
+    const WEEKLY_REPORT_TITLE = 'Weekly Report';
     protected $table = 'reports';
 
     const REPORT_TYPE = 'hours_by_user_report';
@@ -200,19 +202,31 @@ class HoursByUserReport extends Report
 
     }
 
-    public static function boot()
+    public function getNotificationMessage()
     {
-        parent::boot();
+        $notificationMessage = 'Users Hours Report was processed correctly';
+        if ($this->title === self::WEEKLY_REPORT_TITLE) {
+            $notificationMessage = 'Weekly Report was processed correctly';
+        }
+        return $notificationMessage;
+    }
 
-        // Save the type when creating this model
-        static::creating(function ($report) {
-            $report->forceFill([
-                'type' => HoursByUserReport::REPORT_TYPE,
-            ]);
-        });
+    public function getRequestDataFormatted()
+    {
+        $requestDataFormatted = '';
+        $requestData = $this->request_data;
+
+        if (is_array($requestData) &&  array_key_exists('from_date', $requestData) && array_key_exists('to_date', $requestData)) {
+            $from = $this->getFromDateLabel();
+            $to = $this->getToDateLabel();
+            return $requestDataFormatted. ' from '.$from. ' to '.$to;
+        }
+        return $requestDataFormatted;
     }
 
 
-
-
+    public function getView()
+    {
+        return HoursByUserReport::VIEW;
+    }
 }

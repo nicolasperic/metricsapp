@@ -53,7 +53,7 @@ class User extends Authenticatable
     public function lastWeekReports()
     {
         $date = Carbon::today()->subDays(7);
-        return $this->reports()->where('created_at', '>=', $date)->get();
+        return $this->reports()->where('created_at', '>=', $date)->orderBy('created_at', 'desc')->get();
     }
 
     public function getOpenSprints()

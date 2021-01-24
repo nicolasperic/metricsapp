@@ -27,4 +27,9 @@ class UsersController extends Controller
 
         return redirect()->route('projects.show', $project);
     }
+
+    public function notifications()
+    {
+        return Auth::user()->unreadNotifications()->limit(5)->get()->toArray();
+    }
 }

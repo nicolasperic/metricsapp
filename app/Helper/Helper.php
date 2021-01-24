@@ -7,6 +7,9 @@
  */
 
 namespace App\Helper;
+use App\Reports\HoursByUserReport;
+use App\Reports\HoursByUSReport;
+use App\Reports\SprintsReport;
 use Carbon\Carbon;
 
 /**
@@ -132,5 +135,33 @@ class Helper {
     public static function getLastMonthLastDay()
     {
         return Carbon::now()->subMonth()->endOfMonth()->format('Y/m/d');
+    }
+
+    //TODO this should be on each Report model when I can figure out how to load different instances classes
+    public static function getReportNotificationBackground($type)
+    {
+        $bgClass = 'bg-info';
+        switch ($type) {
+            case HoursByUserReport::REPORT_TYPE:
+                $bgClass = 'bg-success';
+                break;
+            case HoursByUSReport::REPORT_TYPE:
+                $bgClass = 'bg-danger';
+                break;
+            case SprintsReport::REPORT_TYPE:
+                $bgClass = 'bg-warning';
+                break;
+        }
+
+        return $bgClass;
+    }
+
+    /**
+     * This function will receive 2021/01/18 00:00 and return 2021/01/18
+     * @param $dateString
+     */
+    public static function getDateWithoutHours($dateString)
+    {
+        return explode(' ',$dateString)[0];
     }
 }

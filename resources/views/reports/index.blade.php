@@ -1,246 +1,334 @@
-@extends('layouts.appbis')
+@extends('layouts.app')
 @section('head')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/css/bootstrap-datepicker.css" rel="stylesheet">
+    <!--link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/css/bootstrap-datepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script-->
+
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/css/bootstrap-datepicker.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js"></script>
 @endsection
 
 @section('content')
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
 
-                @if ($reports)
-                    <p class="help">Only displaying reports from the last 7 days</p>
-                    <table style="width: 100%;margin-bottom: 20px;">
-                        <thead>
-                        <th>Status</th>
-                        <th>Report Type</th>
-                        <th>Data</th>
-                        <th>View Report</th>
-                        </thead>
-                        @foreach($reports as $report)
-                            <tr>
-                                <td>{{ $report->getStatusLabel() }}</td><td>{{ $report->title }}</td><td>{{ $report->getRequestDataFormatted() }}</td>
-                                <td>@if ($report->status == 2)<a href="{{url("reports/{$report->id}")}}" target="_blank">View</a> @endif</td>
-                            </tr>
-                        @endforeach
-                    </table>
-
-
-                @endif
-
-                @if ($results)
-                    <div class="console">
-                        <header>
-                            <p>{{ str_replace(' ','',strtolower(Auth::user()->name)) }}@metricsapp</p>
-                        </header>
-                        <div class="consolebody">
-                            @foreach($results as $line)
-                                <p>{{$line}}</p>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <div class="card">
-                    <div class="card-header">Hours by User Story Report</div>
-                    <form method="POST" action="{{url("reports/hoursByUs")}}" style="padding: 20px;">
-                        @csrf
-
-                        <div class="field">
-                            <label class="label" for="title">Project</label>
+<div class="row justify-content-center">
+    <div class="col-12">
+        @if (count($reports))
+            <p class="help">Only displaying reports from the last 7 days</p>
+            <table class="table table-striped">
+                <thead>
+                <th>Status</th>
+                <th>Report Type</th>
+                <th>Data</th>
+                <th>Created at</th>
+                <th>View Report</th>
+                </thead>
+                <tbody>
+                @foreach($reports as $report)
+                    <tr id="report-{{$report->id}}">
+                        <td class="report-status">{{ $report->getStatusLabel() }}</td>
+                        <td>{{ $report->title }}</td>
+                        <td>{{ $report->getRequestDataFormatted() }}</td>
+                        <td>{{ $report->created_at}}</td>
+                        <td class="report-link">@if ($report->isProcessed())<a href="{{url("reports/{$report->id}")}}" target="_blank">View</a> @endif</td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
 
 
-                            <div class="control">
-                                @if (count($projects))
-                                    <select name="project" id="project" class="selectpicker" data-size="10" data-live-search="true">
-                                        @foreach($projects as $project)
-                                            <option value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('project')) selected @endif>{{ $project->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('project')
-                                    <p class="help is-danger">{{ $errors->first('project') }}</p>
-                                    @enderror
-                                @else
-                                    No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
-                                @endif
-                            </div>
-                        </div>
+        @endif
+    </div>
+    <div class="col-md-12">
+        @if ($results)
+            <div class="console">
+                <header>
+                    <p>{{ str_replace(' ','',strtolower(Auth::user()->name)) }}@metricsapp</p>
+                </header>
+                <div class="consolebody">
+                    @foreach($results as $line)
+                        <p>{{$line}}</p>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <div class="card shadow mb-12">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Hours by User Story Report</h6>
+            </div>
+            <form method="POST" action="{{url("reports/hoursByUs")}}" style="padding: 20px;">
+                @csrf
+
+
+                <div class="card-bg-secondary pl-4">
+                    <div class="shortcuts small ">
                         <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
                         <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastMonthFirstDay() }}" data-to="{{ Helper::getLastMonthLastDay() }}" >Last month</a>
                         <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >Current week</a>
                         <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >Current month</a>
-                        <style>
-                            .set-hours-us-date-links, .set-hours-user-date-links {
-                                font-size: .75rem;
-                                margin-rigt: 5px;
-                            }
-                        </style>
-                        <div class="field">
-                            <label class="label" for="title">From Date</label>
+                    </div>
 
-                            <div class="control">
-                                <input style="width: 200px;" class="input date @error('hours_us_from_date') is-danger @enderror" type="text" name="hours_us_from_date" id="hours_us_from_date" value="{{ old('hours_us_from_date') }}" readonly="readonly">
+                    <div class="d-flex project-report-fields">
+                        <div class="w-33">
+                            <div class="p-1">
 
-                                <p class="help">Starting date for the report</p>
-                                @error('hours_us_from_date')
-                                <p class="help is-danger">{{ $errors->first('hours_us_from_date') }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label class="label" for="title">To Date</label>
-
-                            <div class="control">
-                                <input style="width: 200px;" class="input date @error('hours_us_to_date') is-danger @enderror" type="text" name="hours_us_to_date" id="hours_us_to_date" value="{{ old('hours_us_to_date') }}" readonly="readonly">
-
-                                <p class="help">Ending date for the report</p>
-                                @error('hours_us_to_date')
-                                <p class="help is-danger">{{ $errors->first('hours_us_to_date') }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-
-                        <div class="field is-grouped">
-                            <div class="control">
-                                <button class="button is-link" type="submit">Generate Report</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-header">Hours by Users Report</div>
-                    <form method="POST" action="{{url("reports/hoursByUser")}}" style="padding: 20px;">
-                        @csrf
-
-                        <div class="field">
-                            <label class="label" for="title">Projects</label>
-
-
-                            <div class="control">
-                                @if (count($projects))
-                                    <select name="projects[]"  id="projects" multiple class="selectpicker" data-size="10"  data-live-search="true">
-                                        @foreach($projects as $project)
-                                            <option value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('projects')) selected @endif data-wikiname="{{ $project->wikiname }}">{{ $project->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('projects')
-                                    <p class="help is-danger">{{ $errors->first('projects') }}</p>
-                                    @enderror
-                                @else
-                                    No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label class="label" for="title">Users</label>
-
-
-                            <div class="control">
-                                @if (count($users))
-                                    <select name="users[]" id="users" multiple class="selectpicker" data-size="10"  data-live-search="true">
-                                        @foreach($users as $userAssemblaId => $userName)
-                                            <option value="{{ $userAssemblaId }}" @if($userAssemblaId == old('users')) selected @endif>{{ $userName }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('users')
-                                    <p class="help is-danger">{{ $errors->first('users') }}</p>
-                                    @enderror
-                                @else
-                                    No users yet, users can be imported by space from each project page</a>
-                                @endif
-                            </div>
-                        </div>
-
-                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
-                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getLastMonthFirstDay() }}" data-to="{{ Helper::getLastMonthLastDay() }}" >Last month</a>
-                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >Current week</a>
-                        <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >Current month</a>
-                        <div class="field">
-                            <label class="label" for="title">From Date</label>
-
-                            <div class="control">
-                                <input style="width: 200px;" class="input date @error('hours_user_from_date') is-danger @enderror" type="text" name="hours_user_from_date" id="hours_user_from_date" value="{{ old('hours_user_from_date') }}" readonly="readonly">
-
-                                <p class="help">Starting date for the report</p>
-                                @error('hours_user_from_date')
-                                <p class="help is-danger">{{ $errors->first('hours_user_from_date') }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label class="label" for="title">To Date</label>
-
-                            <div class="control">
-                                <input style="width: 200px;" class="input date @error('hours_user_to_date') is-danger @enderror" type="text" name="hours_user_to_date" id="hours_user_to_date" value="{{ old('hours_user_to_date') }}" readonly="readonly">
-
-                                <p class="help">Ending date for the report</p>
-                                @error('hours_user_to_date')
-                                <p class="help is-danger">{{ $errors->first('hours_user_to_date') }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-
-                        <div class="field is-grouped">
-                            <div class="control">
-                                <button class="button is-link" type="submit">Generate Report</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                    <div class="card" style="margin-top: 20px;">
-                        <div class="card-header">Sprints Report</div>
-                        <form method="POST" action="{{url("reports/generateSprintsReport")}}" style="padding: 20px;">
-                            @csrf
-
-                            <div class="field">
-                                <label class="label" for="title">Sprints</label>
-
-
+                                <small class="text-uppercase">Project</small>
                                 <div class="control">
-                                    @if (count($sprints))
-                                        <select name="sprints[]"  id="sprints" class="selectpicker" data-size="10" multiple data-live-search="true">
-                                            @foreach($sprints as $sprint)
-                                                <option value="{{ $sprint->sprint_assembla_id }}" @if($sprint->sprint_assembla_id == old('sprints')) selected @endif>{{ $sprint->getProjectName() .' > ' . $sprint->name }}</option>
+                                    @if (count($projects))
+                                        <select name="project" id="project" class="select picker" data-size="10" data-live-search="true">
+                                            @foreach($projects as $project)
+                                                <option value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('project')) selected @endif>{{ $project->name }}</option>
                                             @endforeach
                                         </select>
-
-                                        <p class="help">A maximum of 12 sprints can be selected</p>
-                                        @error('sprints')
-                                        <p class="help is-danger">{{ $errors->first('sprints') }}</p>
+                                        @error('project')
+                                        <p class="help is-danger">{{ $errors->first('project') }}</p>
                                         @enderror
                                     @else
-                                        No sprints yet, <a href="{{url("projects/importProjects")}}">Import Projects</a> and then import sprints from a project page
+                                        No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
                                     @endif
                                 </div>
                             </div>
-
-
-                            <div class="field is-grouped">
+                        </div>
+                        <div class="w-33">
+                            <div class="p-1">
+                                <small class="text-uppercase">From Date</small>
                                 <div class="control">
-                                    <button class="button is-link" type="submit">Generate Report</button>
+                                    <input class="input date @error('hours_us_from_date') is-danger @enderror" type="text" name="hours_us_from_date" id="hours_us_from_date" value="{{ old('hours_us_from_date') }}" readonly="readonly">
+
+                                    <p class="help">Starting date for the report</p>
+                                    @error('hours_us_from_date')
+                                    <p class="help is-danger">{{ $errors->first('hours_us_from_date') }}</p>
+                                    @enderror
                                 </div>
                             </div>
-                        </form>
+                        </div>
+                        <div class="w-33">
+                            <div class="p-1">
+                                <small class="text-uppercase">To Date</small>
+                                <div class="control">
+                                    <input class="input date @error('hours_us_to_date') is-danger @enderror" type="text" name="hours_us_to_date" id="hours_us_to_date" value="{{ old('hours_us_to_date') }}" readonly="readonly">
+
+                                    <p class="help">Ending date for the report</p>
+                                    @error('hours_us_to_date')
+                                    <p class="help is-danger">{{ $errors->first('hours_us_to_date') }}</p>
+                                    @enderror
+                                </div>
+
+
+                            </div>
+                        </div>
                     </div>
-            </div>
+                    <div class="d-flex">
+                        <div class="w-33">
+                            <button class="btn btn-primary" type="submit">Generate Report</button>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    .w-33 {
+                        width: 34% !important;
+                    }
+                    .set-hours-us-date-links, .set-hours-user-date-links {
+                        font-size: .75rem;
+                        margin-rigt: 5px;
+                    }
+                </style>
+
+
+                <!--div class="field">
+                    <label class="label" for="project">Project</label>
+
+
+                    <div class="control">
+                        @if (count($projects))
+                            <select name="project" id="project" class="selectpicker" data-size="10" data-live-search="true">
+                                @foreach($projects as $project)
+                                    <option value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('project')) selected @endif>{{ $project->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('project')
+                            <p class="help is-danger">{{ $errors->first('project') }}</p>
+                            @enderror
+                        @else
+                            No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
+                        @endif
+                    </div>
+                </div>
+                <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
+                <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastMonthFirstDay() }}" data-to="{{ Helper::getLastMonthLastDay() }}" >Last month</a>
+                <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >Current week</a>
+                <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >Current month</a>
+
+                <div class="field">
+                    <label class="label" for="hours_us_from_date">From Date</label>
+
+                    <div class="control">
+                        <input style="width: 200px;" class="input date @error('hours_us_from_date') is-danger @enderror" type="text" name="hours_us_from_date" id="hours_us_from_date" value="{{ old('hours_us_from_date') }}" readonly="readonly">
+
+                        <p class="help">Starting date for the report</p>
+                        @error('hours_us_from_date')
+                        <p class="help is-danger">{{ $errors->first('hours_us_from_date') }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="hours_us_to_date">To Date</label>
+
+                    <div class="control">
+                        <input style="width: 200px;" class="input date @error('hours_us_to_date') is-danger @enderror" type="text" name="hours_us_to_date" id="hours_us_to_date" value="{{ old('hours_us_to_date') }}" readonly="readonly">
+
+                        <p class="help">Ending date for the report</p>
+                        @error('hours_us_to_date')
+                        <p class="help is-danger">{{ $errors->first('hours_us_to_date') }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button class="btn btn-primary" type="submit">Generate Report</button>
+                    </div>
+                </div-->
+            </form>
         </div>
+
+
+        <div class="card shadow mt-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Hours by Users Report</h6>
+            </div>
+            <form method="POST" action="{{url("reports/hoursByUser")}}" style="padding: 20px 20px 20px 40px;">
+                @csrf
+
+                <div class="field">
+                    <label class="label" for="title">Projects</label>
+
+
+                    <div class="control">
+                        @if (count($projects))
+                            <select name="projects[]"  id="projects" multiple class="select picker" data-size="10"  data-live-search="true">
+                                @foreach($projects as $project)
+                                    <option value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('projects')) selected @endif data-wikiname="{{ $project->wikiname }}">{{ $project->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('projects')
+                            <p class="help is-danger">{{ $errors->first('projects') }}</p>
+                            @enderror
+                        @else
+                            No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="title">Users</label>
+
+
+                    <div class="control">
+                        @if (count($users))
+                            <select name="users[]" id="users" multiple class="select picker" data-size="10"  data-live-search="true">
+                                @foreach($users as $userAssemblaId => $userName)
+                                    <option value="{{ $userAssemblaId }}" @if($userAssemblaId == old('users')) selected @endif>{{ $userName }}</option>
+                                @endforeach
+                            </select>
+                            @error('users')
+                            <p class="help is-danger">{{ $errors->first('users') }}</p>
+                            @enderror
+                        @else
+                            No users yet, users can be imported by space from each project page</a>
+                        @endif
+                    </div>
+                </div>
+
+                <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
+                <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getLastMonthFirstDay() }}" data-to="{{ Helper::getLastMonthLastDay() }}" >Last month</a>
+                <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisWeekMonday() }}" data-to="{{ Helper::getThisWeekSunday() }}" >Current week</a>
+                <a href="#" class="set-hours-user-date-links" data-from="{{ Helper::getThisMonthFirstDay() }}" data-to="{{ Helper::getThisMonthLastDay() }}" >Current month</a>
+                <div class="field">
+                    <label class="label" for="title">From Date</label>
+
+                    <div class="control">
+                        <input style="width: 200px;" class="input date @error('hours_user_from_date') is-danger @enderror" type="text" name="hours_user_from_date" id="hours_user_from_date" value="{{ old('hours_user_from_date') }}" readonly="readonly">
+
+                        <p class="help">Starting date for the report</p>
+                        @error('hours_user_from_date')
+                        <p class="help is-danger">{{ $errors->first('hours_user_from_date') }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="title">To Date</label>
+
+                    <div class="control">
+                        <input style="width: 200px;" class="input date @error('hours_user_to_date') is-danger @enderror" type="text" name="hours_user_to_date" id="hours_user_to_date" value="{{ old('hours_user_to_date') }}" readonly="readonly">
+
+                        <p class="help">Ending date for the report</p>
+                        @error('hours_user_to_date')
+                        <p class="help is-danger">{{ $errors->first('hours_user_to_date') }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button class="btn btn-primary" type="submit">Generate Report</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+            <div class="card shadow mt-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Sprints Report</h6>
+                </div>
+                <form method="POST" action="{{url("reports/generateSprintsReport")}}" style="padding: 20px 20px 20px 40px;">
+                    @csrf
+
+                    <div class="field">
+                        <label class="label" for="title">Sprints</label>
+
+
+                        <div class="control">
+                            @if (count($sprints))
+                                <select name="sprints[]"  id="sprints" class="select picker" data-size="10" multiple data-live-search="true">
+                                    @foreach($sprints as $sprint)
+                                        <option value="{{ $sprint->sprint_assembla_id }}" @if($sprint->sprint_assembla_id == old('sprints')) selected @endif>{{ $sprint->getProjectName() .' > ' . $sprint->name }}</option>
+                                    @endforeach
+                                </select>
+
+                                <p class="help">A maximum of 12 sprints can be selected</p>
+                                @error('sprints')
+                                <p class="help is-danger">{{ $errors->first('sprints') }}</p>
+                                @enderror
+                            @else
+                                No sprints yet, <a href="{{url("projects/importProjects")}}">Import Projects</a> and then import sprints from a project page
+                            @endif
+                        </div>
+                    </div>
+
+
+                    <div class="field is-grouped">
+                        <div class="control">
+                            <button class="btn btn-primary" type="submit">Generate Report</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
     </div>
+</div>
+
 
     <script type="text/javascript">
+        //$('.selectpicker').selectpicker();
         $('.date').datepicker({
             format: 'yyyy/mm/dd',
             autoclose: true
@@ -265,6 +353,10 @@
 <style>
 <?php //TODO move this styles to a CSS or SCSS file?>
 
+    .project-report-fields .control select{
+        max-width: 94%;
+        height: 30px;
+    }
     .console {
         font-family: 'Fira Mono';
         width: 95%;
@@ -394,9 +486,11 @@
         height: 35px !important;
     }
 
-
-
-
+    .scroll-to-top i {
+        position: absolute !important;
+        top: 14px !important;
+        left: 17px !important;
+    }
 </style>
 
 

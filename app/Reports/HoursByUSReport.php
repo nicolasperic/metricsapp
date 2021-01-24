@@ -1,5 +1,5 @@
 <?php
-//TODO esta clase está repetida con USHoursReportTest! A lo caco para sacar más rápido un reporte, hacer las cosas bien
+
 namespace App\Reports;
 
 use App\Dto\TicketAssociationDto;
@@ -16,10 +16,11 @@ use Illuminate\Support\Facades\Log;
  *
  * @package App\Reports
  */
-class HoursByUSReport extends Report
+class HoursByUSReport extends Report implements ReportInterface
 {
     use HasFactory;
 
+    const VIEW = 'reports.hoursbyus';
     protected $table = 'reports';
 
     const REPORT_TYPE = 'hours_by_us_report';
@@ -261,7 +262,7 @@ class HoursByUSReport extends Report
 
             $results[] = $storyData['description'].', '.$storyData['total_invested_hours'].', '.$storyData['hours'].', '.$storyData['tasks'].', '.$storyData['status'].', '.$storyData['type'].PHP_EOL;
             $userStoriesTotalHours += $storyData['hours'];
-            self::_keepTrackOfTypeData($storyData);
+            $this->_keepTrackOfTypeData($storyData);
         }
 
         $reportBody['user_stories']['total_hours'] = $userStoriesTotalHours;
@@ -409,7 +410,7 @@ class HoursByUSReport extends Report
                                 $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
                                 $this->userStories[$bodyContents['id']]['hours'] = 0;
                                 $this->userStories[$bodyContents['id']]['tasks'] = 0;
-                                $this->userStories[$bodyContents['id']]['type'] = self::_getTicketType($bodyContents['custom_fields']);
+                                $this->userStories[$bodyContents['id']]['type'] = $this->_getTicketType($bodyContents['custom_fields']);
                             } else {
                                 dd('hmm it has a subtask but is not a user story??');
                             }
@@ -481,16 +482,28 @@ class HoursByUSReport extends Report
         return false;//the received ticketNumber has no subtask relation
     }
 
-    public static function boot()
+    public function getNotificationMessage()
     {
-        parent::boot();
-
-        // Save the type when creating this model
-        static::creating(function ($report) {
-            $report->forceFill([
-                'type' => HoursByUSReport::REPORT_TYPE,
-            ]);
-        });
+      return 'User Story Report was processed correctly';
     }
 
+    public function getRequestDataFormatted()
+    {
+        $requestData = $this->request_data;
+
+        $requestDataFormatted = $requestData['wikiname'];
+
+        if (is_array($requestData) &&  array_key_exists('from_date', $requestData) && array_key_exists('to_date', $requestData)) {
+            $fromDate = $this->getFromDateLabel();
+            $toDate = $this->getToDateLabel();
+            return $requestDataFormatted. ' from '.$fromDate. ' to '.$toDate;
+        }
+
+        return $requestDataFormatted;
+    }
+
+    public function getView()
+    {
+        return HoursByUSReport::VIEW;
+    }
 }

@@ -48,12 +48,10 @@
     </div>
 
     <script type="text/javascript">
-        console.log('Projects page');
         jQuery("[name='starred_project_form']").change('.project-star', function(e) {
-            console.log('starred_project updated');
             jQuery.ajaxSetup({
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
             jQuery.ajax({
@@ -63,7 +61,6 @@
                 url: $(this).attr('action'),
                 data: $(this).serialize(),
                 success: function(data) {
-                    console.log(data);
                 }
             });
         });

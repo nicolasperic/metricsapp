@@ -17,18 +17,15 @@ use Illuminate\Support\Facades\Log;
  *
  * @package App\Reports
  */
-class SprintsReport extends Report
+class SprintsReport extends Report implements ReportInterface
 {
     use HasFactory;
+
+    const VIEW = 'reports.sprints';
 
     protected $table = 'reports';
 
     const REPORT_TYPE = 'sprints_report';
-
-    /**
-     * @var int tracking the amount of API calls made
-     */
-    private $apicalls = 0;
 
     /**
      * @var array information required for the report
@@ -159,134 +156,18 @@ class SprintsReport extends Report
         $this->processed($reportArrayBody);
     }
 
-
-    /**
-     * This beautiful function will retrieve the ticket information using the API
-     * If the ticket is a subtask it will fetch the associations to try to get the related user story
-     *
-     * @param $space
-     * @param $ticketNumber
-     */
-    private function _retrieveAndSetTicketInformation($space, $ticketNumber)
+    public function getNotificationMessage()
     {
-        $assemblaGateway = new AssemblaGateway($this->user);
-        /** @var TicketDto $ticketDto */
-        $ticketDto = $assemblaGateway->getTicketBySpaceAndNumber($space, $ticketNumber);
-        $this->apicalls++;
-
-        if ($ticketDto !== false) {
-
-            $ticketId = $ticketDto->getTicketAssemblaId();
-            $this->ticketsApiData[$ticketId] = [
-                'is_story' => $ticketDto->isStory(),
-                'description' => $ticketDto->getDescription(),
-                'total_invested_hours' => $ticketDto->getTotalInvestedHours()
-            ];
-
-            if ($ticketDto->isStory() && !array_key_exists($ticketId, $this->userStories)) {
-                $this->userStories[$ticketId]['description'] = $ticketDto->getDescription();
-                $this->userStories[$ticketId]['total_invested_hours'] = $ticketDto->getTotalInvestedHours();
-                $this->userStories[$ticketId]['status'] = $ticketDto->getStatus();
-                $this->userStories[$ticketId]['hours'] = 0;
-                $this->userStories[$ticketId]['tasks'] = 0;
-                $this->userStories[$ticketId]['type'] = ($ticketDto->getType())? $ticketDto->getType() : 'Empty';
-
-            } else {
-                $userStoryId = $this->_retrieveTicketAssociation($space, $ticketNumber);
-                if ($userStoryId !== false) {
-                    if (!array_key_exists($userStoryId, $this->userStories)) {
-                        $response = AssemblaRequest::get("spaces/{$space}/tickets/id/{$userStoryId}", $this->user->assembla_key, $this->user->assembla_secret);
-                        $this->apicalls++;
-                        if ($response->getStatusCode() == 200) {
-                            $bodyContents = json_decode($response->getBody()->getContents(), 1);
-                            if ($bodyContents['is_story']) {
-                                $this->userStories[$bodyContents['id']]['description'] = $bodyContents['number'].' '.$bodyContents['summary'];
-                                $this->userStories[$bodyContents['id']]['total_invested_hours'] = $bodyContents['total_invested_hours'];
-                                $this->userStories[$bodyContents['id']]['status'] = $bodyContents['status'];
-                                $this->userStories[$bodyContents['id']]['hours'] = 0;
-                                $this->userStories[$bodyContents['id']]['tasks'] = 0;
-                                $this->userStories[$bodyContents['id']]['type'] = self::_getTicketType($bodyContents['custom_fields']);
-                            } else {
-                                dd('hmm it has a subtask but is not a user story??');
-                            }
-                        }
-                    }
-
-                } else {
-                    if (!array_key_exists($ticketId, $this->noUserStories)) {
-                        //the task is not a user story neither a subtask since it has no association as subtask
-                        $this->noUserStories[$ticketId]['description'] = $ticketDto->getDescription();
-                        $this->noUserStories[$ticketId]['total_invested_hours'] = $ticketDto->getTotalInvestedHours();
-                        $this->noUserStories[$ticketId]['status'] = $ticketDto->getStatus();
-                        $this->noUserStories[$ticketId]['hours'] = 0;
-                        $this->noUserStories[$ticketId]['tasks'] = 0;
-                    }
-
-                }
-            }
-        }
+       return 'Sprints Report was processed correctly';
     }
 
-    private function _getTicketType($customFields)
+    public function getRequestDataFormatted()
     {
-        $type = 'Empty';
-        if (array_key_exists('Type',$customFields) && trim($customFields['Type']) != '') {
-            $type = $customFields['Type'];
-        }
-
-        return $type;
+        return 'Sprints';
     }
 
-    private function _keepTrackOfTypeData($storyData)
+    public function getView()
     {
-        if (array_key_exists('type', $storyData)) {
-
-            $type = $storyData['type'];
-        } else {
-            $type = 'Empty';
-            dd($storyData);
-        }
-
-        if (!array_key_exists($type, $this->typePercentages)) {
-            $this->typePercentages[$type] = [
-                'total_hours' => 0,
-                'total_tickets' => 0,
-            ];
-        }
-
-        $this->typePercentages[$type]['total_hours'] += $storyData['hours'];
-        $this->typePercentages[$type]['total_tickets'] += 1;
+        return SprintsReport::VIEW;
     }
-
-
-    private function _retrieveTicketAssociation($space, $ticketNumber)
-    {
-        $assemblaGateway = new AssemblaGateway($this->user);
-        $ticketAssociations = $assemblaGateway->getTicketAssociationsBySpaceAndNumber($space, $ticketNumber);
-        $this->apicalls++;
-        if ($ticketAssociations !== false) {
-            /** @var TicketAssociationDto $association */
-            foreach ($ticketAssociations as $association) {
-                if ($association->getRelationship() === AssemblaGateway::STORY_RELATION) {
-                    //$subtaskId = $association['ticket1_id'];
-                    return  $association->getTicket2Id();//returning user story ID
-                }
-            }
-        }
-
-        return false;//the received ticketNumber has no subtask relation
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        // Save the type when creating this model
-        static::creating(function ($report) {
-            $report->forceFill([
-                'type' => SprintsReport::REPORT_TYPE,
-            ]);
-        });
-    }
-
 }

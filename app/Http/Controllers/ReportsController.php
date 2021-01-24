@@ -60,17 +60,7 @@ class ReportsController extends Controller
     public function show($id)
     {
         $report = Auth::user()->reports()->findOrFail($id);
-        $view = 'reports.show';
-        if ($report->type == 'hours_by_user_report') {
-            $view = 'reports.hoursbyuser';
-        } else if ($report->type == 'hours_by_us_report') {
-            $view = 'reports.hoursbyus';
-        } else if ($report->type == 'sprints_report') {
-            $view = 'reports.sprints';
-        }
-
-
-        return view($view, [
+        return view($report->getView(), [
             'report' => $report,
         ]);
     }
@@ -128,7 +118,9 @@ class ReportsController extends Controller
         return request()->validate([
             'project'   => 'required',
             'hours_us_from_date' => 'date',
-            'hours_us_to_date' => 'date|after_or_equal:from_date',
+            'hours_us_to_date' => 'date|after_or_equal:hours_us_from_date',
+        ],[
+            'hours_us_to_date.after_or_equal' => 'To date must be a date after or equal From date.',
         ]);
     }
 
@@ -159,7 +151,9 @@ class ReportsController extends Controller
         return request()->validate([
             'projects'   => 'required',
             'hours_user_from_date' => 'date',
-            'hours_user_to_date'   => 'date|after_or_equal:from_date',
+            'hours_user_to_date'   => 'date|after_or_equal:hours_user_from_date',
+        ],[
+            'hours_user_to_date.after_or_equal' => 'To date must be a date after or equal From date.',
         ]);
     }
 

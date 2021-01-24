@@ -4,11 +4,38 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Assembla Metrics App" />
+    <meta name="author" content="Nicolás Peric" />
+    <link rel="shortcut icon" href={{ asset("favicon.ico") }} />
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!-- Custom scripts for all pages-->
     <title>{{ config('app.name', 'Laravel') }}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="{{ asset('js/app.js') }}" defer></script>
+
+    <script src="{{ asset('js/sb-admin-2.min.js') }}" defer></script>
+
+    <!--script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script-->
+    <!--link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" /-->
+
+
+    <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script -->
+
+    <!-- Bootstrap core JavaScript-->
+    <!--script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script-->
+    <!-- script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script-->
+
+    <!-- Core plugin JavaScript-->
+    <script src="{{ asset('vendor/jquery-easing/jquery.easing.min.js') }}" defer></script>
+
+
 
     <!-- Custom fonts for this template-->
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
@@ -17,6 +44,17 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <script>
+        window.Laravel = <?php echo json_encode([
+            'csrfToken' => csrf_token(),
+        ]); ?>
+    </script>
+    @if(!Auth::guest())
+        <script>
+            window.Laravel.userId = <?php echo Auth::user()->id; ?>;
+        </script>
+    @endif
     @yield('head')
 </head>
 
@@ -172,6 +210,25 @@
                         </div>
                     </li>
 
+                    @if(!Auth::guest())
+                        <!-- Nav Item - Alerts -->
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell fa-fw"></i>
+                                <!-- Counter - Alerts -->
+                                <span id="notifications-counter" class="badge badge-counter"></span>
+                            </a>
+                            <!-- Dropdown - Alerts -->
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                                <h6 class="dropdown-header">
+                                    Alerts Center
+                                </h6>
+                                <div id="user-notifications"></div>
+                                <a class="dropdown-item text-center small text-gray-500" href="{{url('/reports')}}">Show All Reports</a>
+                            </div>
+                        </li>
+                    @endif
+
                     <div class="topbar-divider d-none d-sm-block"></div>
 
                     <!-- Nav Item - User Information -->
@@ -236,11 +293,13 @@
                         @yield('actions')
                     </div>
 
+                    @if (!Request::is('reports'))
+                        <a href="{{ url('/reports') }}"
+                           class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                            <i class="fas fa-file-excel fa-sm text-white-50"></i> Generate Reports
+                        </a>
+                    @endif
 
-                    <a href="{{ url('/reports') }}"
-                       class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                        <i class="fas fa-file-excel fa-sm text-white-50"></i> Generate Reports
-                    </a>
                 </div>
 
 
@@ -303,24 +362,12 @@
     </div>
 </div>
 
-<!-- Bootstrap core JavaScript-->
-<script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-<script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-
-<!-- Core plugin JavaScript-->
-<script src="{{ asset('vendor/jquery-easing/jquery.easing.min.js') }}"></script>
-
-<!-- Custom scripts for all pages-->
-<script src="{{ asset('js/sb-admin-2.min.js') }}"></script>
-
 <!-- Page level plugins -->
 <script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script>
-
 <!-- Page level custom scripts -->
 <script src="{{ asset('js/demo/chart-area-demo.js') }}"></script>
 <script src="{{ asset('js/demo/chart-pie-demo.js') }}"></script>
 <script src="{{ asset('js/demo/chart-bar-demo.js') }}"></script>
-
 </body>
 
 </html>

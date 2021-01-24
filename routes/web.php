@@ -41,6 +41,7 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::get('/sprints/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
     Route::get('/tickets/importTickets/{sprintId}', 'TicketsController@importTickets')->name('tickets.import')->middleware('auth');
     Route::get('/users/importUsers/{userId}', 'UsersController@importUsers')->name('users.import')->middleware('auth');
+    Route::get('/notifications', 'UsersController@notifications')->name('notifications')->middleware('auth');
 
     Route::get('/home', 'HomeController@index')->name('home');
 });

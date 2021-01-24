@@ -10962,3 +10962,13 @@ a.text-dark:focus {
   padding-left: 0 !important;
 }
 
+@media screen and (max-width: 1000px) {
+  .d-flex.project-report-fields {
+    display: block !important;
+  }
+
+  .card-bg-secondary .d-flex .w-33 {
+    width: 100% !important;
+  }
+}
+

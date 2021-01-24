@@ -20,7 +20,8 @@
         "laravel/legacy-factories": "^1.1",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
-        "metrics-app/larecipe-theme": "*"
+        "metrics-app/larecipe-theme": "*",
+        "pusher/pusher-php-server": "^4.1"
     },
     "require-dev": {
         "facade/ignition": "^2.3.6",

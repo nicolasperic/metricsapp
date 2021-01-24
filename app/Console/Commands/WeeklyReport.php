@@ -27,10 +27,10 @@ class WeeklyReport extends Command
 
     protected $weeklyReportFromDate;
     protected $weeklyReportToDate;
+
     /**
      * Create a new command instance.
      *
-     * @return void
      */
     public function __construct()
     {
@@ -66,7 +66,7 @@ class WeeklyReport extends Command
             ];
 
 
-            $reportModel = HoursByUserReport::forUser($user, $requestData, 'Weekly Report');
+            $reportModel = HoursByUserReport::forUser($user, $requestData, HoursByUserReport::WEEKLY_REPORT_TITLE);
 
             $user->reports()->save($reportModel);
             ProcessHoursByUsersReport::dispatch($requestData, $reportModel, $sendEmail = true);
