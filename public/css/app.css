@@ -10928,6 +10928,56 @@ a.text-dark:focus {
   }
 }
 
+@media (max-width: 767.98px) {
+  .container-fluid.sprint-container,
+  .sprint-container.container-sm,
+  .sprint-container.container-md,
+  .sprint-container.container-lg,
+  .sprint-container.container-xl {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .container-fluid.sprint-container .validator,
+  .sprint-container.container-sm .validator,
+  .sprint-container.container-md .validator,
+  .sprint-container.container-lg .validator,
+  .sprint-container.container-xl .validator {
+    display: block;
+  }
+
+  .container-fluid.sprint-container .stats-card,
+  .sprint-container.container-sm .stats-card,
+  .sprint-container.container-md .stats-card,
+  .sprint-container.container-lg .stats-card,
+  .sprint-container.container-xl .stats-card {
+    width: 50%;
+  }
+
+  .container-fluid.sprint-container table.table,
+  .sprint-container.container-sm table.table,
+  .sprint-container.container-md table.table,
+  .sprint-container.container-lg table.table,
+  .sprint-container.container-xl table.table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .container-fluid.sprint-container table.table td,
+  .sprint-container.container-sm table.table td,
+  .sprint-container.container-md table.table td,
+  .sprint-container.container-lg table.table td,
+  .sprint-container.container-xl table.table td,
+  .container-fluid.sprint-container table.table th,
+  .sprint-container.container-sm table.table th,
+  .sprint-container.container-md table.table th,
+  .sprint-container.container-lg table.table th,
+  .sprint-container.container-xl table.table th {
+    padding: 0.4rem;
+    font-size: 14px;
+  }
+}
+
 .help {
   display: block;
   font-size: 0.8rem;
@@ -10953,8 +11003,8 @@ a.text-dark:focus {
 .container-md,
 .container-lg,
 .container-xl {
-  padding-right: 1.5rem !important;
-  padding-left: 1.5rem !important;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
 }
 
 .col-12 {

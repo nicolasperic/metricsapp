@@ -278,7 +278,7 @@
             <!-- End of Topbar -->
 
             <!-- Begin Page Content -->
-            <div class="container-fluid">
+            <div class="container-fluid @yield('container-class','')">
                 @yield('breadcrumbs')
 
                 @if(Session::has('message'))

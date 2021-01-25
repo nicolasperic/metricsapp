@@ -1,0 +1,28 @@
+.sprint-container {
+}
+@include media-breakpoint-down(sm) {
+    .container-fluid.sprint-container {
+        padding-left: .5rem;
+        padding-right: .5rem;
+        div.row div.col-xl-3.col-md-6.mb-4 {
+            //padding-left: 0px;
+            //padding-right: 0px;
+        }
+
+        .validator {
+            display: block;
+        }
+        .stats-card {
+            width: 50%;
+        }
+        table.table {
+            display: block;
+            overflow-x: auto;
+            //white-space: nowrap;
+            td, th {
+                padding: 0.4rem;
+                font-size: 14px;
+            }
+        }
+    }
+}
