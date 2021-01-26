@@ -157,6 +157,7 @@
                         @else
                             No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
                         @endif
+
                     </div>
                 </div>
                 <a href="#" class="set-hours-us-date-links" data-from="{{ Helper::getLastWeekMonday() }}" data-to="{{ Helper::getLastWeekSunday() }}">Last week</a>
@@ -301,7 +302,7 @@
                             @if (count($sprints))
                                 <select name="sprints[]"  id="sprints" class="select picker" data-size="10" multiple data-live-search="true">
                                     @foreach($sprints as $sprint)
-                                        <option value="{{ $sprint->sprint_assembla_id }}" @if($sprint->sprint_assembla_id == old('sprints')) selected @endif>{{ $sprint->getProjectName() .' > ' . $sprint->name }}</option>
+                                        <option value="{{ $sprint['sprint_assembla_id'] }}" @if($sprint['sprint_assembla_id'] == old('sprints')) selected @endif>{{ $sprint['project_name'] .' > ' . $sprint['name'] }}</option>
                                     @endforeach
                                 </select>
 

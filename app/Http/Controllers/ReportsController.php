@@ -20,14 +20,65 @@ class ReportsController extends Controller
 
     public function index()
     {
-        $projects = Auth::user()->projects;
+        $user = Auth::user();
+        $projects = $user->projects()->with(['sprints','assemblaUsers'])->get();
+
         return view('reports.index', [
             'projects' => $projects,
-            'sprints' => Auth::user()->sprints,
-            'users' => self::_getUsersInProjects($projects),
+            'sprints' => $this->_mergeProjectsSprints($projects),//Auth::user()->sprints,
+            'users' => $this->_getUsersInProjects($projects),
             'results' => request('results'),
-            'reports' => Auth::user()->lastWeekReports(),
+            'reports' => $user->lastWeekReports(),
         ]);
+    }
+
+    /**
+     * This function will return an array of all merged sprints containing
+     * - name, sprint assembla id and project na,e
+     *
+     * @param $projects
+     *
+     * @return mixed
+     */
+    private function _mergeProjectsSprints($projects)
+    {
+
+        $sprints = $projects->map( function ($project) {
+            return $project->sprints->map(function($sprint) use($project) {
+                return [
+                    'name' => $sprint->name,
+                    'sprint_assembla_id' => $sprint->sprint_assembla_id,
+                    'project_name' => $project->name
+                ];
+            });
+        })->filter()->collapse();
+
+        return $sprints;
+
+
+
+    }
+
+    /**
+     * TODO move this function to a helper
+     * This function will return an array with the assembla users on each project
+     * @param $projects
+     *
+     * @return array
+     */
+    private function _getUsersInProjects($projects)
+    {
+        $users = [];
+
+        foreach ($projects as $project) {
+            foreach ($project->assemblaUsers as $assemblaUser) {
+                $users[$assemblaUser->user_assembla_id] = $assemblaUser->name;
+            }
+        }
+
+        asort($users);
+
+        return $users;
     }
 
     public function weekly()
@@ -63,28 +114,6 @@ class ReportsController extends Controller
         return view($report->getView(), [
             'report' => $report,
         ]);
-    }
-
-    /**
-     * TODO move this function to a helper
-     * This function will return an array with the assembla users on each project
-     * @param $projects
-     *
-     * @return array
-     */
-    private function _getUsersInProjects($projects)
-    {
-        $users = [];
-
-        foreach ($projects as $project) {
-            foreach ($project->assemblaUsers as $assemblaUser) {
-                $users[$assemblaUser->user_assembla_id] = $assemblaUser->name;
-            }
-        }
-
-        asort($users);
-
-        return $users;
     }
 
     /**

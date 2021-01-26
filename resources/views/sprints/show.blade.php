@@ -111,10 +111,11 @@
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Remaining Estimate</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $sprint->getTotalRemainingEstimate() }}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalRemainingEstimate = $sprint->getTotalRemainingEstimate() }}</div>
                                 </div>
-                                <?php $remainingEstimatePercentage = ($sprint->getTotalCompletedEstimatePercentage() != 0)?100 - $sprint->getTotalCompletedEstimatePercentage():0?>
-                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $sprint->getTotalRemainingEstimate() }} remaining estimate{{ $remainingEstimatePercentage }}%">
+                                <?php $totalCompletedEstimatePercentage = $sprint->getTotalCompletedEstimatePercentage()?>
+                                <?php $remainingEstimatePercentage = ($totalCompletedEstimatePercentage != 0)?100 - $totalCompletedEstimatePercentage:0?>
+                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalRemainingEstimate }} remaining estimate{{ $remainingEstimatePercentage }}%">
                                     <div class="progress progress-sm mr-2">
                                         <div class="progress-bar {{Helper::getPercentageClass($remainingEstimatePercentage)}}" role="progressbar" style="width: {{ $remainingEstimatePercentage }}%" aria-valuenow="{{ $remainingEstimatePercentage }}" aria-valuemin="0" aria-valuemax="100">{{$remainingEstimatePercentage}}%</div>
                                     </div>
@@ -138,12 +139,11 @@
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Completed Estimate</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $sprint->getTotalCompletedEstimate() }}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalCompletedEstimate = $sprint->getTotalCompletedEstimate() }}</div>
                                 </div>
-                                <?php $completedEstimatePercentage = $sprint->getTotalCompletedEstimatePercentage(); ?>
-                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $sprint->getTotalCompletedEstimate() }} remaining estimate{{ $completedEstimatePercentage }}%">
+                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalCompletedEstimate }} remaining estimate{{ $totalCompletedEstimatePercentage }}%">
                                     <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar {{Helper::getPercentageClass($completedEstimatePercentage)}}" role="progressbar" style="width: {{ $completedEstimatePercentage }}%" aria-valuenow="{{ $completedEstimatePercentage }}" aria-valuemin="0" aria-valuemax="100">{{$completedEstimatePercentage}}%</div>
+                                        <div class="progress-bar {{Helper::getPercentageClass($totalCompletedEstimatePercentage)}}" role="progressbar" style="width: {{ $totalCompletedEstimatePercentage }}%" aria-valuenow="{{ $totalCompletedEstimatePercentage }}" aria-valuemin="0" aria-valuemax="100">{{$totalCompletedEstimatePercentage}}%</div>
                                     </div>
                                 </div>
                             </div>

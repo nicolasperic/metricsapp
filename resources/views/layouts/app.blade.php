@@ -103,14 +103,9 @@
                     <div class="collapse-divider"></div>
                     <a class="collapse-item" href="{{url('/projects')}} ">All Projects</a>
                     <h6 class="collapse-header">Starred Projects:</h6>
-                    @foreach (Auth::user()->starredProjects as $project)
+                    @foreach ($starredProjects = Auth::user()->starredProjects as $project)
                         <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{ Helper::substrIf($project->name, 23) }}</a>
                     @endforeach
-
-                    <!-- <h6 class="collapse-header">Syncable Projects:</h6>
-                    @foreach (Auth::user()->syncableProjects as $project)
-                        <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{ Helper::substrIf($project->name, 23) }}</a>
-                    @endforeach -->
                 </div>
             </div>
         </li>
@@ -127,9 +122,9 @@
                     <a class="collapse-item" href="{{url('/sprints')}} ">All Sprints</a>
                     <a class="collapse-item" href="{{url('/sprints/current')}} ">Current Sprints</a>
                     <h6 class="collapse-header">Starred Sprints:</h6>
-                    @foreach (Auth::user()->starredProjects as $project)
-                        @if($project->getCurrentSprint())
-                            <a class="collapse-item" href="{{url("/sprints/{$project->getCurrentSprint()->id}")}}">{{$project->code}} | {{ Helper::substrIf($project->getCurrentSprint()->name, 23) }}</a>
+                    @foreach ($starredProjects as $project)
+                        @if($currentSprint = $project->getCurrentSprint())
+                            <a class="collapse-item" href="{{url("/sprints/{$currentSprint->id}")}}">{{$project->code}} | {{ Helper::substrIf($currentSprint->name, 23) }}</a>
                         @endif
                     @endforeach
                 </div>
@@ -145,6 +140,7 @@
             <div id="collapseReports" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <div class="collapse-divider"></div>
+                    <a class="collapse-item" href="{{route('reports.index')}} ">Generate Reports</a>
                     <a class="collapse-item" href="{{route('reports.weekly')}} ">Weekly Report</a>
                 </div>
             </div>

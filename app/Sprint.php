@@ -20,6 +20,20 @@ class Sprint extends Model
     private $weeklyHours;
     private $userHours;
 
+    private $totalEstimate;
+    private $totalCompletedEstimate;
+    private $totalTickets;
+    private $totalInvestedHours;
+    private $totalWorkedHours;
+    private $totalWorkingHours;
+    private $totalSubtasks;
+    private $totalStories;
+    private $completedStoriesTotal;
+    private $completedSubtasksTotal;
+    private $userStoriesWithoutStoryPointsTotal;
+    private $completedStoryPointsTotal;
+    private $totalStoryPoints;
+
     /**
      * This function will validate if there's a sprint matching the received assembla ID
      *
@@ -127,7 +141,10 @@ class Sprint extends Model
      */
     public function getTotalWorkedHours()
     {
-        return $this->tickets()->sum('worked_hours');
+        if (!isset($this->totalWorkedHours)) {
+            $this->totalWorkedHours =$this->tickets()->sum('worked_hours');
+        }
+        return $this->totalWorkedHours;
     }
 
     /**
@@ -138,7 +155,10 @@ class Sprint extends Model
      */
     public function getTotalWorkingHours()
     {
-        return $this->tickets()->sum('working_hours');
+        if (!isset($this->totalWorkingHours)) {
+            $this->totalWorkingHours = $this->tickets()->sum('working_hours');
+        }
+        return $this->totalWorkingHours;
     }
 
     /**
@@ -149,7 +169,10 @@ class Sprint extends Model
      */
     public function getTotalInvestedHours()
     {
-        return $this->tickets()->sum('total_invested_hours');
+        if (!isset($this->totalInvestedHours)) {
+            $this->totalInvestedHours = $this->tickets()->sum('total_invested_hours');
+        }
+        return $this->totalInvestedHours;
     }
 
     /**
@@ -160,7 +183,11 @@ class Sprint extends Model
      */
     public function getTotalTickets()
     {
-        return $this->tickets()->count();
+        if (!isset($this->totalTickets)) {
+            $this->totalTickets = $this->tickets()->count();
+        }
+
+        return $this->totalTickets;
     }
 
     /**
@@ -170,7 +197,10 @@ class Sprint extends Model
      */
     public function getTotalSubtasks()
     {
-        return $this->tickets()->where('is_story', false)->count();
+        if (!isset($this->totalSubtasks)) {
+            $this->totalSubtasks =$this->tickets()->where('is_story', false)->count();
+        }
+        return $this->totalSubtasks;
     }
 
     /**
@@ -180,7 +210,10 @@ class Sprint extends Model
      */
     public function getTotalStories()
     {
-        return $this->tickets()->where('is_story', true)->count();
+        if (!isset($this->totalStories)) {
+            $this->totalStories = $this->tickets()->where('is_story', true)->count();
+        }
+        return $this->totalStories;
     }
 
     /**
@@ -203,7 +236,10 @@ class Sprint extends Model
      */
     public function getCompletedStories()
     {
-        return $this->tickets()->where('is_story', true)->completed()->count();
+        if (!isset($this->completedStoriesTotal)) {
+            $this->completedStoriesTotal = $this->tickets()->where('is_story', true)->completed()->count();
+        }
+        return $this->completedStoriesTotal;
     }
 
     /**
@@ -214,13 +250,19 @@ class Sprint extends Model
      */
     public function getCompletedSubtasks()
     {
-        return $this->tickets()->where('is_story', false)->completed()->count();
+        if (!isset($this->completedSubtasksTotal)) {
+            $this->completedSubtasksTotal = $this->tickets()->where('is_story', false)->completed()->count();
+        }
+        return $this->completedSubtasksTotal;
     }
 
     //TODO ticket function is not consistent with the return value Count!
     public function getUserStoriesWithoutStoryPoints()
     {
-        return $this->tickets()->where('story_points', 0)->where('is_story', true)->count();
+        if (!isset($this->userStoriesWithoutStoryPointsTotal)) {
+            $this->userStoriesWithoutStoryPointsTotal = $this->tickets()->where('story_points', 0)->where('is_story', true)->count();
+        }
+        return $this->userStoriesWithoutStoryPointsTotal;
     }
 
     /**
@@ -254,7 +296,10 @@ class Sprint extends Model
      */
     public function getCompletedStoryPoints()
     {
-        return $this->getCompletedTickets()->sum('story_points');
+        if (!isset($this->completedStoryPointsTotal)) {
+            $this->completedStoryPointsTotal = $this->getCompletedTickets()->sum('story_points');
+        }
+        return $this->completedStoryPointsTotal;
     }
 
     /**
@@ -263,17 +308,26 @@ class Sprint extends Model
      */
     public function getTotalStoryPoints()
     {
-        return $this->tickets()->sum('story_points');
+        if (!isset($this->totalStoryPoints)) {
+            $this->totalStoryPoints = $this->tickets()->sum('story_points');
+        }
+        return $this->totalStoryPoints;
     }
 
     public function getTotalCompletedEstimate()
     {
-        return $this->getCompletedTickets()->sum('estimate');
+        if (!isset($this->totalCompletedEstimate)) {
+            $this->totalCompletedEstimate = $this->getCompletedTickets()->sum('estimate');
+        }
+        return $this->totalCompletedEstimate;
     }
 
     public function getTotalEstimate()
     {
-        return $this->tickets()->sum('estimate');
+        if (!isset($this->totalEstimate)) {
+            $this->totalEstimate = $this->tickets()->sum('estimate');
+        }
+        return $this->totalEstimate;
     }
 
     public function getTotalRemainingEstimate()
