@@ -13,7 +13,7 @@
         $percentCompletedTickets = Helper::getPercentageValue($totalCompletedTickets, $totalTickets);
     ?>
 
-    <div class="actions" style="position: relative; top: -55px;">
+    <div class="actions" style="position: relative; top: -55px; width: 80%;">
         <a href="{{ url("tickets/importTickets/{$sprint->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Import Tickets</a>
     </div>
     <div class="row">
