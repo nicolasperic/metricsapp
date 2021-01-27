@@ -77,6 +77,11 @@ class Ticket extends Model
         return $this->belongsToMany(Sprint::class);
     }
 
+    public function ticketTimes()
+    {
+        return $this->hasMany(TicketTime::class, 'ticket_assembla_id', 'ticket_assembla_id');
+    }
+
     public function scopeCompleted($query)
     {
         return $query->where('state', self::CLOSED_STATE);

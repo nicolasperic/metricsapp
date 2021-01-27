@@ -298,6 +298,12 @@
                         <label class="label" for="title">Sprints</label>
 
 
+                        @if (count($currentSprints))
+                        <div class="shortcuts small">
+                            <a href="#" class="set-current-sprints-link">Set Current Sprints</a>
+                        </div>
+                        @endif
+
                         <div class="control">
                             @if (count($sprints))
                                 <select name="sprints[]"  id="sprints" class="select picker" data-size="10" multiple data-live-search="true">
@@ -314,7 +320,8 @@
                                 No sprints yet, <a href="{{url("projects/importProjects")}}">Import Projects</a> and then import sprints from a project page
                             @endif
                         </div>
-                    </div>
+                        </div>
+
 
 
                     <div class="field is-grouped">
@@ -346,6 +353,18 @@
             $('#hours_user_to_date').val($(this).data('to'));
             e.preventDefault();
         });
+
+        $('.set-current-sprints-link').click(function(e) {
+            var currentSprints = {!! json_encode($currentSprints) !!}
+
+            currentSprints.forEach(function(sprintId) {
+                $('#sprints option[value='+sprintId+']').attr('selected', true);
+            });
+
+            e.preventDefault();
+        });
+
+
 
 
     </script>

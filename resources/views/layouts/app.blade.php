@@ -103,9 +103,11 @@
                     <div class="collapse-divider"></div>
                     <a class="collapse-item" href="{{url('/projects')}} ">All Projects</a>
                     <h6 class="collapse-header">Starred Projects:</h6>
+
                     @foreach ($starredProjects = Auth::user()->starredProjects as $project)
                         <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{ Helper::substrIf($project->name, 23) }}</a>
                     @endforeach
+
                 </div>
             </div>
         </li>
@@ -123,7 +125,8 @@
                     <a class="collapse-item" href="{{url('/sprints/current')}} ">Current Sprints</a>
                     <h6 class="collapse-header">Starred Sprints:</h6>
                     @foreach ($starredProjects as $project)
-                        @if($currentSprint = $project->getCurrentSprint())
+                        <?php $currentSprint = (count($project->sprints)) ? $project->sprints[0]: false;?>
+                        @if($currentSprint)
                             <a class="collapse-item" href="{{url("/sprints/{$currentSprint->id}")}}">{{$project->code}} | {{ Helper::substrIf($currentSprint->name, 23) }}</a>
                         @endif
                     @endforeach

@@ -8,6 +8,9 @@
     <?php
         $percentCompletedStories = $sprint->getPercentCompletedStories();
         $percentCompletedSubtasks = $sprint->getPercentCompletedSubtasks();
+        $totalCompletedTickets = $sprint->getTotalCompletedTickets();
+        $totalTickets = $sprint->getTotalTickets();
+        $percentCompletedTickets = Helper::getPercentageValue($totalCompletedTickets, $totalTickets);
     ?>
 
     <div class="actions" style="position: relative; top: -55px;">
@@ -102,6 +105,31 @@
     </div>
 
     <div class="row">
+        <!-- Total Tickets Card -->
+        <div class="col-xl-3 col-md-6 mb-4 stats-card">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Tickets</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalTickets }}</div>
+                                </div>
+                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalCompletedTickets }} completed tickets {{ $percentCompletedTickets }}%">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar {{Helper::getPercentageClass($percentCompletedTickets)}}" role="progressbar" style="width: {{ $percentCompletedTickets }}%" aria-valuenow="{{ $percentCompletedTickets }}" aria-valuemin="0" aria-valuemax="100">{{$percentCompletedTickets}}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Remaining Estimate (Story Points) Card -->
         <div class="col-xl-3 col-md-6 mb-4 stats-card">
             <div class="card border-left-warning shadow h-100 py-2">
@@ -335,10 +363,11 @@
                     @endif
 
                     <div class="small">
-                        <span class="validator">❌  subtasks with invalid status <strong>({{ $sprint->getUserStoriesWithInconsistentState() }})</strong></span>
+                    <?php //TODO generate the getUserStoriesWithInconsistentState working with eager data ?>
+                        <!--span class="validator">❌  subtasks with invalid status <strong>({{ 1/*$sprint->getUserStoriesWithInconsistentState()*/}})</strong></span-->
                         <span class="validator">⏱   tracked time directly on User Story</span>
                         <span class="validator">🚨  User Story without estimate <strong>({{ $sprint->getUserStoriesWithoutStoryPoints() }})</strong></span>
-                    </div>
+                    </div-->
 
 
                         <div>
@@ -359,9 +388,9 @@
                                 <?php
                                 $status = '';
                                 ?>
-                                @if(count($ticket->getInvalidStatusSubtasks()) > 0)
-                                    <?php $status = '❌'; ?>
-                                @endif
+                                <!-- if(count($ticket->getInvalidStatusSubtasks()) > 0)
+                                    <?php //$status = '❌'; ?>
+                                endif -->
 
                                 @if($ticket->worked_hours > 0)
                                     <?php $status .= '⏱'; ?>

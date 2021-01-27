@@ -23,9 +23,15 @@ class ReportsController extends Controller
         $user = Auth::user();
         $projects = $user->projects()->with(['sprints','assemblaUsers'])->get();
 
+        $currentSprintsIds = $user->starredProjects->map( function( $project ) {
+            return (count($project->sprints)) ? $project->sprints[0]: null;
+
+        })->pluck('sprint_assembla_id')->filter();
+
         return view('reports.index', [
             'projects' => $projects,
             'sprints' => $this->_mergeProjectsSprints($projects),//Auth::user()->sprints,
+            'currentSprints' => $currentSprintsIds,
             'users' => $this->_getUsersInProjects($projects),
             'results' => request('results'),
             'reports' => $user->lastWeekReports(),

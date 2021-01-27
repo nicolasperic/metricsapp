@@ -73,7 +73,9 @@ class User extends Authenticatable
 
     public function starredProjects()
     {
-        return $this->belongsToMany(Project::class)->withPivot('starred')->where('starred', 1);
+        return $this->belongsToMany(Project::class)->with('sprints', function($query){
+            $query->current();
+        })->withPivot('starred')->where('starred', 1);
     }
 
     public function syncableProjects()

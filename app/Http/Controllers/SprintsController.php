@@ -29,7 +29,7 @@ class SprintsController extends Controller
 
     public function show($id)
     {
-        $sprint = Auth::user()->sprints()->with('tickets.subtasks')->findOrFail($id);
+        $sprint = Auth::user()->sprints()->with(['tickets.ticketTimes', 'tickets.subtasks', 'projects.assemblaUsers'])->findOrFail($id);
 
         return view('sprints.show', [
             'sprint' => $sprint,

@@ -56,7 +56,7 @@ class ProjectsController extends Controller
 
             if ($e->getCode() == 401) {
                 $settingsUrl = '<a href="'.url('/settings').'">here</a>';
-                SessionMessage::errorMessage('Not authorized! Add your Assembla credentials '.$settingsUrl);
+                SessionMessage::errorMessage('Not authorized! Update your Assembla credentials '.$settingsUrl);
 
             } else {
                 SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');

@@ -30,6 +30,7 @@ class Sprint extends Model
     private $totalStories;
     private $completedStoriesTotal;
     private $completedSubtasksTotal;
+    private $totalCompletedTickets;
     private $userStoriesWithoutStoryPointsTotal;
     private $completedStoryPointsTotal;
     private $totalStoryPoints;
@@ -142,7 +143,7 @@ class Sprint extends Model
     public function getTotalWorkedHours()
     {
         if (!isset($this->totalWorkedHours)) {
-            $this->totalWorkedHours =$this->tickets()->sum('worked_hours');
+            $this->totalWorkedHours = $this->tickets()->sum('worked_hours');
         }
         return $this->totalWorkedHours;
     }
@@ -226,6 +227,19 @@ class Sprint extends Model
     public function getCompletedTickets()
     {
         return $this->tickets()->completed();
+    }
+
+    /**
+     * This function returns the total amount completed tickets
+     * both subtasks and user stories are considered
+     * @return mixed
+     */
+    public function getTotalCompletedTickets()
+    {
+        if (!isset($this->totalCompletedTickets)) {
+            $this->totalCompletedTickets = $this->getCompletedTickets()->count();
+        }
+        return $this->totalCompletedTickets;
     }
 
     /**
@@ -474,14 +488,16 @@ class Sprint extends Model
         $this->weeklyHours = array();//week => total XXX, users [ foco => hs]
         $this->monthlyHours = array();//month => total XY, users => [ foco => hs]
         $this->userHours = array();//user_id => hours, tasks
-        $userImporter = new UserImporter(Auth::user());
+        $userImporter = new UserImporter(Auth::user());//the user importer will execute a load quer for each user that reports
 
+        $users = $this->projects[0]->assemblaUsers->pluck('name', 'user_assembla_id')->toArray();//eager loaded
+        $tickets = $this->tickets;//eager loaded
 
         foreach ($this->tickets as $ticket) {
-            $ticketTimes = TicketTime::where('ticket_assembla_id', $ticket->ticket_assembla_id)->get();
+            //$ticketTimes = TicketTime::where('ticket_assembla_id', $ticket->ticket_assembla_id)->get();
 
-            foreach ($ticketTimes as $ticketTime) {
-                $this->_trackTime($ticketTime, $userImporter);
+            foreach ($ticket->ticketTimes as $ticketTime) {
+                $this->_trackTime($ticketTime, $userImporter, $users, $tickets);
             }
 
 
@@ -490,17 +506,14 @@ class Sprint extends Model
 
 
         ksort($this->weeklyHours);
-        //print print_r($weeklyHours, 1).PHP_EOL;
         ksort($this->monthlyHours);
-        //print print_r($monthlyHours, 1).PHP_EOL;
         ksort($this->userHours);
-        //print print_r($this-?userHours, 1).PHP_EOL;
         $this->_trackUserHours();//this function uses the monthly hours data
 
         usort($this->userHours, function ($a,$b){
             return ($a['total_hours'] >= $b['total_hours']) ? -1 : 1;
         });
-        //dd($this->monthlyHours);
+
         return array(
             'weekly_hours' => $this->weeklyHours,
             'monthly_hours' => $this->monthlyHours,
@@ -512,7 +525,7 @@ class Sprint extends Model
 
 
 
-    private function _trackTime($ticketTime, UserImporter $userImporter)
+    private function _trackTime($ticketTime, UserImporter $userImporter, $users, $tickets)
     {
         $date = Carbon::parse($ticketTime->begin_at);
         $month = $date->month;
@@ -546,11 +559,18 @@ class Sprint extends Model
             $this->userHours[$ticketTime->user_assembla_id]['tasks'] = [];
             $this->userHours[$ticketTime->user_assembla_id]['total_hours'] = 0;
             $this->userHours[$ticketTime->user_assembla_id]['total_tasks'] = 0;
-            //TODO this should be improved for performance, currently N DB queries or API calls will get done for each user
-            $this->userHours[$ticketTime->user_assembla_id]['label'] = $userImporter->getUserName($ticketTime->user_assembla_id);
+
+
+            if (array_key_exists($ticketTime->user_assembla_id, $users)) {
+                $userName = $users[$ticketTime->user_assembla_id];
+            } else {
+                $userName = $userImporter->getUserName($ticketTime->user_assembla_id);
+            }
+
+            $this->userHours[$ticketTime->user_assembla_id]['label'] = $userName;;
         }
         
-        $this->_trackMonthlyHours($ticketTime, $year, $month);
+        $this->_trackMonthlyHours($ticketTime, $year, $month, $tickets);
         $this->_trackWeeklyHours($ticketTime, $year, $weekOfYear);
 
 
@@ -572,7 +592,7 @@ class Sprint extends Model
             ]
         */
 
-    private function _trackMonthlyHours($ticketTime, $year, $month)
+    private function _trackMonthlyHours($ticketTime, $year, $month, $tickets)
     {
         $this->monthlyHours[$year][$month]['hours'] += $ticketTime->hours;
         $this->monthlyHours[$year][$month]['tasks'] += 1;
@@ -597,17 +617,19 @@ class Sprint extends Model
             ];
         }
         if (!array_key_exists($ticketTime->ticket_number, $this->monthlyHours[$year][$month]['tickets'])) {
-            $ticket = Ticket::getTicketByAssemblaId($ticketTime->ticket_assembla_id);
+            //TODO tickets need to be loaded from the eager information
+            //$ticket = Ticket::getTicketByAssemblaId($ticketTime->ticket_assembla_id);
 
-            $parent = $ticket->parent();
-            $parentLabel = '';
-            if ($parent) {
-                $parentLabel = $parent->number.' '.$parent->name;
-            }
+
+//            $parent = $ticket->parent();
+//            $parentLabel = '';
+//            if ($parent) {
+//                $parentLabel = $parent->number.' '.$parent->name;
+//            }
             $this->monthlyHours[$year][$month]['tickets'][$ticketTime->ticket_number] = [
                 'description' => $ticketTime->description,
                 'hours' => 0,
-                'parent' => $parentLabel,
+//                'parent' => $parentLabel,
             ];
         }
 
