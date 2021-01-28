@@ -6,6 +6,7 @@ use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Dto\Mapper\TicketMapper;
 use App\Dto\Mapper\TicketTimeMapper;
+use App\Importer\TasksImporter;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use App\Project;
@@ -17,10 +18,12 @@ use Illuminate\Support\Facades\Log;
 class TicketImporter
 {
     private $assemblaGateway;
+    private $ticketTimeImporter;
 
     function __construct(User $user)
     {
         $this->assemblaGateway = new AssemblaGateway($user);
+        $this->ticketTimeImporter = new TasksImporter($this->assemblaGateway);
     }
 
     /**
@@ -49,7 +52,8 @@ class TicketImporter
                 foreach ($tickets as $ticketDto) {
                     $allSprintTicketsFromAPI[$ticketDto->getTicketAssemblaId()] = true;
 
-                    if (!Ticket::ticketExists($ticketDto->getTicketAssemblaId())) {
+                    $ticket = Ticket::getTicketByAssemblaId($ticketDto->getTicketAssemblaId());
+                    if ($ticket === null) {
                         Log::info('[Ticket Importer] about to create ticket '.$ticketDto->getNumber());
                         $this->_createTicketFromDTO($ticketDto, $sprint, $project);
                         $this->_createTrackedTimeFor($ticketDto->getTicketAssemblaId());
@@ -58,8 +62,10 @@ class TicketImporter
                         //since we are importing for a given milestone, tickets processed here won't need a milestone update!
                         //but some tickets could be present on the milestone in our DB and not on Assembla...
 
-                        $ticket = Ticket::getTicketByAssemblaId($ticketDto->getTicketAssemblaId());
+
                         TicketMapper::updateTicketFromDTO($ticket, $ticketDto);//Ticket Data synced
+                        $this->ticketTimeImporter->importTicketTasks($ticket);
+
                         //Milestone; ticket associations and ticket tracked time//TODO test what happens if I track i.e 1h and then I change it to 30m
                     }
                 }

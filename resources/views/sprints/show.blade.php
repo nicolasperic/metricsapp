@@ -14,7 +14,7 @@
     ?>
 
     <div class="actions" style="position: relative; top: -55px; width: 80%;">
-        <a href="{{ url("tickets/importTickets/{$sprint->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Import Tickets</a>
+        <a href="{{ url("tickets/syncTickets/{$sprint->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Tickets</a>
     </div>
     <div class="row">
         <!-- Total Hours Card -->
@@ -143,7 +143,7 @@
                                 </div>
                                 <?php $totalCompletedEstimatePercentage = $sprint->getTotalCompletedEstimatePercentage()?>
                                 <?php $remainingEstimatePercentage = ($totalCompletedEstimatePercentage != 0)?100 - $totalCompletedEstimatePercentage:0?>
-                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalRemainingEstimate }} remaining estimate{{ $remainingEstimatePercentage }}%">
+                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalRemainingEstimate }} remaining estimate {{ $remainingEstimatePercentage }}%">
                                     <div class="progress progress-sm mr-2">
                                         <div class="progress-bar {{Helper::getPercentageClass($remainingEstimatePercentage)}}" role="progressbar" style="width: {{ $remainingEstimatePercentage }}%" aria-valuenow="{{ $remainingEstimatePercentage }}" aria-valuemin="0" aria-valuemax="100">{{$remainingEstimatePercentage}}%</div>
                                     </div>
@@ -169,7 +169,7 @@
                                 <div class="col-auto">
                                     <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalCompletedEstimate = $sprint->getTotalCompletedEstimate() }}</div>
                                 </div>
-                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalCompletedEstimate }} remaining estimate{{ $totalCompletedEstimatePercentage }}%">
+                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalCompletedEstimate }} completed estimate {{ $totalCompletedEstimatePercentage }}%">
                                     <div class="progress progress-sm mr-2">
                                         <div class="progress-bar {{Helper::getPercentageClass($totalCompletedEstimatePercentage)}}" role="progressbar" style="width: {{ $totalCompletedEstimatePercentage }}%" aria-valuenow="{{ $totalCompletedEstimatePercentage }}" aria-valuemin="0" aria-valuemax="100">{{$totalCompletedEstimatePercentage}}%</div>
                                     </div>
@@ -262,6 +262,11 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Hours per user</h6>
+                    <!--div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-sync fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                    </div-->
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
@@ -303,7 +308,7 @@
                         </div>
                     </div>
                     <div class="col-xl-6 col-lg-6" style="float: right; padding-right: 0px;">
-                        <div class="mt-4 small">
+                        <div class="user-stories-types mt-2 small">
                             @foreach($sprint->getUserStoriesTypePercentages() as $i => $usType)
                                 <div class="user-story-type">
                                     <i class="fas fa-circle" style="color: {{$usType['color']['main']}}"></i>

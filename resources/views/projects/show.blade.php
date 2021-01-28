@@ -3,9 +3,8 @@
 @section('breadcrumbs',  Breadcrumbs::render('projects.show', $project))
 
 @section('actions')
-<a href="{{ url("users/importUsers/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Import Users</a>
+<a href="{{ url("users/syncUsers/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Users</a>
 <a href="{{ url("sprints/syncSprints/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm ml-3"><i class="fas fa-download fa-sm text-white-50"></i> Sync Milestones</a>
-<a href="{{ url("sprints/importSprints/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm ml-3"><i class="fas fa-download fa-sm text-white-50"></i> Import Milestones</a>
 @endsection
 
 @section('container-title', $project->name . ' Milestones')

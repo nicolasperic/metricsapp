@@ -87,10 +87,10 @@ class AssemblaGateway
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getSpaces()
-    {   //TODO spaces could be more than just one page, we need to update this function (and others) to continue asking for more pages
+    public function getSpaces($queryParams = [])
+    {
         $spaces = false;
-        $response = AssemblaRequest::get("spaces", $this->user->assembla_key, $this->user->assembla_secret);
+        $response = AssemblaRequest::get("spaces", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
         if ($response->getStatusCode() == 200) {
             $spaces = [];
             $result = json_decode($response->getBody()->getContents(), 1);

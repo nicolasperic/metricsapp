@@ -2,17 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Events\SprintsForReportProcessed;
-use App\Helper\Helper;
-
 use App\Report;
 use App\Reports\SprintsReport;
 use App\Sprint;
 use App\User;
-use Carbon\Carbon;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;

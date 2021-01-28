@@ -2,8 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Dto\NotificationDto;
+use App\Notifications\AssemblaSynced;
 use App\Project;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -25,7 +28,7 @@ class SyncUserSyncableSpaces implements ShouldQueue, ShouldBeUnique
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param User $user
      */
     public function __construct(User $user)
     {
@@ -41,21 +44,32 @@ class SyncUserSyncableSpaces implements ShouldQueue, ShouldBeUnique
     {
         $jobs = $this->user->syncableProjects->map(function (Project $project)  {
             return [
-                new SyncSpaceMilestones($this->user, $project),
+                new SyncSpaceMilestones($this->user, $project, false),
                 new SyncSpaceCurrentMilestone($this->user, $project)
             ];
         })
             ->filter()
             ->collapse()
             ->toArray();
+        $user = $this->user;
 
         Bus::batch($jobs)
             ->then(function (Batch $batch) {
             // All jobs completed successfully...
         })->catch(function (Batch $batch, Throwable $e) {
             // First batch job failure detected...
-        })->finally(function (Batch $batch) {
+        })->finally(function (Batch $batch) use($user) {
             print 'Print all batches are done'.PHP_EOL;
+                $notificationDto = new NotificationDto([
+                    'entity_id' => null,
+                    'url' => url('sprints/current'),
+                    'message' => 'Current milestones were synced correctly',
+                    'date' => Carbon::now()->format('F d, Y g:i a'),
+                    'bg_class' => 'bg-success',
+                    'icon_class' =>'fa-sync'
+                ]);
+                $user->notify(new AssemblaSynced($notificationDto));
+
         })->dispatch();
     }
 

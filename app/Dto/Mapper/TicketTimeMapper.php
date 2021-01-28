@@ -26,4 +26,38 @@ class TicketTimeMapper extends AbstractMapper
         ]);
     }
 
+    public static function updateTicketTimeFromDto(TicketTime $ticketTime, TicketTimeDto $ticketTimeDto)
+    {
+        $changed = false;
+
+        if ($ticketTimeDto->getHours() !== $ticketTime->hours) {
+            $ticketTime->hours = $ticketTimeDto->getHours();
+            $changed = true;
+        }
+
+        if ($ticketTimeDto->getTicketAssemblaId() !== $ticketTime->ticket_assembla_id) {
+            $ticketTime->ticket_assembla_id = $ticketTimeDto->getTicketAssemblaId();
+            $changed = true;
+        }
+
+        if ($ticketTimeDto->getTicketNumber() !== $ticketTime->ticket_number) {
+            $ticketTime->ticket_number = $ticketTimeDto->getTicketNumber();
+            $changed = true;
+        }
+
+        if ($ticketTimeDto->getUserAssemblaId() !== $ticketTime->user_assembla_id) {
+            $ticketTime->user_assembla_id = $ticketTimeDto->getUserAssemblaId();
+            $changed = true;
+        }
+
+        if ($ticketTimeDto->getProjectAssemblaId() !== $ticketTime->project_assembla_id) {
+            $ticketTime->project_assembla_id = $ticketTimeDto->getProjectAssemblaId();
+            $changed = true;
+        }
+
+        if ($changed) {
+            $ticketTime->save();
+        }
+    }
+
 }

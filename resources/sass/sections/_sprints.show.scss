@@ -1,4 +1,7 @@
 .sprint-container {
+    .user-story-type-stats {
+        padding-left: 16px;
+    }
 }
 @include media-breakpoint-down(sm) {
     .container-fluid.sprint-container {
@@ -22,6 +25,19 @@
             td, th {
                 padding: 0.4rem;
                 font-size: 14px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .container-fluid.sprint-container {
+        .user-stories-types {
+            width: 86%;
+            margin-left: 7%;
+            .user-story-type {
+                width: 50%;
+                float: left;
             }
         }
     }

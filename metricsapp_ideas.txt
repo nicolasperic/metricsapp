@@ -73,9 +73,9 @@ Features
 
 
 Atributos configs de space:
-- Starred: favorito, lo agrego en el menú (+ current) | esto es por usuario en un PIVOT en project_user
-- Auto_importing Assembla API (por usario en PIVOT)
-- espacio "trackeable": para los dropdowns de reportes y task timer (muy verde aún)
+DONE - Starred: favorito, lo agrego en el menú (+ current) | esto es por usuario en un PIVOT en project_user
+DONE - Auto_importing Assembla API (por usario en PIVOT)
+- espacio "trackeable": para los dropdowns de reportes y task timer (muy verde aún)//esto es por usuario PIVOT
 - espacio compartido (para usar el filtro de equipo en el reporte de horas)
 - estimate: hours, story points, [small, medium, large]
 

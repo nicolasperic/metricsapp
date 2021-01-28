@@ -36,6 +36,13 @@
     padding-left: 0 !important;
 }
 
+.alert.alert-info {
+    a {
+        color: #4e73df;
+        text-decoration: underline;
+    }
+}
+
 @media screen and (max-width: 1000px) {
     .d-flex.project-report-fields {
         display: block!important;

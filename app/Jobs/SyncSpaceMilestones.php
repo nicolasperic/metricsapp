@@ -2,10 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Events\SpaceMilestonesSynced;
+use App\Dto\NotificationDto;
 use App\Importer\SprintImporter;
+use App\Notifications\AssemblaSynced;
 use App\Project;
 use App\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -37,15 +39,20 @@ class SyncSpaceMilestones implements ShouldQueue, ShouldBeUnique
      * @var User
      */
     private $user;
+    /**
+     * @var bool when jobs are dispatched on batches we don't wont to notify the user
+     */
+    private $notify;
 
     /**
      * Create a new job instance.
      * @param Project $project
      */
-    public function __construct(User $user, Project $project)
+    public function __construct(User $user, Project $project, $notify = true)
     {
         $this->user = $user;
         $this->project = $project;
+        $this->notify = $notify;
     }
 
     /**
@@ -63,14 +70,27 @@ class SyncSpaceMilestones implements ShouldQueue, ShouldBeUnique
         try {
             $sprintImporter = new SprintImporter($this->user);
             $sprintImporter->importProjectMilestonesAsSprints($this->project);
-
-            //Log::info("Dispatching event for Current Milestone after ".$this->project->name. " milestones sync");
-            //SpaceMilestonesSynced::dispatch($this->user, $this->project);
+            if ($this->notify) {
+                $this->user->notify($this->getAssemblaSyncNotification());
+            }
         } catch (Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
         }
 
+    }
+
+    private function getAssemblaSyncNotification()
+    {
+        $notificationDto = new NotificationDto([
+            'entity_id' => $this->project->id,
+            'url' => url('projects', $this->project->id),
+            'message' => $this->project->name.' milestones were synced correctly',
+            'date' => Carbon::now()->format('F d, Y g:i a'),
+            'bg_class' => 'bg-success',
+            'icon_class' =>'fa-sync'
+        ]);
+        return new AssemblaSynced($notificationDto);
     }
 
     /**

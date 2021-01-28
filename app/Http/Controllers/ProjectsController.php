@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helper\SessionMessage;
 use App\Importer\ProjectImporter;
+use App\Jobs\SyncSpaces;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,16 +46,17 @@ class ProjectsController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function importProjects()
+    public function syncProjects()
     {
-        $projectImporter = new ProjectImporter();
+
 
         try {
-            $projectImporter->importAllAssemblaSpacesAsProjects(Auth::user());
-            SessionMessage::infoMessage("Projects were correctly imported");
+            SyncSpaces::dispatch(Auth::user());
+            SessionMessage::infoMessage("Projects sync job was added to the queue");
         } catch (ClientException $e) {
 
             if ($e->getCode() == 401) {
+                //TODO this wont happen since we are dispatching the job, we could althoug add the same exception on the job and dispatch a failure alert
                 $settingsUrl = '<a href="'.url('/settings').'">here</a>';
                 SessionMessage::errorMessage('Not authorized! Update your Assembla credentials '.$settingsUrl);
 

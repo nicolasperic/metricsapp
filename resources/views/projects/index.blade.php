@@ -8,6 +8,12 @@
 
 @section('breadcrumbs',  Breadcrumbs::render('projects'))
 
+@section('actions')
+
+    <a href="{{ route("projects.sync") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Projects</a>
+
+@endsection
+
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
@@ -15,7 +21,7 @@
                 <div class="card shadow mb-12">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">Your Projects (Assembla Spaces)</h6>
-                        <a href="{{url("projects/importProjects")}}" style="float: right;">Import Projects</a></div>
+                    </div>
 
 
 

@@ -39,7 +39,7 @@ class Helper {
 
     public static function getPercentageClass($percentageValue)
     {
-        if ($percentageValue < 30) {
+        if ($percentageValue < 30) {//TODO this values should be configurable for the users
             $percentageClass = 'bg-danger';
         } else if ($percentageValue >= 30 && $percentageValue < 75) {
             $percentageClass = 'bg-warning';

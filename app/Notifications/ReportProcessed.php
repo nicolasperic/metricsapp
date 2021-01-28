@@ -54,10 +54,12 @@ class ReportProcessed extends Notification implements ShouldQueue
     public function toDatabase($notifiable)
     {
         return [
-            'report_id' => $this->report->id,
-            'notification_message' => $this->report->getNotificationMessage(),
-            'formatted_date' => Carbon::now()->format('F d, Y g:i a'),
+            'entity_id' => $this->report->id,
+            'url' => url('reports', $this->report->id),
+            'message' => $this->report->getNotificationMessage(),
+            'date' => Carbon::now()->format('F d, Y g:i a'),
             'bg_class' => Helper::getReportNotificationBackground($this->report->type),
+            'icon_class' => 'fa-file-alt',
         ];
     }
 
@@ -65,10 +67,12 @@ class ReportProcessed extends Notification implements ShouldQueue
     {
         //TODO validate how to remove the data enclosing array
         return ['data' => [
-            'report_id' => $this->report->id,
-            'notification_message' => $this->report->getNotificationMessage(),
-            'formatted_date' => Carbon::now()->format('F d, Y g:i a'),
+            'entity_id' => $this->report->id,
+            'url' => url('reports', $this->report->id),
+            'message' => $this->report->getNotificationMessage(),
+            'date' => Carbon::now()->format('F d, Y g:i a'),
             'bg_class' => Helper::getReportNotificationBackground($this->report->type),
+            'icon_class' => 'fa-file-alt',
         ]];
     }
 }

@@ -24,13 +24,13 @@ $(document).ready(function() {
     .notification((notification) => {
             addNotifications([notification], '#notifications');
             $('#alertsDropdown').dropdown('toggle');
-        console.log('#report-'+notification.data.report_id);
-        console.log($('#report-'+notification.data.report_id).length);
-        if ($('#report-'+notification.data.report_id).length) {
-            var to = 'reports/' + notification.data.report_id;
+
+        //custom code only for Reports Index page (updating report data dynamically)
+        if ($('#report-'+notification.data.entity_id).length) {
+            var to = 'reports/' + notification.data.entity_id;
             var toLink = '<a href="'+to+'" target="_blank">View<a/>'
-            $("#report-"+notification.data.report_id+" td.report-status").html('Processed');
-            $("#report-"+notification.data.report_id+" td.report-link").html(toLink);
+            $("#report-"+notification.data.entity_id+" td.report-status").html('Processed');
+            $("#report-"+notification.data.entity_id+" td.report-link").html(toLink);
         }
 
     });
@@ -42,7 +42,8 @@ $(document).ready(function() {
 var notifications = [];
 
 const NOTIFICATION_TYPES = {
-    report_processed: 'App\\Notifications\\ReportProcessed'
+    report_processed: 'App\\Notifications\\ReportProcessed',
+    assembla_synced: 'App\\Notifications\\AssemblaSynced'
 };
 
 $(document).ready(function() {
@@ -94,9 +95,11 @@ function makeNotification(notification) {
 function routeNotification(notification) {
     var to = '?read=' + notification.id;
     if(notification.type === NOTIFICATION_TYPES.report_processed) {
-        to = 'reports/' + notification.data.report_id + to;
+        to = 'reports/' + notification.data.entity_id + to;
+    } else if(notification.type === NOTIFICATION_TYPES.assembla_synced) {
+        to = notification.data.url + to;
     }
-    return '/' + to;
+    return to;
 }
 
 // get the notification text based on it's type
@@ -104,7 +107,9 @@ function makeNotificationText(notification, url) {
     var text = '';
     if(notification.type === NOTIFICATION_TYPES.report_processed) {
         //const name = notification.data.follower_name;
-        text += '<a class=\"dropdown-item d-flex align-items-center\" href=\"'+url+'\"><div class=\"mr-3\"><div class=\"icon-circle '+notification.data.bg_class+'\"><i class=\"fas fa-file-alt text-white\"></i></div></div><div><div class=\"small text-gray-500\">'+notification.data.formatted_date+'</div><span class=\"font-weight-bold\">'+notification.data.notification_message+'</span></div></a>';
+        text += '<a class=\"dropdown-item d-flex align-items-center\" href=\"'+url+'\"><div class=\"mr-3\"><div class=\"icon-circle '+notification.data.bg_class+'\"><i class=\"fas '+notification.data.icon_class+' text-white\"></i></div></div><div><div class=\"small text-gray-500\">'+notification.data.date+'</div><span class=\"font-weight-bold\">'+notification.data.message+'</span></div></a>';
+    } else if(notification.type === NOTIFICATION_TYPES.assembla_synced) {
+        text += '<a class=\"dropdown-item d-flex align-items-center\" href=\"'+url+'\"><div class=\"mr-3\"><div class=\"icon-circle '+notification.data.bg_class+'\"><i class=\"fas '+notification.data.icon_class+' text-white\"></i></div></div><div><div class=\"small text-gray-500\">'+notification.data.date+'</div><span class=\"font-weight-bold\">'+notification.data.message+'</span></div></a>';
     }
     return text;
 }

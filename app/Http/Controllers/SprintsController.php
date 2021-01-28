@@ -36,24 +36,6 @@ class SprintsController extends Controller
         ]);
     }
 
-    public function importSprints($projectId)
-    {
-        $project = Auth::user()->projects()->findOrFail($projectId);
-
-        try {
-            $sprintImporter = new SprintImporter(Auth::user());
-            $sprintImporter->importProjectMilestonesAsSprints($project);
-            SessionMessage::infoMessage('Milestones were correctly imported');
-        } catch (Exception $e) {
-            SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');
-            Log::error($e->getMessage());
-            Log::error($e->getTraceAsString());
-        }
-
-
-        return redirect()->route('projects.show', $project);
-    }
-
     /**
      * This function is used to dispatch a Milestone Sync for the received project
      * and then a current mylestone ticket sync
@@ -67,8 +49,8 @@ class SprintsController extends Controller
         $project = Auth::user()->projects()->findOrFail($projectId);
         try {
             SyncSpaceMilestones::dispatch(Auth::user(), $project);
-            SessionMessage::infoMessage("Projects sync job was added to the queue");
-        } catch (Exception $e) {
+            SessionMessage::infoMessage("Milestones sync job was added to the queue");
+        } catch (\Exception $e) {
             SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());

@@ -10928,6 +10928,10 @@ a.text-dark:focus {
   }
 }
 
+.sprint-container .user-story-type-stats {
+  padding-left: 16px;
+}
+
 @media (max-width: 767.98px) {
   .container-fluid.sprint-container,
   .sprint-container.container-sm,
@@ -10978,6 +10982,26 @@ a.text-dark:focus {
   }
 }
 
+@media screen and (max-width: 991px) {
+  .container-fluid.sprint-container .user-stories-types,
+  .sprint-container.container-sm .user-stories-types,
+  .sprint-container.container-md .user-stories-types,
+  .sprint-container.container-lg .user-stories-types,
+  .sprint-container.container-xl .user-stories-types {
+    width: 86%;
+    margin-left: 7%;
+  }
+
+  .container-fluid.sprint-container .user-stories-types .user-story-type,
+  .sprint-container.container-sm .user-stories-types .user-story-type,
+  .sprint-container.container-md .user-stories-types .user-story-type,
+  .sprint-container.container-lg .user-stories-types .user-story-type,
+  .sprint-container.container-xl .user-stories-types .user-story-type {
+    width: 50%;
+    float: left;
+  }
+}
+
 .help {
   display: block;
   font-size: 0.8rem;
@@ -11010,6 +11034,11 @@ a.text-dark:focus {
 .col-12 {
   padding-right: 0 !important;
   padding-left: 0 !important;
+}
+
+.alert.alert-info a {
+  color: #4e73df;
+  text-decoration: underline;
 }
 
 @media screen and (max-width: 1000px) {

@@ -361,12 +361,12 @@ class Sprint extends Model
         return number_format(($this->getCompletedStoryPoints() / $this->getTotalStoryPoints()) * 100, 2);
     }
 
-    public function getTotalCompletedEstimatePercentage()
+    public function getTotalCompletedEstimatePercentage($decimals = 0)
     {
         if ($this->getTotalEstimate() == 0)
             return 0;
 
-        return number_format(($this->getTotalCompletedEstimate() / $this->getTotalEstimate()) * 100, 2);
+        return number_format(($this->getTotalCompletedEstimate() / $this->getTotalEstimate()) * 100, $decimals);
     }
 
     public function getPercentCompletedStories($decimals = 0)
