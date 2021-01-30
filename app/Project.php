@@ -9,6 +9,10 @@ class Project extends Model
 {
     use HasFactory;
 
+    const ESTIMATE_POINTS = 1;
+    const ESTIMATE_TIME = 2;
+    const ESTIMATE_SIZE = 3;//small, medium, large
+
     protected $guarded = [];
 
     public static function projectExists($assemblaId)

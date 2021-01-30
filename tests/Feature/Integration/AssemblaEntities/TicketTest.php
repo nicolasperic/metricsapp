@@ -110,9 +110,9 @@ class TicketTest
             'to' => '2020/12/15 00:00',
             'page' => 1,
         ];
-        $response = AssemblaRequest::get("tasks", $queryParams, $user->assembla_key, $user->assembla_secret);
+        $response = AssemblaRequest::get("tasks", $user->assembla_key, $user->assembla_secret, $queryParams);
         $content = json_decode($response->getBody()->getContents(), 1);
-        dd($content);
+        //dd($content);
 
 
         $ticketAssociations = $assemblaGateway->getTicketAssociationsBySpaceAndNumber('sommiercenter', '1117');

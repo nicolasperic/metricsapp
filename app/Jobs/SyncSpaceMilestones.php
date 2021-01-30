@@ -2,12 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Dto\NotificationDto;
+use App\Helper\Helper;
 use App\Importer\SprintImporter;
-use App\Notifications\AssemblaSynced;
 use App\Project;
 use App\User;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -71,26 +69,17 @@ class SyncSpaceMilestones implements ShouldQueue, ShouldBeUnique
             $sprintImporter = new SprintImporter($this->user);
             $sprintImporter->importProjectMilestonesAsSprints($this->project);
             if ($this->notify) {
-                $this->user->notify($this->getAssemblaSyncNotification());
+                $this->user->notify(Helper::getAssemblaSyncNotification(
+                    $this->project->id,
+                    url('projects', $this->project->id),
+                    $this->project->name.' milestones were synced correctly'
+                ));
             }
         } catch (Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
         }
 
-    }
-
-    private function getAssemblaSyncNotification()
-    {
-        $notificationDto = new NotificationDto([
-            'entity_id' => $this->project->id,
-            'url' => url('projects', $this->project->id),
-            'message' => $this->project->name.' milestones were synced correctly',
-            'date' => Carbon::now()->format('F d, Y g:i a'),
-            'bg_class' => 'bg-success',
-            'icon_class' =>'fa-sync'
-        ]);
-        return new AssemblaSynced($notificationDto);
     }
 
     /**

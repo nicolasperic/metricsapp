@@ -223,7 +223,7 @@
                                     Alerts Center
                                 </h6>
                                 <div id="user-notifications"></div>
-                                <a class="dropdown-item text-center small text-gray-500" href="{{url('/reports')}}">Show All Reports</a>
+                                <a id="mark-notifications-as-read" class="dropdown-item text-center small text-gray-500" href="javascript:;">Mark all as read</a>
                             </div>
                         </li>
                     @endif
@@ -367,6 +367,22 @@
 <script src="{{ asset('js/demo/chart-area-demo.js') }}"></script>
 <script src="{{ asset('js/demo/chart-pie-demo.js') }}"></script>
 <script src="{{ asset('js/demo/chart-bar-demo.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#mark-notifications-as-read').click(function(){
+            event.preventDefault();
+            $.post('/notifications/markNotificationsAsRead', {"_token": "{{ csrf_token() }}"}, function(response){
+                $('#user-notifications').html('<a class=\"dropdown-item d-flex align-items-center\"><div><div class=\"small text-gray-500\">No notifications</div></div></a>');
+                $('#notifications-counter').html('');
+                $('#notifications-counter').removeClass('badge-danger');
+                $('#mark-notifications-as-read').hide();
+
+            });
+
+        });
+    });
+
+</script>
 </body>
 
 </html>

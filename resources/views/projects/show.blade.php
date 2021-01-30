@@ -10,101 +10,62 @@
 @section('container-title', $project->name . ' Milestones')
 
 @section('content')
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow mb-12">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ $project->name }}</h6>
-                    </div>
+    <ul class="nav nav-pills mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" href="{{route('projects.projectPane', $project->id)}}" id="project_tab" data-toggle="tabajax" data-target="#project">
+                <h6 class="m-0 font-weight-bold">{{ $project->name }}</h6>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{route('projects.settingsPane', $project->id)}}" id="settings_tab" data-toggle="tabajax" data-target="#settings">
 
-                    <div class="card-body">
-                        @if (session('status'))
-                            <div class="alert alert-success" role="alert">
-                                {{ session('status') }}
-                            </div>
-                        @endif
-
-                        Open Milestones:
-                        <ul>
-                            @forelse ($project->getOpenSprints as $sprint)
-                                <li>
-                                    <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a> <?= $sprint->getFormattedPlannerType()?>
-                                </li>
-
-
-                            @empty
-                                <p>No sprints assigned to this project yet.</p>
-                            @endforelse
-                        </ul>
-
-                        Closed Milestones:
-                        <ul>
-                            @forelse ($project->getClosedSprints as $sprint)
-                                <li>
-                                    <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>
-                                </li>
-
-
-                            @empty
-                                <p>No sprints assigned to this project yet.</p>
-                            @endforelse
-                        </ul>
-
-
-                        Assembla Team Members:
-                        <ul>
-                            @forelse ($project->assemblaUsers as $user)
-                                <li>
-                                    {{ $user->name }}
-                                </li>
-
-
-                            @empty
-                                <p>No assembla users imported yet.</p>
-                            @endforelse
-                        </ul>
-
-
-                        App Users:
-                        <ul>
-                            @forelse ($project->users as $user)
-                                <li>
-                                    {{ $user->name }}
-                                </li>
-
-
-                            @empty
-                                <p>No users assigned to this project yet.</p>
-                            @endforelse
-                        </ul>
-                    </div>
-                </div>
-            </div>
+                <h6 class="m-0 font-weight-bold"><i class="fas fa-cog fa-sm text-gray-400"></i>Settings</h6>
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane  urlbox span8" id="awaiting_request">
+            <img src="{{asset('img/ajax-loader.gif')}}" style="margin-left: 49%">
+        </div>
+        <div class="tab-pane active" id="project">
+            @include('projects.partials.project', ['project' => $project])
+        </div>
+        <div class="tab-pane" id="settings">
         </div>
     </div>
 
-    <style>
-        <?php //TODO move styles to CSS/SCSS?>
-        .planner-type {
-            padding: 3px 5px 3px;
-            border-radius: 3px;
-            line-height: 17px;
-            font-size: 11px;
-            cursor: pointer;
-            color: white;
-            position: relative;
-            top: -3px;
-        }
+    @if (session('status'))
+        <div class="alert alert-success" role="alert">
+            {{ session('status') }}
+        </div>
+    @endif
 
-        .planner-type.current {
-            background-color: rgb(122, 185, 102);
-        }
+    <script type="text/javascript">
+        $('[data-toggle="tabajax"]').click(function(e) {
+            var $this = $(this),
+                    loadurl = $this.attr('href'),
+                    targ = $this.attr('data-target');
 
-        .planner-type.backlog {
-            background-color: rgb(51, 54, 55);
-        }
-    </style>
+            $.get(loadurl, function(data) {
+                $(targ).html(data);
+            });
+
+            $this.tab('show');
+            return false;
+        });
+
+        $(document).ready(function () {
+            $(document).on({
+                ajaxStart: function(){
+                    $('#awaiting_request').show();
+                },
+                ajaxStop: function(){
+                    $('#awaiting_request').hide();
+                }
+            });
+        });
+
+    </script>
 @endsection
 
 

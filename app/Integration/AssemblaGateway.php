@@ -22,7 +22,6 @@ class AssemblaGateway
 
     function __construct(User $user)
     {
-
         $this->user = $user;
     }
 
@@ -31,7 +30,7 @@ class AssemblaGateway
      * Returns currently authenticated user.
      * https://api-docs.assembla.cc/content/ref/user_show.html
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return AssemblaUserDto | false
      */
     public function getAuthenticatedUser()
     {
@@ -67,7 +66,7 @@ class AssemblaGateway
      *
      * @param $userId
      *
-     * @return AssemblaUserDto|bool //TODO update return documentation on all functions (no longer using ResponseInterface, using DTO)
+     * @return AssemblaUserDto|bool
      */
     public function getUser($userId)
     {
@@ -85,10 +84,10 @@ class AssemblaGateway
      * Get list of spaces user is participating to
      * https://api-docs.assembla.cc/content/ref/spaces_index.html
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return array ProjectDto | false
      */
     public function getSpaces($queryParams = [])
-    {
+    {//dowhile
         $spaces = false;
         $response = AssemblaRequest::get("spaces", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
         if ($response->getStatusCode() == 200) {
@@ -108,10 +107,10 @@ class AssemblaGateway
      *
      * @param $space
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return array AssemblaUserDto | false
      */
     public function getSpaceUsers($space)
-    {
+    {//dowhile
         $spaceUsers = false;
         $response = AssemblaRequest::get("spaces/{$space}/users", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
@@ -131,7 +130,7 @@ class AssemblaGateway
      * @param $space
      * @param $ticketNumber
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return TicketDto | false
      */
     public function getTicketBySpaceAndNumber($space, $ticketNumber)
     {
@@ -154,10 +153,10 @@ class AssemblaGateway
      * @param $space
      * @param $ticketNumber
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return array TicketAssociationDto | false
      */
     public function getTicketAssociationsBySpaceAndNumber($space, $ticketNumber)
-    {
+    {//dowhile
         $ticketAssociations = false;
         $response = AssemblaRequest::get("spaces/{$space}/tickets/{$ticketNumber}/ticket_associations", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {
@@ -178,10 +177,10 @@ class AssemblaGateway
      * @param $milestoneId
      * @param $queryParams array
      *
-     * @return array|bool array of tickets or false if request to API is not 200
+     * @return array TicketDto |bool array of tickets or false if request to API is not 200
      */
     public function getTicketsForMilestone($space, $milestoneId, $queryParams = [])
-    {
+    {//dowhile
         $tickets = false;
         $response = AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
         if ($response->getStatusCode() == 200) {
@@ -192,8 +191,6 @@ class AssemblaGateway
             }
         }
 
-
-        //return AssemblaRequest::get("spaces/{$space}/tickets/milestone/{$milestoneId}", $queryParams);
         return $tickets;
     }
 
@@ -203,12 +200,23 @@ class AssemblaGateway
      *
      * @param $queryParams
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return array TicketTimeDto | false
      */
     public function getTrackedTimeForTicket($queryParams)
     {
-        //TODO generar nuevo getTrackedTime() para sobregarcargar en esta función
+        return $this->getTasks($queryParams);
+    }
 
+    /**
+     * Returns a paginated list of tasks. Pages are default to 25 tasks.
+     * https://api-docs.assembla.cc/content/ref/tasks_index.html
+     *
+     * @param $queryParams
+     *
+     * @return array TicketTimeDto | false
+     */
+    public function getTasks($queryParams)
+    {//dowhile
         $tasks = false;
         $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
         if ($response->getStatusCode() == 200) {
@@ -228,10 +236,10 @@ class AssemblaGateway
      *
      * @param $space
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return array SprintDto | false
      */
     public function getMilestonesForSpace($space)
-    {
+    {//dowhile
         $milestones = false;
         $response = AssemblaRequest::get("spaces/{$space}/milestones/all", $this->user->assembla_key, $this->user->assembla_secret);
         if ($response->getStatusCode() == 200) {

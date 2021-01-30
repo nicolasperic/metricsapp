@@ -32,4 +32,13 @@ class UsersController extends Controller
     {
         return Auth::user()->unreadNotifications()->limit(5)->get()->toArray();
     }
+
+    public function markNotificationsAsRead()
+    {
+        Auth::user()->unreadNotifications->map(function($notification) {
+            $notification->markAsRead();
+        });
+
+        return response()->json(['result' => 'success']);
+    }
 }

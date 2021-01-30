@@ -55,10 +55,10 @@ class ProjectTest
 
         $this->assertEquals(5, count($user->projects));
 
-        $projectImporter = new ProjectImporter();
-        $projectImporter->importAllAssemblaSpacesAsProjects($user);
+        $projectImporter = new ProjectImporter($user);
+        $projectImporter->importAllAssemblaSpacesAsProjects();
 
-        $this->assertEquals(14, count($user->fresh()->projects));
+        $this->assertEquals(15, count($user->fresh()->projects));//si me agregan nuevos proyectos esta validacion no me sirve
     }
 
 
@@ -122,5 +122,18 @@ class ProjectTest
 
         $this->assertEquals(11, count($project->fresh()->sprints));
         $this->assertEquals(11, count($user->fresh()->sprints));
+    }
+
+    /**  */
+    function can_retrieve_space_custom_fields(){
+        $user = $this->loginWithAssemblaUser();
+
+        $queryParams = [
+            'page' => 1,
+        ];
+        dump($user->assembla_key.' '.$user->assembla_secret);
+        $response = AssemblaRequest::get("spaces/sommiercenter/tickets/custom_fields", $user->assembla_key, $user->assembla_secret, $queryParams);
+        $content = json_decode($response->getBody()->getContents(), 1);
+//        dd($content);
     }
 }

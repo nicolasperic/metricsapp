@@ -7,6 +7,8 @@
  */
 
 namespace App\Helper;
+use App\Dto\NotificationDto;
+use App\Notifications\AssemblaSynced;
 use App\Reports\HoursByUserReport;
 use App\Reports\HoursByUSReport;
 use App\Reports\SprintsReport;
@@ -37,15 +39,16 @@ class Helper {
         return $string;
     }
 
-    public static function getPercentageClass($percentageValue)
+    public static function getPercentageClass($percentageValue, $reverse = false)
     {
-        if ($percentageValue < 30) {//TODO this values should be configurable for the users
-            $percentageClass = 'bg-danger';
+        if ($percentageValue < 35) {//TODO this values should be configurable for the users
+            $percentageClass =  (!$reverse)? 'bg-danger' : 'bg-success';
         } else if ($percentageValue >= 30 && $percentageValue < 75) {
             $percentageClass = 'bg-warning';
         } else {
-            $percentageClass = 'bg-success';
+            $percentageClass = (!$reverse)? 'bg-success' : 'bg-danger';
         }
+
 
         return $percentageClass;
     }
@@ -163,5 +166,18 @@ class Helper {
     public static function getDateWithoutHours($dateString)
     {
         return explode(' ',$dateString)[0];
+    }
+
+    public static function getAssemblaSyncNotification($entityId, $url, $message)
+    {
+        $notificationDto = new NotificationDto([
+            'entity_id' => $entityId,
+            'url' => $url,
+            'message' => $message,
+            'date' => Carbon::now()->format('F d, Y g:i a'),
+            'bg_class' => 'bg-success',
+            'icon_class' =>'fa-download'
+        ]);
+        return new AssemblaSynced($notificationDto);
     }
 }

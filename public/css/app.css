@@ -10932,6 +10932,19 @@ a.text-dark:focus {
   padding-left: 16px;
 }
 
+.sprint-container .card-body.hours-per-user-table-container {
+  padding-top: 0px;
+  overflow-x: scroll;
+}
+
+.sprint-container .card-body.hours-per-user-table-container table.table-striped.hours-per-user-table {
+  display: table;
+}
+
+.sprint-container .card-body.hours-per-user-table-container table.table-striped.hours-per-user-table thead th {
+  border-top: none;
+}
+
 @media (max-width: 767.98px) {
   .container-fluid.sprint-container,
   .sprint-container.container-sm,
@@ -11039,6 +11052,25 @@ a.text-dark:focus {
 .alert.alert-info a {
   color: #4e73df;
   text-decoration: underline;
+}
+
+.planner-type {
+  padding: 3px 5px 3px;
+  border-radius: 3px;
+  line-height: 17px;
+  font-size: 11px;
+  cursor: pointer;
+  color: white;
+  position: relative;
+  top: -3px;
+}
+
+.planner-type.current {
+  background-color: #7ab966;
+}
+
+.planner-type.backlog {
+  background-color: #333637;
 }
 
 @media screen and (max-width: 1000px) {

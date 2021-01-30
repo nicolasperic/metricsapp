@@ -2,15 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Dto\NotificationDto;
+use App\Helper\Helper;
 use App\Importer\TicketImporter;
-use App\Notifications\AssemblaSynced;
 use App\Sprint;
 use App\User;
-use Carbon\Carbon;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -58,7 +55,11 @@ class SyncMilestone implements ShouldQueue//, ShouldBeUnique
             $ticketImporter->importMilestoneTickets($this->sprint);
             Log::info('SyncMilestone ended for '.$this->sprint->title);
 
-            $this->user->notify($this->getAssemblaSyncNotification());
+            $this->user->notify(Helper::getAssemblaSyncNotification(
+                $this->sprint->id,
+                url('sprints', $this->sprint->id),
+                $this->sprint->name.' was synced correctly'
+            ));
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
@@ -75,18 +76,5 @@ class SyncMilestone implements ShouldQueue//, ShouldBeUnique
     {
         return $this->sprint->sprint_assembla_id;
     }*/
-
-    private function getAssemblaSyncNotification()
-    {
-        $notificationDto = new NotificationDto([
-                'entity_id' => $this->sprint->id,
-                'url' => url('sprints', $this->sprint->id),
-                'message' => $this->sprint->name.' was synced correctly',
-                'date' => Carbon::now()->format('F d, Y g:i a'),
-                'bg_class' => 'bg-success',
-                'icon_class' =>'fa-sync'
-            ]);
-        return new AssemblaSynced($notificationDto);
-    }
 
 }

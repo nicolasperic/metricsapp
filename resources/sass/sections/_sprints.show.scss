@@ -2,6 +2,18 @@
     .user-story-type-stats {
         padding-left: 16px;
     }
+
+    .card-body.hours-per-user-table-container {
+        padding-top: 0px;
+        overflow-x: scroll;
+        table.table-striped.hours-per-user-table {
+            display: table;
+            thead th {
+                border-top: none;
+            }
+        }
+    }
+
 }
 @include media-breakpoint-down(sm) {
     .container-fluid.sprint-container {

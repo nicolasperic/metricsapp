@@ -45,8 +45,12 @@ class UserImporter
                 foreach ($assemblaUsers as $assemblaUserDto) {
                     $allSpaceUsersFromAPI[$assemblaUserDto->getUserAssemblaId()] = true;
 
-                    if (!AssemblaUser::userExists($assemblaUserDto->getUserAssemblaId())) {
+                    if (!AssemblaUser::userExists($assemblaUserDto->getUserAssemblaId())) {//TODO instead of exit load the entity
                         Log::info('[AssemblaUsers Importer] about to create user '.$assemblaUserDto->getName());
+                        $image = $this->assemblaGateway->getUserImage($assemblaUserDto->getUserAssemblaId());
+                        Log::info('Image obtained for user '.$image);
+                        $assemblaUserDto->setPicture($image);
+
                         $this->_createUserFromDTO($assemblaUserDto, $project);
                     } else {
                         $assemblaUser = AssemblaUser::getUserByAssemblaId($assemblaUserDto->getUserAssemblaId());

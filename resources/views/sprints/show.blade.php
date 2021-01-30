@@ -6,6 +6,7 @@
 @section('container-class','sprint-container')
 @section('content')
     <?php
+        $timeReport = $sprint->getTimeReport();
         $percentCompletedStories = $sprint->getPercentCompletedStories();
         $percentCompletedSubtasks = $sprint->getPercentCompletedSubtasks();
         $totalCompletedTickets = $sprint->getTotalCompletedTickets();
@@ -145,7 +146,7 @@
                                 <?php $remainingEstimatePercentage = ($totalCompletedEstimatePercentage != 0)?100 - $totalCompletedEstimatePercentage:0?>
                                 <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalRemainingEstimate }} remaining estimate {{ $remainingEstimatePercentage }}%">
                                     <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar {{Helper::getPercentageClass($remainingEstimatePercentage)}}" role="progressbar" style="width: {{ $remainingEstimatePercentage }}%" aria-valuenow="{{ $remainingEstimatePercentage }}" aria-valuemin="0" aria-valuemax="100">{{$remainingEstimatePercentage}}%</div>
+                                        <div class="progress-bar {{Helper::getPercentageClass($remainingEstimatePercentage, true)}}" role="progressbar" style="width: {{ $remainingEstimatePercentage }}%" aria-valuenow="{{ $remainingEstimatePercentage }}" aria-valuemin="0" aria-valuemax="100">{{$remainingEstimatePercentage}}%</div>
                                     </div>
                                 </div>
                             </div>
@@ -257,25 +258,145 @@
             </div>
         </div>
 
-        <div class="col-xl-6 col-lg-6">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Hours per user</h6>
-                    <!--div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-sync fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                    </div-->
+        <div class="col-xl-6 col-lg-6 mb-4">
+            <div id="flip-card">
+                <div class="card shadow mb-4 flip-card-front">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Hours per user</h6>
+
+                        <div class="dropdown no-arrow">
+                            <a class="flip-card" href="javascript:;" id="flip-card-btn-turn-to-back" data-toggle="tooltip" data-placement="top" title="Flip card for raw data">
+                                <i class="fas fa-sync fa-sm fa-fw text-gray-400"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="userHoursBarChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="userHoursBarChart"></canvas>
+
+                <div class="card shadow mb-4 flip-card-back">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Hours per user Raw data</h6>
+                        <div class="dropdown no-arrow">
+                            <a class="flip-card" href="javascript:;" id="flip-card-btn-turn-to-front">
+                                <i class="fas fa-sync fa-sm fa-fw text-gray-400"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body hours-per-user-table-container">
+                        <table class="table table-striped hours-per-user-table">
+                            <thead>
+                            <tr>
+                                <th scope="col">User</th>
+                                <th scope="col">Hours</th>
+                                <th scope="col">Tasks</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php $totalWorkedHours = $sprint->getTotalWorkedHours()?>
+                            @foreach($timeReport['user_hours'] as $user)
+                                <tr>
+                                    <td>{{$user['label']}}</td>
+                                    <td>{{$user['total_hours']}} hours ({{ Helper::getPercentageValue($user['total_hours'], $totalWorkedHours, $decimals = 2) }}%)</td>
+                                    <td>{{$user['total_tasks']}} tasks</td>
+                                </tr>
+                            @endforeach
+                            <tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
+
+
         </div>
+
+        <style>
+
+            .dropdown.no-arrow .flip-card i.fas.fa-sync.fa-sm.fa-fw.text-gray-400:hover {
+                color: #a8aab7 !important;
+            }
+
+           /* flip-card > [flip-card-front] y [flip-card-back]*/
+            #flip-card {
+                width: 100%;
+                height: 100%;
+                /*min-height: 410px;/*workaround*/
+
+                -o-transition: all 1s ease-in-out;
+                -webkit-transition: all 1s ease-in-out;
+                -ms-transition: all 1s ease-in-out;
+                transition: all 1s ease-in-out;
+                -o-transform-style: preserve-3d;
+                -webkit-transform-style: preserve-3d;
+                -ms-transform-style: preserve-3d;
+                transform-style: preserve-3d;
+            }
+            .do-flip {
+                -o-transform: rotateY(-180deg);
+                -webkit-transform: rotateY(-180deg);
+                -ms-transform: rotateY(-180deg);
+                transform: rotateY(-180deg);
+            }
+            #flip-card-btn-turn-to-back, #flip-card-btn-turn-to-front {
+
+
+
+            }
+            #flip-card .flip-card-front, #flip-card .flip-card-back{
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                -o-backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+                -ms-backface-visibility: hidden;
+                backface-visibility: hidden;
+                z-index: 2;
+            }
+
+            #flip-card .flip-card-back {
+                -o-transform: rotateY(180deg);
+                -webkit-transform: rotateY(180deg);
+                -ms-transform: rotateY(180deg);
+                transform: rotateY(180deg);
+            }
+        </style>
+        <script type="text/javascript">
+
+
+
+            if ($('.chart-area').height() <= 320) {
+                $('#flip-card').height($('.chart-area').height() + 100);
+            }
+            $(window).on("resize", function () {
+                if ($('.chart-area').height() <= 320) {
+                    $('#flip-card').height($('.chart-area').height() + 100);
+                }
+            });
+
+
+            document.addEventListener('DOMContentLoaded', function(event) {
+
+                document.getElementById('flip-card-btn-turn-to-back').style.visibility = 'visible';
+                document.getElementById('flip-card-btn-turn-to-front').style.visibility = 'visible';
+
+                document.getElementById('flip-card-btn-turn-to-back').onclick = function() {
+                    document.getElementById('flip-card').classList.toggle('do-flip');
+                };
+
+                document.getElementById('flip-card-btn-turn-to-front').onclick = function() {
+                    document.getElementById('flip-card').classList.toggle('do-flip');
+                };
+
+            });
+        </script>
 
         <!-- Pie Chart -->
         <div class="col-xl-6 col-lg-6">
@@ -429,7 +550,7 @@
     <script type="text/javascript">
         var sprintName = "{!! $sprint->name !!}";
         var percentages = {!! json_encode($sprint->getUserStoriesTypePercentages()) !!};
-        var timeReport = {!! json_encode($sprint->getTimeReport()) !!};
+        var timeReport = {!! json_encode($timeReport) !!};
         console.log(timeReport);
     </script>
 @endsection

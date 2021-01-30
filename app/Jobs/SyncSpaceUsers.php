@@ -2,12 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Dto\NotificationDto;
+use App\Helper\Helper;
 use App\Importer\UserImporter;
-use App\Notifications\AssemblaSynced;
 use App\Project;
 use App\User;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,19 +45,11 @@ class SyncSpaceUsers implements ShouldQueue
     {
         $userImporter = new UserImporter($this->user);
         $userImporter->importSpaceUsers($this->project);
-        $this->user->notify($this->getAssemblaSyncNotification());
+        $this->user->notify(Helper::getAssemblaSyncNotification(
+            $this->project->id,
+            url('projects', $this->project->id),
+            $this->project->name.' users were synced correctly'
+        ));
     }
 
-    private function getAssemblaSyncNotification()
-    {
-        $notificationDto = new NotificationDto([
-            'entity_id' => $this->project->id,
-            'url' => url('projects', $this->project->id),
-            'message' => $this->project->name.' users were synced correctly',
-            'date' => Carbon::now()->format('F d, Y g:i a'),
-            'bg_class' => 'bg-success',
-            'icon_class' =>'fa-sync'
-        ]);
-        return new AssemblaSynced($notificationDto);
-    }
 }

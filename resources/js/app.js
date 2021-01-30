@@ -74,13 +74,11 @@ function showNotifications(notifications, target) {
 
         $('#notifications-counter').html(notifications.length+'+');
         $('#notifications-counter').addClass('badge-danger');
+        $('#mark-notifications-as-read').show();
     } else {
         $('#notifications-counter').html('');
         $('#user-notifications').html(noNotificationsMessage());
         $('#notifications-counter').removeClass('badge-danger');
-
-        $(target + 'Menu').html('<li class="dropdown-header">No notifications</li>');
-        $(target).removeClass('has-notifications');
     }
 }
 

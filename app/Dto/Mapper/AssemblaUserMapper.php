@@ -16,7 +16,8 @@ class AssemblaUserMapper extends AbstractMapper
             'user_assembla_id' => $assemblaUserDto->getUserAssemblaId(),
             'login' => $assemblaUserDto->getLogin(),
             'name' => $assemblaUserDto->getName(),
-            'email' => $assemblaUserDto->getEmail()
+            'email' => $assemblaUserDto->getEmail(),
+            'picture' => $assemblaUserDto->getPicture()
         ]);
 
 

@@ -305,7 +305,7 @@ class TrackedTimeByUserStoryTest
      * Una única llamada con los ticket ID's (iterar páginas si hay muchas tasks)
      * API doc: https://api-docs.assembla.cc/content/ref/tasks_index.html
      *
-     * @test
+     * test
      */
     function can_get_grouped_tickets_report()
     {

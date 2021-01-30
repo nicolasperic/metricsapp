@@ -41,6 +41,40 @@ class ProjectsController extends Controller
         return response()->json(['id' => $project->id]);
     }
 
+    public function syncable($id)
+    {
+        $project = Auth::user()->projects()->findOrFail($id);
+
+        $syncable = (request('syncable_project') !== null)?1:0;
+
+        Auth::user()->projects()->updateExistingPivot($project->id,['syncable' => $syncable]);
+
+
+        return response()->json(['id' => $project->id]);
+    }
+
+    public function shared($id)
+    {
+        $project = Auth::user()->projects()->findOrFail($id);
+        $shared = (request('shared_project') !== null)?1:0;
+        $project->shared = $shared;
+        $project->save();
+
+
+        return response()->json(['id' => $project->id]);
+    }
+
+    public function estimate($id)
+    {
+        $project = Auth::user()->projects()->findOrFail($id);
+        $estimateType = request('estimate_type');
+        $project->estimate_type = $estimateType;
+        $project->save();
+
+
+        return response()->json(['id' => $project->id]);
+    }
+
     /**
      * This function is used for importing user projects (assembla spaces)
      *
@@ -48,8 +82,6 @@ class ProjectsController extends Controller
      */
     public function syncProjects()
     {
-
-
         try {
             SyncSpaces::dispatch(Auth::user());
             SessionMessage::infoMessage("Projects sync job was added to the queue");
@@ -74,5 +106,22 @@ class ProjectsController extends Controller
         }
 
         return redirect()->route('projects.index');
+    }
+
+    public function settingsPane($id)
+    {
+        $project = Auth::user()->projects()->findOrFail($id);
+        return view('projects.partials.settings', [
+            'project' => $project
+        ]);
+    }
+
+    public function projectPane($id)
+    {
+        $project = Auth::user()->projects()->findOrFail($id);
+        return view('projects.partials.project', [
+            'project' => $project
+        ]);
+
     }
 }
