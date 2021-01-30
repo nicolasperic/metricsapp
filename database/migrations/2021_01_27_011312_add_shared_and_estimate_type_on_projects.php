@@ -16,7 +16,7 @@ class AddSharedAndEstimateTypeOnProjects extends Migration
     {
         Schema::table('projects', function (Blueprint $table) {
             $table->boolean('shared')->default(0)->after('status');
-            $table->integer('estimate_type')->unsigned()->default(Project::ESTIMATE_STORY_POINTS)->after('shared');
+            $table->integer('estimate_type')->unsigned()->default(Project::ESTIMATE_POINTS)->after('shared');
         });
     }
 
