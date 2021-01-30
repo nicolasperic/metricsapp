@@ -216,7 +216,7 @@
                         @if (count($projects))
                             <select name="projects[]"  id="projects" multiple class="select picker" data-size="10"  data-live-search="true">
                                 @foreach($projects as $project)
-                                    <option value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('projects')) selected @endif data-wikiname="{{ $project->wikiname }}">{{ $project->name }}</option>
+                                    <option shared="{{ $project->shared }}" value="{{ $project->project_assembla_id }}" @if($project->project_assembla_id == old('projects')) selected @endif data-wikiname="{{ $project->wikiname }}">{{ $project->name }}</option>
                                 @endforeach
                             </select>
                             @error('projects')
@@ -228,9 +228,9 @@
                     </div>
                 </div>
 
-                <div class="field">
-                    <label class="label" for="title">Users</label>
-
+                <div class="field mt-2 mb-2" id="users-field">
+                    <label class="label d-block" for="title">Users</label>
+                    <small>You've selected a shared project, filter the tracked time by selecting your team</small>
 
                     <div class="control">
                         @if (count($users))
@@ -364,6 +364,22 @@
             e.preventDefault();
         });
 
+
+        let shared = 0;
+        $('#projects').change(function () {
+
+            shared = 0;
+            $('#projects > option:selected').each(function() {
+                if ($(this).attr('shared') == 1) {
+                    shared = 1;
+                }
+            });
+            if (shared) {
+                $('#users-field').show();
+            } else {
+                $('#users-field').hide();
+            }
+        });
 
 
 

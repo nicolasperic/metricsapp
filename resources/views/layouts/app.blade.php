@@ -372,11 +372,12 @@
         $('#mark-notifications-as-read').click(function(){
             event.preventDefault();
             $.post('/notifications/markNotificationsAsRead', {"_token": "{{ csrf_token() }}"}, function(response){
-                $('#user-notifications').html('<a class=\"dropdown-item d-flex align-items-center\"><div><div class=\"small text-gray-500\">No notifications</div></div></a>');
-                $('#notifications-counter').html('');
-                $('#notifications-counter').removeClass('badge-danger');
-                $('#mark-notifications-as-read').hide();
-
+                if (response && response.result == 'success') {
+                    $('#user-notifications').html('<a class=\"dropdown-item d-flex align-items-center\"><div><div class=\"small text-gray-500\">No notifications</div></div></a>');
+                    $('#notifications-counter').html('');
+                    $('#notifications-counter').removeClass('badge-danger');
+                    $('#mark-notifications-as-read').hide();
+                }
             });
 
         });

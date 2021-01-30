@@ -104,7 +104,8 @@ class HoursByUserReport extends Report implements ReportInterface
                 }
 
                 foreach ($result as $timeTracked) {
-                    if ($wikiname == 'summa-internal-projects') {//TODO this is hardcoded here, validate if project is "shared
+                    if ($project->shared) {
+                        Log::info('Filtering members for shared project '.$wikiname);
                         if ($teamMembers && !array_key_exists($timeTracked['user_id'], $teamMembers)) {
                             continue;
                         }
