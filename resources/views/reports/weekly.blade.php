@@ -29,7 +29,7 @@
                             </div>
                         </div>
 
-                        <div class="field mt-4" id="users-field">
+                        <div class="field mt-4" id="users-field" style="display: none;">
                             <label class="label d-block" for="title">Users</label>
                             <small>You've selected a shared project, filter the tracked time by selecting your team</small>
                             <div class="control">
