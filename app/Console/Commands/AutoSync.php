@@ -57,7 +57,7 @@ class AutoSync extends Command
             $user = User::find($projectData->user_id);
 
             return [
-                new SyncSpaceMilestones($user, $project),
+                new SyncSpaceMilestones($user, $project, false),
                 new SyncSpaceCurrentMilestone($user, $project)
             ];
         })
