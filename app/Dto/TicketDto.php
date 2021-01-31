@@ -22,11 +22,9 @@ class TicketDto
     /** @var  int priority */
     private $priority;
     /** @var  string milestone ID */
-    private $milestoneId;//not really sure if we need to know this
+    private $milestoneId;
     /** @var  string  user assigned to ticket*/
     private $assignedToId;
-    /** @var  int story points */
-    private $complexity;
     /** @var  string type */
     private $type;
     /** @var  float estimate (it can be hours, story points based on space configuration) */
@@ -77,8 +75,7 @@ class TicketDto
         $this->setState($data['state']);
         $this->setStatus($data['status']);
         $this->setMilestoneId($data['milestone_id']);
-        $this->setComplexity($this->_validate('Complexity', $data['custom_fields'], 0));//TODO remove, this is custom for our projects
-        $this->setType($this->_validate('Type', $data['custom_fields']));//TODO remove, this is custom for our projects
+        $this->setType($this->_validate('Type', $data['custom_fields']));//this is custom but it's a feature!
         $this->setAssignedToId($data['assigned_to_id']);
         $this->setSpaceId($data['space_id']);
         $this->setSpaceName($this->_validate('space_name', $data));
@@ -313,25 +310,6 @@ class TicketDto
     /**
      * @return mixed
      */
-    public function getComplexity()
-    {
-        if (empty($this->complexity)) {
-            $this->complexity = 0;
-        }
-        return $this->complexity;
-    }
-
-    /**
-     * @param mixed $complexity
-     */
-    public function setComplexity($complexity)
-    {
-        $this->complexity = $complexity;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getState()
     {
         return $this->state;
@@ -486,7 +464,6 @@ class TicketDto
         'Priority: '.$this->getPriority().PHP_EOL.
         'Milestone ID: '.$this->getMilestoneId().PHP_EOL.
         'Assigned to ID: '.$this->getAssignedToId().PHP_EOL.
-        'Complexity: '.$this->getComplexity().PHP_EOL.
         'State: '.$this->getState().PHP_EOL.
         'Status: '.$this->getStatus().PHP_EOL.
         'Ticket Assembla ID: '.$this->getTicketAssemblaId().PHP_EOL;

@@ -223,7 +223,7 @@
                                     Alerts Center
                                 </h6>
                                 <div id="user-notifications"></div>
-                                <a id="mark-notifications-as-read" class="dropdown-item text-center small text-gray-500" href="javascript:;">Mark all as read</a>
+                                <a id="mark-notifications-as-read" class="dropdown-item text-center small text-gray-500" href="javascript:;" style="display: none;">Mark all as read</a>
                             </div>
                         </li>
                     @endif

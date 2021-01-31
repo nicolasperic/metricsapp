@@ -74,10 +74,11 @@ Features
 
 Atributos configs de space:
 DONE - Starred: favorito, lo agrego en el menú (+ current) | esto es por usuario en un PIVOT en project_user
-DONE - Auto_importing Assembla API (por usario en PIVOT)
+DONE - syncable Auto_importing Assembla API (por usario en PIVOT)
 - espacio "trackeable": para los dropdowns de reportes y task timer (muy verde aún)//esto es por usuario PIVOT
-- espacio compartido (para usar el filtro de equipo en el reporte de horas)
-- estimate: hours, story points, [small, medium, large]
+    //más que "trackeable", tmb puedo considerar ENABLED/DISABLED por user inda HIDE/SHOW  si no querés verlo en dropdowns
+DONE - espacio compartido (para usar el filtro de equipo en el reporte de horas)
+DONE - estimate: hours, story points, [small, medium, large]
 
 Widgets configurables | Type > pie chart, X opciones, Y default, Z colores
     - name: US Type

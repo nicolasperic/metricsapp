@@ -16,7 +16,8 @@ class CreateReportsTable extends Migration
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id')->unsigned();
-            $table->string('request_data');
+            $table->string('type');
+            $table->json('request_data');
             $table->integer('status')->default(0);//0 pending, 1 running, 2 processed, 3 fail
             $table->longtext('title')->nullable();
             $table->longtext('body')->nullable();

@@ -66,7 +66,7 @@ class Sprint extends Model
      */
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class)->orderBy('story_points', 'DESC')->orderBy('number', 'DESC');
+        return $this->belongsToMany(Ticket::class)->orderBy('estimate', 'DESC')->orderBy('number', 'DESC');
     }
 
     /**
@@ -274,7 +274,7 @@ class Sprint extends Model
     public function getUserStoriesWithoutStoryPoints()
     {
         if (!isset($this->userStoriesWithoutStoryPointsTotal)) {
-            $this->userStoriesWithoutStoryPointsTotal = $this->tickets()->where('story_points', 0)->where('is_story', true)->count();
+            $this->userStoriesWithoutStoryPointsTotal = $this->tickets()->where('estimate', 0)->where('is_story', true)->count();
         }
         return $this->userStoriesWithoutStoryPointsTotal;
     }
@@ -311,7 +311,7 @@ class Sprint extends Model
     public function getCompletedStoryPoints()
     {
         if (!isset($this->completedStoryPointsTotal)) {
-            $this->completedStoryPointsTotal = $this->getCompletedTickets()->sum('story_points');
+            $this->completedStoryPointsTotal = $this->getCompletedTickets()->sum('estimate');
         }
         return $this->completedStoryPointsTotal;
     }
@@ -323,7 +323,7 @@ class Sprint extends Model
     public function getTotalStoryPoints()
     {
         if (!isset($this->totalStoryPoints)) {
-            $this->totalStoryPoints = $this->tickets()->sum('story_points');
+            $this->totalStoryPoints = $this->tickets()->sum('estimate');
         }
         return $this->totalStoryPoints;
     }

@@ -21,7 +21,6 @@ class TicketMapper extends AbstractMapper
             'sprint_assembla_id' => $ticketDto->getMilestoneId(),
             'assigned_to_user_assembla_id' => $ticketDto->getAssignedToId(),
             'is_story' => $ticketDto->isStory(),
-            'story_points' => $ticketDto->getEstimate(),//TODO this mapping needs to be configurable (story_points)
             'estimate' => $ticketDto->getEstimate(),
             'total_estimate' => $ticketDto->getTotalEstimate(),
             'total_invested_hours' => $ticketDto->getTotalInvestedHours(),
@@ -65,11 +64,6 @@ class TicketMapper extends AbstractMapper
 
         if ($ticketDto->isStory() !== $ticket->is_story) {
             $ticket->is_story = $ticketDto->isStory();
-            $changed = true;
-        }
-
-        if ($ticketDto->getEstimate() !== $ticket->story_points) {//TODO eventually remove this ("story points" label is configurable)
-            $ticket->story_points = $ticketDto->getEstimate();
             $changed = true;
         }
 

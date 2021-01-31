@@ -2,6 +2,7 @@
 
 namespace App\Importer;
 
+use App\Dto\Mapper\TicketMapper;
 use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Dto\TicketTimeDto;
@@ -111,24 +112,14 @@ TASK DATA
         Log::info('[Ticket Importer] Ended');
     }
 
+    /**TODO this function si repeated with TicketMapper class, the whole file needs to be checked!
+     * @param TicketDto $ticketDto
+     * @param           $sprint
+     * @param           $project
+     */
     private function _createTicketFromDTO(TicketDto $ticketDto, $sprint, $project)
     {
-        $ticket = Ticket::create([
-            'project_id' => $project->id,
-            'name' => $ticketDto->getSummary(),
-            'number' => $ticketDto->getNumber(),
-            'status' => $ticketDto->getStatus(),
-            'state' => $ticketDto->getState(),
-            'ticket_assembla_id' => $ticketDto->getTicketAssemblaId(),
-            'is_story' => $ticketDto->isStory(),
-            'story_points' => $ticketDto->getEstimate(),//TODO this mapping needs to be configurable (story_points)
-            'total_invested_hours' => $ticketDto->getTotalInvestedHours(),
-            'worked_hours' => $ticketDto->getWorkedHours(),
-            'type' => $ticketDto->getType(),
-            'started_at' => $this->_getParsedDate($ticketDto->getCreatedOn()),//todo started on is not real
-            'created_at' => $this->_getParsedDate($ticketDto->getCreatedOn()),
-            'completed_at' => $this->_getParsedDate($ticketDto->getCompletedDate()),
-        ]);
+        $ticket = TicketMapper::createTicketFromDTO($ticketDto, $project);
         Log::info("Ticket created {$ticketDto->getNumber()} {$ticketDto->getStatus()} {$ticketDto->getCompletedDate()}".Carbon::parse($ticketDto->getCompletedDate()));
         Log::info('[Ticket Importer] adding ticket to sprint '.$ticketDto->getNumber());
         $this->_addTicketToSprint($ticket, $sprint);

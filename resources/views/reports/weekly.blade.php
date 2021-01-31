@@ -4,9 +4,11 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">Set your weekly report</div>
-                    <span style="margin-left: 20px">* report will be generated each Monday with the last week time entries</span>
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Set your weekly report</h6>
+                    </div>
+                    <small class="ml-4">Report will be generated each Monday with the last week time entries</small>
                     <form method="POST" action="{{url("reports/weeklyStore")}}" style="padding: 20px;">
                         @csrf
 
@@ -24,7 +26,7 @@
                                     <p class="help is-danger">{{ $errors->first('projects') }}</p>
                                     @enderror
                                 @else
-                                    No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
+                                    No projects yet, <a href="{{ route('projects.sync') }}">Import Projects</a>
                                 @endif
                             </div>
                         </div>
@@ -61,6 +63,18 @@
 
     <script type="text/javascript">
         let shared = 0;
+        $(document).ready( function () {
+            $('#projects > option:selected').each(function() {
+                if ($(this).attr('shared') == 1) {
+                    shared = 1;
+                }
+            });
+            if (shared) {
+                $('#users-field').show();
+            } else {
+                $('#users-field').hide();
+            }
+        });
         $('#projects').change(function (e) {
             shared = 0;
             $('#projects > option:selected').each(function() {

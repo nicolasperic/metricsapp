@@ -16,7 +16,7 @@ class SettingsController extends Controller
 
     public function index()
     {
-        return view('settings.index');
+        return view('settings.index', ['user' => Auth::user()]);
     }
 
     /**
@@ -62,6 +62,7 @@ class SettingsController extends Controller
             $assemblaUserDto = $gateway->getAuthenticatedUser();
             $imagePath = $gateway->getUserImage($assemblaUserDto->getUserAssemblaId());
             $user->assembla_user_image = $imagePath;
+            $user->assembla_username = $assemblaUserDto->getName();
             $user->user_assembla_id = $assemblaUserDto->getUserAssemblaId();
             $user->save();
             $success = true;

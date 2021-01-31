@@ -144,7 +144,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => Carbon::parse($createdDays.' days ago'),
                 'status' => $status,
                 'name' => $project->code.'-'.$i.': a ticket summary',
-                'story_points' => $this->fibonacciStoryPoints[array_rand($this->fibonacciStoryPoints)]
+                'estimate' => $this->fibonacciStoryPoints[array_rand($this->fibonacciStoryPoints)]
             ];
 
             $ticket = factory(Ticket::class)->create(array_merge($ticketData, $statusBasedData));

@@ -76,7 +76,6 @@ class TicketTest
         $this->assertEquals('[US] Análisis Integración con Producteca', $ticketDto->getSummary());
         $this->assertEquals('Sommier Center', $ticketDto->getSpaceName());
         $this->assertEquals(5, $ticketDto->getEstimate());
-        $this->assertEquals(0, $ticketDto->getComplexity());
         $this->assertEquals('Requirement', $ticketDto->getType());
     }
 

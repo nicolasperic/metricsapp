@@ -88,7 +88,7 @@
                                         <p class="help is-danger">{{ $errors->first('project') }}</p>
                                         @enderror
                                     @else
-                                        No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
+                                        No projects yet, <a href="{{ route('projects.sync') }}">Import Projects</a>
                                     @endif
                                 </div>
                             </div>
@@ -155,7 +155,7 @@
                             <p class="help is-danger">{{ $errors->first('project') }}</p>
                             @enderror
                         @else
-                            No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
+                            No projects yet, <a href="{{ route('projects.sync') }}">Import Projects</a>
                         @endif
 
                     </div>
@@ -223,7 +223,7 @@
                             <p class="help is-danger">{{ $errors->first('projects') }}</p>
                             @enderror
                         @else
-                            No projects yet, <a href="{{url("projects/importProjects")}}">Import Projects</a>
+                            No projects yet, <a href="{{ route('projects.sync') }}">Import Projects</a>
                         @endif
                     </div>
                 </div>
@@ -317,7 +317,7 @@
                                 <p class="help is-danger">{{ $errors->first('sprints') }}</p>
                                 @enderror
                             @else
-                                No sprints yet, <a href="{{url("projects/importProjects")}}">Import Projects</a> and then import sprints from a project page
+                                No sprints yet, <a href="{{ route('projects.sync') }}">Import Projects</a> and then import sprints from a project page
                             @endif
                         </div>
                         </div>

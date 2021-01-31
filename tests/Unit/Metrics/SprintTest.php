@@ -101,17 +101,17 @@ class SprintTest extends TestCase
     }
 
     /** @test */
-    function can_calculate_sprint_total_story_points()
+    function can_calculate_sprint_total_estimate()
     {
         $sprint = Sprint::factory()->create();
         $ticketA = Ticket::factory()->create([
-            'story_points' => 5,
+            'estimate' => 5,
         ]);
         $ticketB = Ticket::factory()->create([
-            'story_points' => 8,
+            'estimate' => 8,
         ]);
         $ticketC = Ticket::factory()->create([
-            'story_points' => 13,
+            'estimate' => 13,
         ]);
 
 
@@ -122,17 +122,17 @@ class SprintTest extends TestCase
     }
 
     /** @test */
-    function can_calculate_sprint_completed_story_points()
+    function can_calculate_sprint_completed_estimate()
     {
         $sprint = Sprint::factory()->create();
         $ticketA = Ticket::factory()->completed()->create([
-            'story_points' => 5,
+            'estimate' => 5,
         ]);
         $ticketB = Ticket::factory()->completed()->create([
-            'story_points' => 8,
+            'estimate' => 8,
         ]);
         $ticketC = Ticket::factory()->create([
-            'story_points' => 13,
+            'estimate' => 13,
         ]);
 
 
@@ -198,17 +198,17 @@ class SprintTest extends TestCase
     }
 
     /** @test */
-    function can_calculate_sprint_percent_completed_story_points()
+    function can_calculate_sprint_percent_completed_estimate()
     {
         $sprint = Sprint::factory()->create();
         $ticketA = Ticket::factory()->completed()->create([
-            'story_points' => 5,
+            'estimate' => 5,
         ]);
         $ticketB = Ticket::factory()->completed()->create([
-            'story_points' => 8,
+            'estimate' => 8,
         ]);
         $ticketC = Ticket::factory()->create([
-            'story_points' => 8,
+            'estimate' => 8,
         ]);
 
 

@@ -18,6 +18,7 @@ class CreateProjectUserTable extends Migration
             $table->unsignedInteger('project_id');
             $table->unsignedInteger('user_id');
             $table->boolean('starred')->default(0); //$message->users()->updateExistingPivot($user, array('status' => 1), false);
+            $table->boolean('syncable')->default(0);
             $table->timestamps();
         });
     }

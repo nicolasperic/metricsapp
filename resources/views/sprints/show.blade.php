@@ -16,6 +16,7 @@
 
     <div class="actions" style="position: relative; top: -55px; width: 80%;">
         <a href="{{ url("tickets/syncTickets/{$sprint->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Tickets</a>
+        <small><i>Last synced on {{$sprint->updated_at }} ({{Helper::getTimeDiff($sprint->updated_at)}})</i></small>
     </div>
     <div class="row">
         <!-- Total Hours Card -->
@@ -522,7 +523,7 @@
                                     <?php $status .= '⏱'; ?>
                                 @endif
 
-                                @if($ticket->story_points == 0)
+                                @if($ticket->estimate == 0)
                                     <?php $status .= '🚨'; ?>
                                 @endif
                                 <tr>
@@ -531,7 +532,7 @@
                                         <a href="https://app.assembla.com/spaces/{{$project->wikiname}}/tickets/{{$ticket->number}}" target="_blank">{{ $ticket->number }} {{ Helper::substrIf($ticket->name, 75)}}</a>
                                     </th>
                                     <td>{{ $ticket->status }}</td>
-                                    <td>{{ $ticket->story_points }}</td>
+                                    <td>{{ $ticket->estimate }}</td>
                                     <td>{{ $ticket->total_invested_hours }}</td>
                                 </tr>
                             @endif

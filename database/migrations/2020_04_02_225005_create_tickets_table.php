@@ -24,7 +24,6 @@ class CreateTicketsTable extends Migration
             $table->string('sprint_assembla_id')->nullable();
             $table->string('assigned_to_user_assembla_id')->nullable();
             $table->boolean('is_story');
-            $table->integer('story_points')->nullable();
             $table->string('type')->nullable();
             $table->unsignedFloat('total_invested_hours')->default(0);
             $table->unsignedFloat('worked_hours')->default(0);

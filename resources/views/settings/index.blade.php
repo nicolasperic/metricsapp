@@ -6,7 +6,7 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="card shadow mb-8">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Settings</h6>
@@ -16,22 +16,29 @@
                         @csrf
                         <div class="form-group">
                             <label for="name">Name</label>
-                            <input type="text" class="input form-control @error('name') is-danger @enderror" id="name" name="name"  value="{{ old('name', Auth::user()->name) }}">
+                            <input type="text" class="input form-control @error('name') is-danger @enderror" id="name" name="name"  value="{{ old('name', $user->name) }}">
                             @error('name')
                             <p class="help is-danger">{{ $errors->first('name') }}</p>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label for="email">Email address</label>
-                            <input type="email" class="input form-control @error('email') is-danger @enderror" id="email" name="email" aria-describedby="emailHelp" placeholder="Enter email" value="{{ old('email', Auth::user()->email) }}">
+                            <input type="email" class="input form-control @error('email') is-danger @enderror" id="email" name="email" aria-describedby="emailHelp" placeholder="Enter email" value="{{ old('email', $user->email) }}">
                             <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                             @error('email')
                             <p class="help is-danger">{{ $errors->first('email') }}</p>
                             @enderror
                         </div>
+
+                        @if($user->assembla_username)
+                            <div class="logged-in-as mb-2">
+                                <strong>Logged in as:</strong> <span class="btn btn-success">{{ $user->assembla_username }}</span>
+                            </div>
+                        @endif
+                        
                         <div class="form-group">
                             <label for="assembla_key">Assembla Key</label>
-                            <input type="text" class="input form-control @error('assembla_key') is-danger @enderror" id="assembla_key" name="assembla_key" placeholder="Assembla Key" value="{{ old('assembla_key',Auth::user()->assembla_key) }}">
+                            <input type="text" class="input form-control @error('assembla_key') is-danger @enderror" id="assembla_key" name="assembla_key" placeholder="Assembla Key" value="{{ old('assembla_key',$user->assembla_key) }}">
                             <small id="emailHelp" class="form-text text-muted">Key and Secret can be found in <a href="https://app.assembla.com/user/edit/manage_clients" target="_blank">Assembla</a></small>
                             @error('assembla_key')
                             <p class="help is-danger">{{ $errors->first('assembla_key') }}</p>
@@ -41,7 +48,7 @@
 
                         <div class="form-group">
                             <label for="assembla_secret">Assembla Secret</label>
-                            <input type="password" class="input form-control @error('assembla_secret') is-danger @enderror" id="assembla_secret" name="assembla_secret" placeholder="Assembla Secret" value="{{ old('assembla_secret',(Auth::user()->assembla_secret)?Crypt::decrypt(Auth::user()->assembla_secret):'') }}">
+                            <input type="password" class="input form-control @error('assembla_secret') is-danger @enderror" id="assembla_secret" name="assembla_secret" placeholder="Assembla Secret" value="{{ old('assembla_secret',($user->assembla_secret)?Crypt::decrypt($user->assembla_secret):'') }}">
                             @error('assembla_secret')
                             <p class="help is-danger">{{ $errors->first('assembla_secret') }}</p>
                             @enderror

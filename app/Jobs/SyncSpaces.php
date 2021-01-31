@@ -42,7 +42,7 @@ class SyncSpaces implements ShouldQueue
         $projectImporter->importAllAssemblaSpacesAsProjects();
         $this->user->notify(Helper::getAssemblaSyncNotification(
             null,
-            url('projects/index'),
+            route('projects.index'),
             'Projects were synced correctly'
             ));
     }

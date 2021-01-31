@@ -77,12 +77,9 @@ class MilestoneTest
         foreach ($result as $ticket) {
 
 
-            $complexity = '';
-            if (array_key_exists('custom_fields', $ticket) && is_array($ticket['custom_fields'])) {
-                $complexity = $ticket['custom_fields']['Complexity'];
-            }
 
-            print '#'.$ticket['number'].' '.$ticket['summary'].' '.$complexity.PHP_EOL;
+
+            print '#'.$ticket['number'].' '.$ticket['summary'].PHP_EOL;
         }
 
         return;

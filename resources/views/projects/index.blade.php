@@ -44,7 +44,7 @@
 
 
                             @empty
-                                <p>No projects imported yet. What are you waiting for? Import your projects <a href="{{url("projects/importProjects")}}">here!<a/></p>
+                                <p>No projects imported yet. What are you waiting for? Import your projects <a href="{{ route('projects.sync') }}">here!<a/></p>
                             @endforelse
                         </ul>
 
