@@ -46,6 +46,11 @@ class AutoSync extends Command
     public function handle()
     {
 
+        //workaround to prevent scheduling more than one autosync batch of jobs! (this is for Heroku since the CRON does not awake the worker)
+        $unprocessedBatches = DB::table('job_batches')->where('name','=','AutoSync')->where('pending_jobs','>','0')->count();
+        if ($unprocessedBatches !== 0) {
+            return;
+        }
         //Retrieve all syncable projects to dispatch the required jobs
         $syncableProjects = DB::table('projects') ->join('project_user', function ($join)
         { $join->on('projects.id', '=', 'project_user.project_id') ->where('project_user.syncable',
@@ -72,7 +77,7 @@ class AutoSync extends Command
                 // First batch job failure detected...
             })->finally(function (Batch $batch) {
                 print 'AutoSync batches are done'.PHP_EOL;
-            })->dispatch();;
+            })->name('AutoSync')->dispatch();;
         return 0;
     }
 }
