@@ -58,7 +58,7 @@
 
         <div class="card shadow mb-12">
             <div class="card-header">
-                <h6 class="m-0 font-weight-bold text-primary">Hours by User Story Report</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Tracked Time by User Story Report</h6>
             </div>
             <form method="POST" action="{{url("reports/hoursByUs")}}" style="padding: 20px;">
                 @csrf
@@ -76,7 +76,7 @@
                         <div class="w-33">
                             <div class="p-1">
 
-                                <small class="text-uppercase">Project</small>
+                                <small class="text-uppercase">Space</small>
                                 <div class="control">
                                     @if (count($projects))
                                         <select name="project" id="project" class="select picker" data-size="10" data-live-search="true">
@@ -88,7 +88,7 @@
                                         <p class="help is-danger">{{ $errors->first('project') }}</p>
                                         @enderror
                                     @else
-                                        No projects yet, <a href="{{ route('projects.sync') }}">Import Projects</a>
+                                        No spaces yet, <a href="{{ route('projects.sync') }}">Import spaces</a>
                                     @endif
                                 </div>
                             </div>
@@ -203,13 +203,13 @@
 
         <div class="card shadow mt-4">
             <div class="card-header">
-                <h6 class="m-0 font-weight-bold text-primary">Hours by Users Report</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Tracked Time by Users/Spaces Report</h6>
             </div>
             <form method="POST" action="{{url("reports/hoursByUser")}}" style="padding: 20px 20px 20px 40px;">
                 @csrf
 
                 <div class="field">
-                    <label class="label" for="title">Projects</label>
+                    <label class="label" for="title">Spaces</label>
 
 
                     <div class="control">
@@ -223,14 +223,14 @@
                             <p class="help is-danger">{{ $errors->first('projects') }}</p>
                             @enderror
                         @else
-                            No projects yet, <a href="{{ route('projects.sync') }}">Import Projects</a>
+                            No spaces yet, <a href="{{ route('projects.sync') }}">Import Spaces</a>
                         @endif
                     </div>
                 </div>
 
                 <div class="field mt-2 mb-2" id="users-field" style="display: none;">
                     <label class="label d-block" for="title">Users</label>
-                    <small>You've selected a shared project, filter the tracked time by selecting your team</small>
+                    <small>You've selected a shared space, filter the tracked time by selecting your team. Only shared spaces will be filtered.</small>
 
                     <div class="control">
                         @if (count($users))
@@ -243,7 +243,7 @@
                             <p class="help is-danger">{{ $errors->first('users') }}</p>
                             @enderror
                         @else
-                            No users yet, users can be imported by space from each project page</a>
+                            No users yet, users can be imported by space from each space page</a>
                         @endif
                     </div>
                 </div>
@@ -289,18 +289,18 @@
 
             <div class="card shadow mt-4">
                 <div class="card-header">
-                    <h6 class="m-0 font-weight-bold text-primary">Sprints Report</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Milestones Report</h6>
                 </div>
                 <form method="POST" action="{{url("reports/generateSprintsReport")}}" style="padding: 20px 20px 20px 40px;">
                     @csrf
 
                     <div class="field">
-                        <label class="label" for="title">Sprints</label>
+                        <label class="label" for="title">Milestones</label>
 
 
                         @if (count($currentSprints))
                         <div class="shortcuts small">
-                            <a href="#" class="set-current-sprints-link">Set Current Sprints</a>
+                            <a href="#" class="set-current-sprints-link">Set Current Milestones</a>
                         </div>
                         @endif
 
@@ -312,12 +312,12 @@
                                     @endforeach
                                 </select>
 
-                                <p class="help">A maximum of 12 sprints can be selected</p>
+                                <p class="help">A maximum of 12 milestones can be selected</p>
                                 @error('sprints')
                                 <p class="help is-danger">{{ $errors->first('sprints') }}</p>
                                 @enderror
                             @else
-                                No sprints yet, <a href="{{ route('projects.sync') }}">Import Projects</a> and then import sprints from a project page
+                                No milestones yet, <a href="{{ route('projects.sync') }}">Import Spaces</a> and then import milestones from a space page
                             @endif
                         </div>
                         </div>

@@ -6,6 +6,7 @@ use App\Dto\AssemblaUserDto;
 use App\Helper\SessionMessage;
 use App\Integration\AssemblaGateway;
 
+use App\Jobs\SyncSpaces;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -27,6 +28,7 @@ class SettingsController extends Controller
         $this->validateRequest();
 
         $user = Auth::user();
+        $syncSpaceMessage = '';
         if ($this->assemblaCredentialsUpdated($user)) {
             $user->assembla_key = request('assembla_key');
             $user->assembla_secret = Crypt::encrypt(request('assembla_secret'));
@@ -35,13 +37,16 @@ class SettingsController extends Controller
                     'assembla_secret' => 'Assembla Secret is not valid',
                     'assembla_key'    => 'Assembla Key is not valid',
                 ])->withInput();
+            } else {
+                SyncSpaces::dispatch($user);
+                $syncSpaceMessage = '. Spaces sync job was added to the queue.';
             }
         }
 
             $user->name = request('name');
             $user->email = request('email');
             $user->save();
-            SessionMessage::infoMessage('Settings saved');
+            SessionMessage::infoMessage('Settings saved'.$syncSpaceMessage);
 
             return redirect(route('settings.index'));
     }

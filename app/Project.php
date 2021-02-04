@@ -22,7 +22,7 @@ class Project extends Model
 
     public static function getProjectByAssemblaId($projectAssemblaId)
     {
-        return self::where('project_assembla_id', $projectAssemblaId)->first();
+        return self::where('project_assembla_id', $projectAssemblaId)->with('assemblaUsers')->first();
     }
 
     public function tickets()

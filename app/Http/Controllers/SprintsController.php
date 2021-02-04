@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Helper\SessionMessage;
-use App\Importer\SprintImporter;
 use App\Jobs\SyncSpaceMilestones;
 use App\Jobs\SyncUserSyncableSpaces;
 use Illuminate\Support\Facades\Auth;
@@ -27,9 +26,9 @@ class SprintsController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($wikiname, $id)
     {
-        $sprint = Auth::user()->sprints()->with(['tickets.ticketTimes', 'tickets.subtasks', 'projects.assemblaUsers'])->findOrFail($id);
+        $sprint = Auth::user()->sprints()->with(['tickets.ticketTimes', 'tickets.subtasks', 'projects.assemblaUsers'])->where('sprint_assembla_id', $id)->firstOrFail();
 
         return view('sprints.show', [
             'sprint' => $sprint,
@@ -56,7 +55,7 @@ class SprintsController extends Controller
             Log::error($e->getTraceAsString());
         }
 
-        return redirect()->route('projects.show', $project);
+        return redirect()->route('projects.show', $project->wikiname);
 
     }
 
@@ -67,7 +66,7 @@ class SprintsController extends Controller
     public function syncAllCurrentSprints()
     {
         SyncUserSyncableSpaces::dispatch(Auth::user());
-        SessionMessage::infoMessage("Current projects sync job was added to the queue");
+        SessionMessage::infoMessage("Current spaces sync job was added to the queue");
         return redirect()->route('sprints.current');
     }
 }

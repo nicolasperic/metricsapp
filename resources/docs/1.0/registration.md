@@ -16,5 +16,7 @@ As soon as you finish registration you will be logged in to the app and redirect
 
 
 > {info} Key and Secret can be found in [Assembla](https://app.assembla.com/user/edit/manage_clients).
-Be sure you check `API Access` when generating a new key to allow API authentication.
+Be sure to check `API Access` when generating a new key to allow API authentication.
 
+
+Continue with [First Steps](/{{route}}/{{version}}/registration/first_steps)

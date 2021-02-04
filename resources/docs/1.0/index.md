@@ -1,7 +1,7 @@
 - ## Get Started
     - [Overview](/{{route}}/{{version}}/overview)
     - [Registration](/{{route}}/{{version}}/registration)
-        - [Credentials](/{{route}}/{{version}}/registration/credentials)
+        - [First Steps](/{{route}}/{{version}}/registration/first_steps)
 
     - [Importers](/hola/mundo)
         - [Importing Projects](/{{route}}/{{version}}/registration)

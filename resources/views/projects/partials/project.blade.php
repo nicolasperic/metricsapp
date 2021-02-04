@@ -10,12 +10,12 @@
                 <ul>
                     @forelse ($project->getOpenSprints as $sprint)
                         <li>
-                            <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a> <?= $sprint->getFormattedPlannerType()?>
+                            <a href="{{ route('sprints.show',[$project->wikiname, $sprint->sprint_assembla_id]) }}">{{ $sprint->name}}</a> <?= $sprint->getFormattedPlannerType()?>
                         </li>
 
 
                     @empty
-                        <p>No sprints assigned to this project yet.</p>
+                        <p>No milestones assigned to this space yet.</p>
                     @endforelse
                 </ul>
             </div>
@@ -57,12 +57,12 @@
                 <ul>
                     @forelse ($project->getClosedSprints as $sprint)
                         <li>
-                            <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>
+                            <a href="{{ route('sprints.show',[$project->wikiname, $sprint->sprint_assembla_id]) }}">{{ $sprint->name}}</a>
                         </li>
 
 
                     @empty
-                        <p>No sprints assigned to this project yet.</p>
+                        <p>No milestones assigned to this space yet.</p>
                     @endforelse
                 </ul>
             </div>
@@ -82,16 +82,10 @@
 
 
                     @empty
-                        <p>No users assigned to this project yet.</p>
+                        <p>No users assigned to this space yet.</p>
                     @endforelse
                 </ul>
             </div>
         </div>
     </div>
 </div>
-
-
-<style>
-    <?php //TODO move styles to CSS/SCSS?>
-
-</style>

@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('container-title', ' Sprints')
+@section('container-title', ' Current Milestones')
 
 @section('breadcrumbs',  Breadcrumbs::render('sprints'))
 
 @section('actions')
-    <a href="{{ url('sprints/syncAllCurrentSprints') }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync All Current Sprints</a>
+    <a href="{{ route('sprints.sync-all-current-sprints') }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync All Current Milestones</a>
 @endsection
 
 @section('content')
@@ -21,8 +21,8 @@
                     <div class="card shadow mb-12">
                         <div class="card-header d-flex align-items-center">
                             @foreach ($sprint->projects as $project)
-                            <a href="{{url("projects/{$project->id}")}}" class="font-weight-bold d-none d-md-block">{{$project->name}}</a>
-                            <a href="{{url("projects/{$project->id}")}}" class="project-link font-weight-bold d-block d-md-none">{{$project->code}}</a>
+                            <a href="{{ route('projects.show',$project->wikiname) }}" class="font-weight-bold d-none d-md-block">{{$project->name}}</a>
+                            <a href="{{ route('projects.show',$project->wikiname) }}" class="project-link font-weight-bold d-block d-md-none">{{$project->code}}</a>
                             @endforeach
                             <span class="separator d-none d-md-block"></span>
                             <style>
@@ -34,7 +34,7 @@
                                 }
 
                             </style>
-                            <a href="{{url("sprints/{$sprint->id}")}}" class="font-weight-bold">{{ $sprint->name}}</a>
+                            <a href="{{ route('sprints.show', [$project->wikiname, $sprint->sprint_assembla_id]) }}" class="font-weight-bold">{{ $sprint->name}}</a>
                                 &nbsp;<?= $sprint->getFormattedPlannerType()?>
                             &nbsp;&nbsp;|&nbsp;&nbsp;<a href="https://app.assembla.com/spaces/{{ $project->wikiname }}/milestones/{{ $sprint->sprint_assembla_id }}" class="font-weight-bold" target="_blank">
                                     <span class="assembla-link-text">View in Assembla</span> <img width="25" src="https://assets2.assembla.com/assets/favicon/apple-touch-icon-152x152-62313763336639636561616137656631316139363330643166373263366434336331636664333539336231633165396334626630633630383665636661306165.png" alt="Image" style="position: relative; top: -3px;"/></a>
@@ -111,7 +111,7 @@
                         <div class="card shadow mb-12">
                             <div class="card-header d-flex align-items-center ">
                                 <h6 class="m-0 font-weight-bold text-primary">Total</h6>
-                                &nbsp;&nbsp;&nbsp;&nbsp;<i class="last-sync">Oldest synced sprint on <?= $olderUpdatedAt?> ({{Helper::getTimeDiff($olderUpdatedAt)}})</i>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<i class="last-sync">Oldest synced milestone on <?= $olderUpdatedAt?> ({{Helper::getTimeDiff($olderUpdatedAt)}})</i>
                             </div>
                             <div class="card-bg-secondary">
                                 <div class="d-flex">

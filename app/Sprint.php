@@ -2,13 +2,10 @@
 
 namespace App;
 
-use App\Importer\UserImporter;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class Sprint extends Model
 {
@@ -488,16 +485,19 @@ class Sprint extends Model
         $this->weeklyHours = array();//week => total XXX, users [ foco => hs]
         $this->monthlyHours = array();//month => total XY, users => [ foco => hs]
         $this->userHours = array();//user_id => hours, tasks
-        $userImporter = new UserImporter(Auth::user());//the user importer will execute a load quer for each user that reports
 
-        $users = $this->projects[0]->assemblaUsers->pluck('name', 'user_assembla_id')->toArray();//eager loaded
+        $users = [];
+        $this->projects[0]->assemblaUsers->map( function ($assemblaUser) use (&$users) {
+            $users[$assemblaUser->user_assembla_id] = ['name' => $assemblaUser->name, 'picture' => $assemblaUser->picture];
+        });//->toArray();//->pluck('name', 'user_assembla_id')->toArray();//eager loaded
+
         $tickets = $this->tickets;//eager loaded
 
         foreach ($this->tickets as $ticket) {
             //$ticketTimes = TicketTime::where('ticket_assembla_id', $ticket->ticket_assembla_id)->get();
 
             foreach ($ticket->ticketTimes as $ticketTime) {
-                $this->_trackTime($ticketTime, $userImporter, $users, $tickets);
+                $this->_trackTime($ticketTime, $users, $tickets);
             }
 
 
@@ -525,7 +525,7 @@ class Sprint extends Model
 
 
 
-    private function _trackTime($ticketTime, UserImporter $userImporter, $users, $tickets)
+    private function _trackTime($ticketTime, $users, $tickets)
     {
         $date = Carbon::parse($ticketTime->begin_at);
         $month = $date->month;
@@ -561,13 +561,18 @@ class Sprint extends Model
             $this->userHours[$ticketTime->user_assembla_id]['total_tasks'] = 0;
 
 
+            $defaultPicture = 'https://assets3.assembla.com/assets/avatars/small/10-34646632626633326534663337306230663564393237353266396538633232383833626339353837396534323061616337666664633662376434376637303134.png';
             if (array_key_exists($ticketTime->user_assembla_id, $users)) {
-                $userName = $users[$ticketTime->user_assembla_id];
+                $userName = $users[$ticketTime->user_assembla_id]['name'];
+                $picture = ($users[$ticketTime->user_assembla_id]['picture'])? $users[$ticketTime->user_assembla_id]['picture']: $defaultPicture;
+
             } else {
-                $userName = $userImporter->getUserName($ticketTime->user_assembla_id);
+                $userName = 'Oops sync space users';
+                $picture = $defaultPicture;
             }
 
-            $this->userHours[$ticketTime->user_assembla_id]['label'] = $userName;;
+            $this->userHours[$ticketTime->user_assembla_id]['label'] = $userName;
+            $this->userHours[$ticketTime->user_assembla_id]['picture'] = $picture;
         }
         
         $this->_trackMonthlyHours($ticketTime, $year, $month, $tickets);

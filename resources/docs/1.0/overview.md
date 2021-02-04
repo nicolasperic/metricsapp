@@ -5,13 +5,13 @@
 - [Documentation](#documentation)
 - [Keyboard Shortcuts](#shortcuts)
 
-> {info} Welcome to the **documentation!!!** 📚 &nbsp;Here you will be able to understand how the app works and **get the most out of it**.
+> {info} Welcome to the **Product Guide**. &nbsp;Here you will be able to understand all application features and **get the most out of it**.
 
 <a name="documentation"></a>
 ## Documentation
 
-Each section and feature of the application will be described in depth in the documentation. For any doubts access the [FAQ's](/{{route}}/{{version}}/faqs) page
-or contact support at `{{ config('support.email', 'support@assemblametrics.com') }}`
+Each section and feature of the application will be described in depth here. For any doubts access the [FAQ's](/{{route}}/{{version}}/faqs) page
+or contact <a href="mailto:{{ config('support.email', 'nicolasperic+assembla-metrics-support@gmail.com') }}">support</a>
 
 <br>
 Docs Information is organized on the left index covering the following items:

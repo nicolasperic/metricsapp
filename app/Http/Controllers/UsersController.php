@@ -25,7 +25,7 @@ class UsersController extends Controller
             Log::error($e->getTraceAsString());
         }
 
-        return redirect()->route('projects.show', $project);
+        return redirect()->route('projects.show', $project->wikiname);
     }
 
     public function notifications()

@@ -25,15 +25,20 @@ class SyncMilestone implements ShouldQueue//, ShouldBeUnique
      * @var Sprint
      */
     private $sprint;
+    /**
+     * @var bool
+     */
+    private $notify;
 
     /**
      * @param User   $user
      * @param Sprint $sprint
      */
-    public function __construct(User $user, Sprint $sprint)
+    public function __construct(User $user, Sprint $sprint, $notify = true)
     {
         $this->user = $user;
         $this->sprint = $sprint;
+        $this->notify = $notify;
     }
 
     /**
@@ -55,11 +60,14 @@ class SyncMilestone implements ShouldQueue//, ShouldBeUnique
             $ticketImporter->importMilestoneTickets($this->sprint);
             Log::info('SyncMilestone ended for '.$this->sprint->title);
 
-            $this->user->notify(Helper::getAssemblaSyncNotification(
-                $this->sprint->id,
-                url('sprints', $this->sprint->id),
-                $this->sprint->name.' was synced correctly'
-            ));
+            $project = $this->sprint->getProject();
+            if ($this->notify) {
+                $this->user->notify(Helper::getAssemblaSyncNotification(
+                    $this->sprint->id,
+                    route('sprints.show', [$project->wikiname, $this->sprint->sprint_assembla_id]),
+                    $this->sprint->name.' was synced correctly'
+                ));
+            }
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());

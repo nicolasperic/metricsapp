@@ -30,7 +30,13 @@
     border: none!important;
 }
 
+.documentation p {
+    color: #12283A;
+}
 
+.documentation h3 {
+    color: #2c9bf2;
+}
 
 a {color: #3ca0ff;}         /* Unvisited link  */
 a:visited {color:#3ca0ff;} /* Visited link    */

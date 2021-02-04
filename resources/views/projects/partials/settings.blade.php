@@ -5,7 +5,7 @@
     <div class="col-md-12">
         <div class="card shadow mb-8">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Project Settings</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Space Settings</h6>
             </div>
             <div class="card-body">
 
@@ -14,23 +14,23 @@
                     <div class="form-group">
                         <form id="{{$project->id}}" class="starred" name="starred_project_form" action="{{url("projects/starred/{$project->id}")}}" method="POST">
                             <input class="project-setting" name="starred_project" type="checkbox" @if ($project->pivot->starred) checked @endif/>
-                            <label for="name" class="mb-0">Starred project</label>
-                            <small id="starredHelp" class="form-text text-muted ml-4">Adds project to the left menu and current sprints view.</small>
+                            <label for="name" class="mb-0">Starred space</label>
+                            <small id="starredHelp" class="form-text text-muted ml-4">Adds space to the left menu and current milestones view. Current milestone will be also available on Starred Milestones left menu.</small>
                         </form>
                     </div>
                     <div class="form-group">
                         <form id="{{$project->id}}" class="syncable" name="syncable_project_form" action="{{url("projects/syncable/{$project->id}")}}" method="POST">
                             <input class="project-sync" name="syncable_project" type="checkbox" @if ($project->pivot->syncable) checked @endif/>
-                            <label for="name" class="mb-0">Auto Sync project</label>
-                            <small id="syncableHelp" class="form-text text-muted ml-4">Project milestones and current milestone will be synced dynamically.</small>
+                            <label for="name" class="mb-0">Auto Sync space</label>
+                            <small id="syncableHelp" class="form-text text-muted ml-4">Space milestones and current milestone tickets related info will be synced dynamically.</small>
                         </form>
                     </div>
-                    <strong>Shared Configurations</strong> <small>(following settings will affect all users with access to the project)</small>
+                    <strong>Shared Configurations</strong> <small>(following settings will affect all users with access to the space)</small>
                     <div class="form-group">
                         <form id="{{$project->id}}" class="shared" name="shared_project_form" action="{{url("projects/shared/{$project->id}")}}" method="POST">
                             <input class="project-shared" name="shared_project" type="checkbox" @if ($project->shared) checked @endif/>
-                            <label for="name" class="mb-0">Shared project</label>
-                            <small id="starredHelp" class="form-text text-muted ml-4">Project is used by many teams. Checking this will enable filtering tracked time by specific users on Hours by Users Report.</small>
+                            <label for="name" class="mb-0">Shared space</label>
+                            <small id="starredHelp" class="form-text text-muted ml-4">Space is used by many teams. Checking this will enable filtering tracked time by specific users on Hours by Users Report.</small>
                         </form>
                     </div>
                     <div class="form-group">

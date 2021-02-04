@@ -71,7 +71,7 @@ class SyncSpaceMilestones implements ShouldQueue, ShouldBeUnique
             if ($this->notify) {
                 $this->user->notify(Helper::getAssemblaSyncNotification(
                     $this->project->id,
-                    url('projects', $this->project->id),
+                    route('projects.show', $this->project->wikiname),
                     $this->project->name.' milestones were synced correctly'
                 ));
             }

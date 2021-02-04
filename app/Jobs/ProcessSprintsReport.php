@@ -63,7 +63,7 @@ class ProcessSprintsReport implements ShouldQueue//, ShouldBeUnique
 
             $jobs = $this->reportModel->user->sprints()->whereIn('sprint_assembla_id', $this->requestData['sprints'])->get()->map(function (Sprint $sprint)  {
                 Log::info('Dispatch for '.$sprint->name);
-                return [new SyncMilestone($this->reportModel->user, $sprint)];
+                return [new SyncMilestone($this->reportModel->user, $sprint, false)];
             })
                 ->filter()
                 ->collapse()

@@ -29,20 +29,20 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::post('/reports/generateSprintsReport', 'ReportsController@generateSprintsReport')->middleware('auth');
     Route::get('/tasks-timer', 'TasksTimerController@index')->name('taskstimer.index')->middleware('auth');
     Route::post('/tasks-timer', 'TasksTimerController@store')->middleware('auth');
-    Route::get('/projects', 'ProjectsController@index')->name('projects.index')->middleware('auth');
+    Route::get('/spaces', 'ProjectsController@index')->name('projects.index')->middleware('auth');
     Route::get('/projects/settingsPane/{id}', 'ProjectsController@settingsPane')->name('projects.settingsPane')->middleware('auth');
     Route::get('/projects/projectPane/{id}', 'ProjectsController@projectPane')->name('projects.projectPane')->middleware('auth');
     Route::get('/projects/syncProjects', 'ProjectsController@syncProjects')->name('projects.sync')->middleware('auth');
-    Route::get('/projects/{id}', 'ProjectsController@show')->name('projects.show')->middleware('auth');
+    Route::get('/spaces/{wikiname}', 'ProjectsController@show')->name('projects.show')->middleware('auth');
     Route::post('/projects/starred/{id}', 'ProjectsController@starred')->name('projects.starred')->middleware('auth');
     Route::post('/projects/syncable/{id}', 'ProjectsController@syncable')->name('projects.syncable')->middleware('auth');
     Route::post('/projects/shared/{id}', 'ProjectsController@shared')->name('projects.shared')->middleware('auth');
     Route::post('/projects/estimate/{id}', 'ProjectsController@estimate')->name('projects.estimate')->middleware('auth');
-    Route::get('/sprints', 'SprintsController@index')->name('sprints.index')->middleware('auth');
-    Route::get('/sprints/current', 'SprintsController@current')->name('sprints.current')->middleware('auth');
+    Route::get('/milestones', 'SprintsController@index')->name('sprints.index')->middleware('auth');
+    Route::get('/milestones/current', 'SprintsController@current')->name('sprints.current')->middleware('auth');
     Route::get('/sprints/syncSprints/{projectId}', 'SprintsController@syncSprints')->name('sprints.sync')->middleware('auth');
     Route::get('/sprints/syncAllCurrentSprints', 'SprintsController@syncAllCurrentSprints')->name('sprints.sync-all-current-sprints')->middleware('auth');
-    Route::get('/sprints/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
+    Route::get('/spaces/{wikiname}/milestones/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
     Route::get('/tickets/syncTickets/{sprintId}', 'TicketsController@syncTickets')->name('tickets.sync')->middleware('auth');
     Route::get('/users/syncUsers/{userId}', 'UsersController@syncUsers')->name('users.sync')->middleware('auth');
     Route::get('/notifications', 'UsersController@notifications')->name('notifications')->middleware('auth');
@@ -52,7 +52,7 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
 });
 
 Route::get('/settings', 'SettingsController@index')->name('settings.index')->middleware('auth');
-Route::post('/settings', 'SettingsController@store')->middleware('auth');
+Route::post('/settings', 'SettingsController@store')->name('settings.post')->middleware('auth');
 
 Auth::routes();
 

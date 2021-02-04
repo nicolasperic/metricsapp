@@ -59,7 +59,7 @@ class SyncUserSyncableSpaces implements ShouldQueue, ShouldBeUnique
             print 'Print all batches are done'.PHP_EOL;
             $user->notify(Helper::getAssemblaSyncNotification(
                 null,
-                url('sprints/current'),
+                route('sprints.current'),
                 'Current milestones were synced correctly'
             ));
 

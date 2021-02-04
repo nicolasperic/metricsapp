@@ -12,7 +12,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Settings</h6>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{url('/settings')}}">
+                    <form method="POST" action="{{route('settings.post')}}">
                         @csrf
                         <div class="form-group">
                             <label for="name">Name</label>

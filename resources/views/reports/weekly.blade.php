@@ -14,7 +14,7 @@
 
 
                         <div class="field">
-                            <label class="label" for="title">Projects</label>
+                            <label class="label" for="title">Spaces</label>
                             <div class="control">
                                 @if (count($projects))
                                     <select name="projects[]"  id="projects" multiple>
@@ -26,14 +26,14 @@
                                     <p class="help is-danger">{{ $errors->first('projects') }}</p>
                                     @enderror
                                 @else
-                                    No projects yet, <a href="{{ route('projects.sync') }}">Import Projects</a>
+                                    No spaces yet, <a href="{{ route('projects.sync') }}">Import spaces</a>
                                 @endif
                             </div>
                         </div>
 
                         <div class="field mt-4" id="users-field" style="display: none;">
                             <label class="label d-block" for="title">Users</label>
-                            <small>You've selected a shared project, filter the tracked time by selecting your team</small>
+                            <small>You've selected a shared space, filter the tracked time by selecting your team. Only shared spaces will be filtered.</small>
                             <div class="control">
                                 @if (count($users))
                                     <select name="users[]" id="users" multiple>
@@ -45,7 +45,7 @@
                                     <p class="help is-danger">{{ $errors->first('users') }}</p>
                                     @enderror
                                 @else
-                                    No users yet, users can be imported by space from each project page</a>
+                                    No users yet, users can be imported by space from each space page</a>
                                 @endif
                             </div>
                         </div>

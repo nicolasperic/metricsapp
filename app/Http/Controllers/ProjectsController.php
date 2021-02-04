@@ -20,9 +20,9 @@ class ProjectsController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($wikiname)
     {
-        $project = Auth::user()->projects()->findOrFail($id);
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->firstorFail();
 
         return view('projects.show', [
             'project' => $project,
@@ -84,7 +84,7 @@ class ProjectsController extends Controller
     {
         try {
             SyncSpaces::dispatch(Auth::user());
-            SessionMessage::infoMessage("Projects sync job was added to the queue");
+            SessionMessage::infoMessage("Spaces sync job was added to the queue");
         } catch (ClientException $e) {
 
             if ($e->getCode() == 401) {

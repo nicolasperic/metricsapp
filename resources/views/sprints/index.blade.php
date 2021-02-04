@@ -8,17 +8,19 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">Your Sprints</div>
+                <div class="card shadow mb-12">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Your Milestones</h6>
+                    </div>
 
-                        Open Sprints
+                        Open Milestones
                         <ul>
                             @forelse ($openSprints as $sprint)
                                 <li>
-                                    @foreach ($sprint->projects as $project)
-                                        {{$project->name}}
-                                    @endforeach
-                                    > <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>  <?= $sprint->getFormattedPlannerType()?>
+                                    <?php $project = $sprint->getProject()?>
+                                    {{$project->name}}
+
+                                    > <a href="{{ route('sprints.show', [$project->wikiname, $sprint->sprint_assembla_id]) }}">{{ $sprint->name}}</a>  <?= $sprint->getFormattedPlannerType()?>
                                 </li>
 
 
@@ -27,14 +29,14 @@
                             @endforelse
                         </ul>
 
-                        Closed Sprints
+                        Closed Milestones
                         <ul>
                             @forelse ($closedSprints as $sprint)
                                 <li>
-                                    @foreach ($sprint->projects as $project)
-                                        {{$project->name}}
-                                    @endforeach
-                                    > <a href="{{url("sprints/{$sprint->id}")}}">{{ $sprint->name}}</a>
+                                    <?php $project = $sprint->getProject()?>
+                                    {{$project->name}}
+
+                                    > <a href="{{ route('sprints.show', [$project->wikiname, $sprint->sprint_assembla_id]) }}">{{ $sprint->name}}</a>
                                 </li>
 
 

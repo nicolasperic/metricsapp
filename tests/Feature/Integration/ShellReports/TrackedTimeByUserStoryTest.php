@@ -7,6 +7,7 @@ use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -15,7 +16,7 @@ use Tests\TestCase;
 class TrackedTimeByUserStoryTest
     extends TestCase
 {
-
+    use RefreshDatabase;
 
     /** test  this tests will retrieve the tracked time
      * Este approach del reporte de horas por US fue utilizando el endpoint de tickets!
@@ -305,7 +306,7 @@ class TrackedTimeByUserStoryTest
      * Una única llamada con los ticket ID's (iterar páginas si hay muchas tasks)
      * API doc: https://api-docs.assembla.cc/content/ref/tasks_index.html
      *
-     * test
+     * @test
      */
     function can_get_grouped_tickets_report()
     {
@@ -372,8 +373,8 @@ class TrackedTimeByUserStoryTest
 
 
         $page = 1;
-        $from = '2020/11/01 00:00';
-        $to = '2020/11/30 23:59';
+        $from = '2021/01/18 00:00';
+        $to = '2021/01/31 23:59';
 
 
 
@@ -397,12 +398,12 @@ class TrackedTimeByUserStoryTest
         $tlTickets = [181720573,231534733,232105800,147514993,231563716,231626482];
         do {
             $queryParams = [
-                'ticket_ids[]' => $meetingTickets,//$tlTickets,//$meetingTickets
+                'ticket_ids[]' => $meetingTickets,// $tlTickets,//$meetingTickets
                 'from' => $from,
                 'to' => $to,
                 'page' => $page,
             ];
-            $response = AssemblaRequest::getMultiple("tasks", $queryParams, $this->user->assembla_key, $this->user->assembla_secret);
+            $response = AssemblaRequest::getMultiple("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
             $result = json_decode($response->getBody()->getContents(), 1);
 
             //dd($result);

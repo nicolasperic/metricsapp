@@ -163,7 +163,7 @@ class SprintsReport extends Report implements ReportInterface
 
     public function getRequestDataFormatted()
     {
-        return 'Sprints';
+        return count($this->request_data['sprints']).' Milestones';
     }
 
     public function getView()

@@ -4,13 +4,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
 @endsection
 
-@section('container-title', 'Projects')
+@section('container-title', 'Spaces')
 
 @section('breadcrumbs',  Breadcrumbs::render('projects'))
 
 @section('actions')
 
-    <a href="{{ route("projects.sync") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Projects</a>
+    <a href="{{ route("projects.sync") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Spaces</a>
 
 @endsection
 
@@ -20,13 +20,13 @@
             <div class="col-12">
                 <div class="card shadow mb-12">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Your Projects (Assembla Spaces)</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Your Assembla Spaces</h6>
                     </div>
 
 
 
                     <div style="margin-left: 40px;">
-                        * only checked projects will be considered on the <a href="{{url('sprints/current')}}">Current Sprints</a> page
+                        * only checked spaces will be considered on the <a href="{{route('sprints.current')}}">Current Milestones</a> page
                     </div>
 
                         <ul style="list-style: none;">
@@ -38,13 +38,13 @@
                                         </form>
                                     </div>
 
-                                    <a href="{{url("projects/{$project->id}")}}">{{ $project->name}}</a>
+                                    <a href="{{route('projects.show',$project->wikiname)}}">{{ $project->name}}</a>
 
                                 </li>
 
 
                             @empty
-                                <p>No projects imported yet. What are you waiting for? Import your projects <a href="{{ route('projects.sync') }}">here!<a/></p>
+                                <p>No spaces imported yet. What are you waiting for? Import your spaces <a href="{{ route('projects.sync') }}">here!<a/></p>
                             @endforelse
                         </ul>
 

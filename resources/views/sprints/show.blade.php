@@ -295,6 +295,7 @@
                         <table class="table table-striped hours-per-user-table">
                             <thead>
                             <tr>
+                                <th scope="col"></th>
                                 <th scope="col">User</th>
                                 <th scope="col">Hours</th>
                                 <th scope="col">Tasks</th>
@@ -304,6 +305,9 @@
                             <?php $totalWorkedHours = $sprint->getTotalWorkedHours()?>
                             @foreach($timeReport['user_hours'] as $user)
                                 <tr>
+                                    <td style="width: 32px; padding: 8px 0 0 5px;">
+                                        <img class="rounded-circle" style="width: 32px; height: 32px;" src="{{$user['picture']}}"/>
+                                    </td>
                                     <td>{{$user['label']}}</td>
                                     <td>{{$user['total_hours']}} hours ({{ Helper::getPercentageValue($user['total_hours'], $totalWorkedHours, $decimals = 2) }}%)</td>
                                     <td>{{$user['total_tasks']}} tasks</td>

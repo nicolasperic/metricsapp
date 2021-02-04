@@ -100,6 +100,11 @@ class UserImporter
             Log::info('[AssemblaUser Importer] Started');
             $assemblaUserDto = $this->assemblaGateway->getUser($userAssemblaId);
             if ($assemblaUserDto !== false) {
+                Log::info('[AssemblaUsers Importer] about to create user '.$assemblaUserDto->getName());
+                $image = $this->assemblaGateway->getUserImage($assemblaUserDto->getUserAssemblaId());
+                Log::info('Image obtained for user '.$image);
+                $assemblaUserDto->setPicture($image);
+
                 $user = AssemblaUserMapper::createAssemblaUserFromDTO($assemblaUserDto);
             } else {
                 Log::error('User Assembla ID '.$userAssemblaId. ' not found with API');

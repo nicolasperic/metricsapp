@@ -22,6 +22,7 @@ class TicketsController extends Controller
             Log::error($e->getTraceAsString());
         }
 
-        return redirect()->route('sprints.show', $sprint);
+        $project = $sprint->getProject();
+        return redirect()->route('sprints.show', [$project->wikiname, $sprint->sprint_assembla_id]);
     }
 }

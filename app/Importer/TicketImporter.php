@@ -19,11 +19,16 @@ class TicketImporter
 {
     private $assemblaGateway;
     private $ticketTimeImporter;
+    /**
+     * @var User
+     */
+    private $user;
 
     function __construct(User $user)
     {
         $this->assemblaGateway = new AssemblaGateway($user);
         $this->ticketTimeImporter = new TasksImporter($this->assemblaGateway);
+        $this->user = $user;
     }
 
     /**
@@ -33,6 +38,9 @@ class TicketImporter
     {
         Log::info('[Ticket Importer] Started');
         $project = Project::getProjectByAssemblaId($sprint->project_assembla_id);
+
+        $this->validateAssemblaUsers($project);
+
         $page = 1;
         $queryParams = [
             'page' => $page,
@@ -139,6 +147,16 @@ class TicketImporter
                 Log::info("[Ticket Importer] tracking time {$ticketTimeDto->getTicketNumber()} {$ticketTimeDto->getHours()}");
                 TicketTimeMapper::createTicketTimeFromDTO($ticketTimeDto);
             }
+        }
+    }
+
+
+    private function validateAssemblaUsers($project)
+    {
+        if (count($project->assemblaUsers) === 0) {
+            Log::info('[Ticket Importer] no assembla users found > triggering UserImporter');
+            $userImporter = new UserImporter($this->user);
+            $userImporter->importSpaceUsers($project);
         }
     }
 }

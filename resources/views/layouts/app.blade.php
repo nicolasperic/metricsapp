@@ -79,7 +79,7 @@
 
         <!-- Nav Item - Dashboard -->
         <li class="nav-item active">
-            <a class="nav-link" href="{{ url('/home') }}">
+            <a class="nav-link" href="{{ route('home') }}">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>Dashboard</span></a> <!-- menú -->
         </li>
@@ -96,16 +96,16 @@
         <li class="nav-item">
             <a class="nav-link Notcollapsed" href="#" data-toggle="collapse" data-target="#collapseProjects" aria-expanded="true" aria-controls="collapseProjects">
                 <i class="fas fa-fw fa-folder"></i>
-                <span>Projects</span>
+                <span>Spaces</span>
             </a>
             <div id="collapseProjects" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <div class="collapse-divider"></div>
-                    <a class="collapse-item" href="{{url('/projects')}} ">All Projects</a>
-                    <h6 class="collapse-header">Starred Projects:</h6>
+                    <a class="collapse-item" href="{{ route('projects.index') }} ">All Spaces</a>
+                    <h6 class="collapse-header">Starred Spaces:</h6>
 
                     @foreach ($starredProjects = Auth::user()->starredProjects as $project)
-                        <a class="collapse-item" href="{{url("/projects/{$project->id}")}}">{{ Helper::substrIf($project->name, 23) }}</a>
+                        <a class="collapse-item" href="{{route('projects.show',$project->wikiname)}}">{{ Helper::substrIf($project->name, 23) }}</a>
                     @endforeach
 
                 </div>
@@ -116,18 +116,18 @@
         <li class="nav-item">
             <a class="nav-link Notcollapsed" href="#" data-toggle="collapse" data-target="#collapseSprints" aria-expanded="true" aria-controls="collapseSprints">
                 <i class="fas fa-fw fa-folder"></i>
-                <span>Sprints</span>
+                <span>Milestones</span>
             </a>
             <div id="collapseSprints" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <div class="collapse-divider"></div>
-                    <a class="collapse-item" href="{{url('/sprints')}} ">All Sprints</a>
-                    <a class="collapse-item" href="{{url('/sprints/current')}} ">Current Sprints</a>
-                    <h6 class="collapse-header">Starred Sprints:</h6>
+                    <a class="collapse-item" href="{{route('sprints.index')}} ">All Milestones</a>
+                    <a class="collapse-item" href="{{route('sprints.current')}} ">Current Milestones</a>
+                    <h6 class="collapse-header">Starred Milestones:</h6>
                     @foreach ($starredProjects as $project)
                         <?php $currentSprint = (count($project->sprints)) ? $project->sprints[0]: false;?>
                         @if($currentSprint)
-                            <a class="collapse-item" href="{{url("/sprints/{$currentSprint->id}")}}">{{$project->code}} | {{ Helper::substrIf($currentSprint->name, 23) }}</a>
+                            <a class="collapse-item" href="{{route('sprints.show', [$project->wikiname, $currentSprint->sprint_assembla_id])}}">{{$project->code}} | {{ Helper::substrIf($currentSprint->name, 23) }}</a>
                         @endif
                     @endforeach
                 </div>
@@ -234,7 +234,7 @@
                     <li class="nav-item dropdown no-arrow">
 
                         @guest
-                        <a class="nav-link dropdown-toggle" href="{{ url('/login') }}" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="{{ route('login') }}" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">Login </span>
                         </a>
                         @else
@@ -252,7 +252,7 @@
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
                                 </a -->
-                                <a class="dropdown-item" href="{{ url('/settings') }}">
+                                <a class="dropdown-item" href="{{ route('settings.index') }}">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Settings
                                 </a>
@@ -293,7 +293,7 @@
                     </div>
 
                     @if (!Request::is('reports'))
-                        <a href="{{ url('/reports') }}"
+                        <a href="{{ route('reports.index') }}"
                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
                             <i class="fas fa-file-excel fa-sm text-white-50"></i> Generate Reports
                         </a>
