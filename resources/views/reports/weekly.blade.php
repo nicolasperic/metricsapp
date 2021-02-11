@@ -33,7 +33,7 @@
 
                         <div class="field mt-4" id="users-field" style="display: none;">
                             <label class="label d-block" for="title">Users</label>
-                            <small>You've selected a shared space, filter the tracked time by selecting your team. Only shared spaces will be filtered.</small>
+                            <small>You've selected a shared space, filter the tracked time by selecting your team. Only shared spaces will be filtered, it's not required to select any users.</small>
                             <div class="control">
                                 @if (count($users))
                                     <select name="users[]" id="users" multiple>

@@ -29,6 +29,7 @@ class TicketMapper extends AbstractMapper
             'total_working_hours' => $ticketDto->getTotalWorkingHours(),
             'type' => $ticketDto->getType(),
             'custom_fields' => $ticketDto->getCustomFields(),
+            'hierarchy_type' => $ticketDto->getHierarchyType(),
             'started_at' => self::getParsedDate($ticketDto->getCreatedOn()),//todo started on is not real
             'created_at' => self::getParsedDate($ticketDto->getCreatedOn()),
             'completed_at' => self::getParsedDate($ticketDto->getCompletedDate()),
@@ -109,6 +110,11 @@ class TicketMapper extends AbstractMapper
 
         if ($ticketDto->getCustomFields() !== $ticket->custom_fields) {
             $ticket->custom_fields = $ticketDto->getCustomFields();
+            $changed = true;
+        }
+
+        if ($ticketDto->getHierarchyType() !== $ticket->hierarchy_type) {
+            $ticket->hierarchy_type = $ticketDto->getHierarchyType();
             $changed = true;
         }
 

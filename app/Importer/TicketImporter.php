@@ -67,9 +67,10 @@ class TicketImporter
                         $this->_createTrackedTimeFor($ticketDto->getTicketAssemblaId());
                     } else {
                         //we need to update ticket fields and milestone assignation!
-                        //since we are importing for a given milestone, tickets processed here won't need a milestone update!
-                        //but some tickets could be present on the milestone in our DB and not on Assembla...
-
+                        //some tickets could be present on the milestone in our DB and not in Assembla...
+                        if (!$sprint->tickets->contains('number', $ticket->number)) {
+                            $sprint->tickets()->save($ticket);
+                        }
 
                         TicketMapper::updateTicketFromDTO($ticket, $ticketDto);//Ticket Data synced
                         $this->ticketTimeImporter->importTicketTasks($ticket);
@@ -88,6 +89,7 @@ class TicketImporter
                 $sprint->tickets()->detach($ticket->id);
             }
         }
+        $sprint->touch();//just to trigger that the sprint was updated
         Log::info('[Ticket Importer] Ended');
     }
 

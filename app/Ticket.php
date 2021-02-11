@@ -14,6 +14,13 @@ class Ticket extends Model
 
     const CLOSED_STATE = 0;
     const OPEN_STATE = 1;
+
+    //Hierarchy Types 0 No plan level, 1 Subtask, 2 Story, 3 Epic */
+    const HIERARCHY_NO_PLAN_LEVEL = 0;
+    const HIERARCHY_SUBTASK = 1;
+    const HIERARCHY_STORY = 2;
+    const HIERARCHY_EPIC = 3;
+
     protected $guarded = [];
 
     public static function ticketExists($assemblaId)

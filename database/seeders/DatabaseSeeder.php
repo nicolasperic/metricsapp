@@ -42,6 +42,7 @@ class DatabaseSeeder extends Seeder
             'assembla_secret' => config('services.assemblatesting.assembla_secret'),
             'assembla_user_image' => 'https://s3.amazonaws.com/assembla-avatars/1e7f71fc/cvixt811Gr4PBcacwqjQYw:1571509138',
             'assembla_username' => 'Nicolás Peric',
+            'user_assembla_id' => 'cvixt811Gr4PBcacwqjQYw',
         ]);
 
         $eperez = User::create([

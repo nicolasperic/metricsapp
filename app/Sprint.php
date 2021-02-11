@@ -11,6 +11,10 @@ class Sprint extends Model
 {
     use HasFactory;
 
+    const PLANNER_TYPE_NONE = 0;
+    const PLANNER_TYPE_BACKLOG = 1;
+    const PLANNER_TYPE_CURRENT = 2;
+
     protected $guarded = [];
 
     private $monthlyHours;
@@ -86,7 +90,7 @@ class Sprint extends Model
 
     public function scopeCurrent($query)
     {
-        return $query->where('planner_type', 2);
+        return $query->where('planner_type', Sprint::PLANNER_TYPE_CURRENT);
     }
 
     public function scopeClosed($query)
@@ -113,13 +117,18 @@ class Sprint extends Model
     {//TODO this function could easily go to a Helper (how can we use a helper on blade?)
         //0 None, 1 Backlog, 2 Current
         $plannerType = '';
-        if ($this->planner_type == 1) {
+        if ($this->planner_type == SPRINT::PLANNER_TYPE_BACKLOG) {
             $plannerType = '<span class="planner-type backlog">Backlog</span>';
-        } else if ($this->planner_type == 2) {
+        } else if ($this->planner_type == SPRINT::PLANNER_TYPE_CURRENT) {
             $plannerType = '<span class="planner-type current">Current</span>';
         }
 
         return $plannerType;
+    }
+
+    public function isCurrent()
+    {
+        return $this->planner_type == SPRINT::PLANNER_TYPE_CURRENT;
     }
 
     /**
@@ -547,7 +556,7 @@ class Sprint extends Model
             //month data init
             $this->monthlyHours[$year][$month]['hours'] = 0;
             $this->monthlyHours[$year][$month]['tasks'] = 0;
-            $this->monthlyHours[$year][$month]['label'] = $date->format('F');
+            $this->monthlyHours[$year][$month]['label'] = $date->format('F').' '.$date->format('y');
             $this->monthlyHours[$year][$month]['users'] = array();
             $this->monthlyHours[$year][$month]['tickets'] = array();
 

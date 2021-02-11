@@ -56,6 +56,9 @@ class TicketDto
     /** @var  string Custom Fields array serialized */
     private $customFields;
 
+    /** @var  int  0 No plan level, 1 Subtask, 2 Story, 3 Epic */
+    private $hierarchyType;
+
     private $responseData;
 
     public function __construct($responseData)
@@ -88,6 +91,7 @@ class TicketDto
         $this->setWorkingHours($data['working_hours']);
         $this->setTotalWorkingHours($data['total_working_hours']);
         $this->setCustomFields(serialize($data['custom_fields']));
+        $this->setHierarchyType($data['hierarchy_type']);
     }
 
     private function _validate($key, $data, $default = null)
@@ -451,7 +455,21 @@ class TicketDto
         $this->customFields = $customFields;
     }
 
+    /**
+     * @return int
+     */
+    public function getHierarchyType()
+    {
+        return $this->hierarchyType;
+    }
 
+    /**
+     * @param int $hierarchyType
+     */
+    public function setHierarchyType($hierarchyType)
+    {
+        $this->hierarchyType = $hierarchyType;
+    }
 
     public function toString()
     {
@@ -461,6 +479,7 @@ class TicketDto
         'Space id: '.$this->getSpaceId().PHP_EOL.
         'Space name: '.$this->getSpaceName().PHP_EOL.
         'Is story: '.$this->isStory().PHP_EOL.
+        'Hierarchy Type: '.$this->getHierarchyType().PHP_EOL.
         'Priority: '.$this->getPriority().PHP_EOL.
         'Milestone ID: '.$this->getMilestoneId().PHP_EOL.
         'Assigned to ID: '.$this->getAssignedToId().PHP_EOL.

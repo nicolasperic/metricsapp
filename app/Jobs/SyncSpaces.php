@@ -43,7 +43,7 @@ class SyncSpaces implements ShouldQueue
         $this->user->notify(Helper::getAssemblaSyncNotification(
             null,
             route('projects.index'),
-            'Projects were synced correctly'
+            'Spaces were synced correctly'
             ));
     }
 }

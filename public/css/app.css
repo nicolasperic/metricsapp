@@ -11013,6 +11013,40 @@ a.text-dark:focus {
     width: 50%;
     float: left;
   }
+
+  .container-fluid.sprint-container .user-stories-types .user-story-type .type-label,
+  .sprint-container.container-sm .user-stories-types .user-story-type .type-label,
+  .sprint-container.container-md .user-stories-types .user-story-type .type-label,
+  .sprint-container.container-lg .user-stories-types .user-story-type .type-label,
+  .sprint-container.container-xl .user-stories-types .user-story-type .type-label {
+    font-size: 1em;
+  }
+
+  .container-fluid.sprint-container .stats-card .card-body,
+  .sprint-container.container-sm .stats-card .card-body,
+  .sprint-container.container-md .stats-card .card-body,
+  .sprint-container.container-lg .stats-card .card-body,
+  .sprint-container.container-xl .stats-card .card-body {
+    padding: 0.7rem;
+  }
+
+  .container-fluid.sprint-container .stats-card .card-body div.col-auto i,
+  .sprint-container.container-sm .stats-card .card-body div.col-auto i,
+  .sprint-container.container-md .stats-card .card-body div.col-auto i,
+  .sprint-container.container-lg .stats-card .card-body div.col-auto i,
+  .sprint-container.container-xl .stats-card .card-body div.col-auto i {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  .container-fluid.sprint-container .actions,
+  .sprint-container.container-sm .actions,
+  .sprint-container.container-md .actions,
+  .sprint-container.container-lg .actions,
+  .sprint-container.container-xl .actions {
+    top: 0px !important;
+  }
 }
 
 .help {
