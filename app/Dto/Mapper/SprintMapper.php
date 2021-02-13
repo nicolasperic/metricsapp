@@ -28,7 +28,9 @@ class SprintMapper extends AbstractMapper
 
     /**
      * @param \App\Sprint $sprint
-     * @param SprintDto $sprintDto
+     * @param SprintDto   $sprintDto
+     *
+     * @return Sprint
      */
     public static function updateSprintFromDTO($sprint, $sprintDto)
     {
@@ -61,6 +63,8 @@ class SprintMapper extends AbstractMapper
         if ($changed) {
             $sprint->save();
         }
+
+        return $sprint;
     }
 
 }

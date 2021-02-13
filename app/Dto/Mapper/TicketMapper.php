@@ -11,7 +11,7 @@ class TicketMapper extends AbstractMapper
 {
     public static function createTicketFromDTO(TicketDto $ticketDto, $project)
     {
-        return $ticket = Ticket::create([
+        return Ticket::create([
             'project_id' => $project->id,
             'name' => $ticketDto->getSummary(),
             'number' => $ticketDto->getNumber(),
@@ -38,7 +38,9 @@ class TicketMapper extends AbstractMapper
 
     /**
      * @param \App\Ticket $ticket
-     * @param TicketDto $ticketDto
+     * @param TicketDto   $ticketDto
+     *
+     * @return Ticket
      */
     public static function updateTicketFromDTO($ticket, TicketDto $ticketDto)
     {
@@ -121,6 +123,8 @@ class TicketMapper extends AbstractMapper
         if ($changed) {
             $ticket->save();
         }
+
+        return $ticket;
     }
     
 

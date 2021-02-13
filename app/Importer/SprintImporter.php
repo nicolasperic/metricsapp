@@ -41,12 +41,13 @@ class SprintImporter
             /** @var SprintDTO $sprintDto */
             foreach ($sprints as $sprintDto) {
                 $allProjectMilestonesFromAPI[$sprintDto->getSprintAssemblaId()] = true;
-                if (!Sprint::sprintExists($sprintDto->getSprintAssemblaId())) {
+                $sprint = Sprint::getSprintByAssemblaId($sprintDto->getSprintAssemblaId());
+                if ($sprint === null) {
                     $sprint = SprintMapper::createSprintFromDTO($sprintDto);
                     $this->_addSprintToProject($sprint, $project);
                 } else {
-                    $sprint = Sprint::getSprintByAssemblaId($sprintDto->getSprintAssemblaId());
-                    SprintMapper::updateSprintFromDTO($sprint, $sprintDto);
+
+                    $sprint = SprintMapper::updateSprintFromDTO($sprint, $sprintDto);
                 }
 
                 if (!$this->user->hasSprint($sprintDto->getSprintAssemblaId())) {

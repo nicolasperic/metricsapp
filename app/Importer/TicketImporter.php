@@ -5,8 +5,6 @@ namespace App\Importer;
 use App\Dto\TicketAssociationDto;
 use App\Dto\TicketDto;
 use App\Dto\Mapper\TicketMapper;
-use App\Dto\Mapper\TicketTimeMapper;
-use App\Importer\TasksImporter;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use App\Project;
@@ -19,6 +17,7 @@ class TicketImporter
 {
     private $assemblaGateway;
     private $ticketTimeImporter;
+    private $apiCalls;
     /**
      * @var User
      */
@@ -36,10 +35,12 @@ class TicketImporter
      */
     public function importMilestoneTickets($sprint)
     {
+        $startTime = time();
+        $this->apiCalls = 0;
         Log::info('[Ticket Importer] Started');
         $project = Project::getProjectByAssemblaId($sprint->project_assembla_id);
 
-        $this->validateAssemblaUsers($project);
+        $this->importProjectUsersIfNone($project);
 
         $page = 1;
         $queryParams = [
@@ -51,6 +52,7 @@ class TicketImporter
         $allSprintTicketsFromAPI = array();
         do {
             $tickets = $this->assemblaGateway->getTicketsForMilestone($project->wikiname, $sprint->sprint_assembla_id, $queryParams);
+            $this->apiCalls++;
 
             if ($tickets) {
                 Log::info('[Ticket Importer] Response 200 for page '.$page);
@@ -64,7 +66,6 @@ class TicketImporter
                     if ($ticket === null) {
                         Log::info('[Ticket Importer] about to create ticket '.$ticketDto->getNumber());
                         $this->_createTicketFromDTO($ticketDto, $sprint, $project);
-                        $this->_createTrackedTimeFor($ticketDto->getTicketAssemblaId());
                     } else {
                         //we need to update ticket fields and milestone assignation!
                         //some tickets could be present on the milestone in our DB and not in Assembla...
@@ -72,8 +73,11 @@ class TicketImporter
                             $sprint->tickets()->save($ticket);
                         }
 
+                        if ($ticket->is_story) {
+                            Log::info('[Ticket Importer] ticket associations '.$ticketDto->getNumber());
+                            $this->_retrieveTicketAssociations($ticket, $project, true);
+                        }
                         TicketMapper::updateTicketFromDTO($ticket, $ticketDto);//Ticket Data synced
-                        $this->ticketTimeImporter->importTicketTasks($ticket);
 
                         //Milestone; ticket associations and ticket tracked time//TODO test what happens if I track i.e 1h and then I change it to 30m
                     }
@@ -83,6 +87,10 @@ class TicketImporter
             }
         } while(count($tickets) === AssemblaRequest::PER_PAGE);
 
+
+        $this->apiCalls += $this->ticketTimeImporter->importTicketsTasks(array_keys($allSprintTicketsFromAPI));//TODO validate query string limit, batch import if many tickets (it worked with 147 tickets)
+        //[Ticket Importer] Ended in 1.95 minutes with 57 api calls vs [Ticket Importer] Ended in 3.82 minutes with 203 api calls
+
         //sync $tickets received from API with sprints->tickets
         foreach ($sprint->tickets as $ticket) {
             if (!array_key_exists($ticket->ticket_assembla_id, $allSprintTicketsFromAPI)) {
@@ -90,7 +98,10 @@ class TicketImporter
             }
         }
         $sprint->touch();//just to trigger that the sprint was updated
-        Log::info('[Ticket Importer] Ended');
+
+        $endTime = time();
+        $minutes = round(($endTime - $startTime)/60, 2);
+        Log::info('[Ticket Importer] Ended in '.$minutes.' minutes with '.$this->apiCalls.' api calls');
     }
 
     /**
@@ -107,7 +118,7 @@ class TicketImporter
 
         if ($ticket->is_story) {
             Log::info('[Ticket Importer] ticket associations '.$ticketDto->getNumber());
-            $this->_validateTicketAssociations($ticket, $project);
+            $this->_retrieveTicketAssociations($ticket, $project);
         }
     }
 
@@ -119,8 +130,9 @@ class TicketImporter
      * @param \App\Ticket $userStory
      * @param \App\Project $project
      */
-    private function _validateTicketAssociations($userStory, $project)
+    private function _retrieveTicketAssociations($userStory, $project, $ticketAlreadyExisted = false)
     {
+        $this->apiCalls++;
         $ticketAssociations = $this->assemblaGateway->getTicketAssociationsBySpaceAndNumber($project->wikiname, $userStory->number);
         if ($ticketAssociations !== false) {
             /** @var TicketAssociationDto $association */
@@ -129,31 +141,20 @@ class TicketImporter
                     Log::info('[Ticket Importer] retrieving ticket by association '.$association->getTicket1Id());
                     $subtask = Ticket::getTicketByAssemblaId($association->getTicket1Id());
                     if (!is_null($subtask)) {
-                        $userStory->subtasks()->save($subtask,['relationship' => $association->getRelationship()]);
+                        if ($ticketAlreadyExisted) {
+                            if ($userStory->subtasks()->where('ticket2_id', $subtask->id)->count() === 0) {
+                                $userStory->subtasks()->save($subtask,['relationship' => $association->getRelationship()]);
+                            }
+                        } else {
+                            $userStory->subtasks()->save($subtask,['relationship' => $association->getRelationship()]);
+                        }
                     }//subtask was on a different milestone so it was not created
                 }
             }
         }
-        /** ticket1_id" => 231717985 subtask
-        "ticket2_id" => 231438936 story
-        "relationship" => 5 */
     }
 
-    private function _createTrackedTimeFor($ticketId)
-    {
-        Log::info('[Ticket Importer] about to retrieve tracked time for ticket '.$ticketId);
-        $queryParams = ['ticket_ids' => $ticketId];
-        $tasks = $this->assemblaGateway->getTrackedTimeForTicket($queryParams);
-        if ($tasks) {
-            foreach ($tasks as $ticketTimeDto) {
-                Log::info("[Ticket Importer] tracking time {$ticketTimeDto->getTicketNumber()} {$ticketTimeDto->getHours()}");
-                TicketTimeMapper::createTicketTimeFromDTO($ticketTimeDto);
-            }
-        }
-    }
-
-
-    private function validateAssemblaUsers($project)
+    private function importProjectUsersIfNone($project)
     {
         if (count($project->assemblaUsers) === 0) {
             Log::info('[Ticket Importer] no assembla users found > triggering UserImporter');

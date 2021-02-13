@@ -13,14 +13,10 @@ class ForceAssemblaKeys
     {
         $user = Auth::user();
         if($user->assembla_key == null || $user->assembla_secret == null) {
-            SessionMessage::infoMessage('Please enter your Assembla key and secret to begin using the app : )');
+            $assemblaCredentialsURL = '<a href="https://app.assembla.com/user/edit/manage_clients" target="_blank">here</a>';
+            SessionMessage::infoMessage('Please enter your Assembla key and secret to begin using the app. Find your key '.$assemblaCredentialsURL);
             return redirect()->route('settings.index');
         }
-
-        /*if (count($user->projects) == 0 && !(Session::has('message') && strpos(Session::get('message'),'Projects sync') !== false)) {
-            $importUrl = '<a href="'.route('projects.sync').'">import</a>';
-            SessionMessage::infoMessage('To get started '.$importUrl.' your Assembla spaces');
-        }*/
 
         return $next($request);
     }

@@ -12,15 +12,14 @@ class AssemblaUserMapper extends AbstractMapper
 {
     public static function createAssemblaUserFromDTO(AssemblaUserDto $assemblaUserDto)
     {
-        return $assemblaUser = AssemblaUser::create([
+        return AssemblaUser::create([
             'user_assembla_id' => $assemblaUserDto->getUserAssemblaId(),
             'login' => $assemblaUserDto->getLogin(),
             'name' => $assemblaUserDto->getName(),
             'email' => $assemblaUserDto->getEmail(),
             'picture' => $assemblaUserDto->getPicture()
         ]);
-
-
     }
+    //TODO create updateAssemblaUserFromDTO function to be able to sync users after creation
 
 }

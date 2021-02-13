@@ -26,6 +26,12 @@ class TicketTimeMapper extends AbstractMapper
         ]);
     }
 
+    /**
+     * @param TicketTime    $ticketTime
+     * @param TicketTimeDto $ticketTimeDto
+     *
+     * @return TicketTime
+     */
     public static function updateTicketTimeFromDto(TicketTime $ticketTime, TicketTimeDto $ticketTimeDto)
     {
         $changed = false;
@@ -58,6 +64,8 @@ class TicketTimeMapper extends AbstractMapper
         if ($changed) {
             $ticketTime->save();
         }
+
+        return $ticketTime;
     }
 
 }

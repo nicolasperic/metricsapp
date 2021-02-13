@@ -31,7 +31,9 @@ class ProjectMapper extends AbstractMapper
 
     /**
      * @param \App\Project $project
-     * @param ProjectDto $projectDto
+     * @param ProjectDto   $projectDto
+     *
+     * @return Project
      */
     public static function updateProjectFromDTO($project, $projectDto)
     {
@@ -59,6 +61,8 @@ class ProjectMapper extends AbstractMapper
         if ($changed) {
             $project->save();
         }
+
+        return $project;
     }
 
 }

@@ -207,6 +207,23 @@ class AssemblaGateway
         return $this->getTasks($queryParams);
     }
 
+    public function getTrackedTimeForTickets($queryParams)
+    {
+        $tasks = false;
+        $response = AssemblaRequest::getMultiple("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
+
+        if ($response->getStatusCode() == 200) {
+            $tasks = [];
+            $result = json_decode($response->getBody()->getContents(), 1);
+            foreach ($result as $trackedTimeData) {
+                $tasks[] = new TicketTimeDto($trackedTimeData);
+            }
+
+        }
+
+        return $tasks;
+    }
+
     /**
      * Returns a paginated list of tasks. Pages are default to 25 tasks.
      * https://api-docs.assembla.cc/content/ref/tasks_index.html

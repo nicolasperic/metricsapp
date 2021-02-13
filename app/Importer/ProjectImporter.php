@@ -53,24 +53,23 @@ class ProjectImporter
                 /** @var ProjectDto $projectDto */
                 foreach ($spaces as $projectDto) {
                     $allProjectsFromAPI[$projectDto->getProjectAssemblaId()] = true;
-                    if (!Project::projectExists($projectDto->getProjectAssemblaId())) {
-                        ProjectMapper::createProjectFromDTO($projectDto);
+                    /** @var Project $project */
+                    $project = Project::getProjectByAssemblaId($projectDto->getProjectAssemblaId());
+                    if ($project === null) {
+                        $project = ProjectMapper::createProjectFromDTO($projectDto);
                     } else {
-                        /** @var Project $project */
-                        $project = Project::getProjectByAssemblaId($projectDto->getProjectAssemblaId());
-
-                        ProjectMapper::updateProjectFromDTO($project, $projectDto);//Importer syncing project data
+                        $project = ProjectMapper::updateProjectFromDTO($project, $projectDto);//Importer syncing project data
 
                         //if project already exists it might already have sprints so we need to add those sprints to the logged user
                         foreach ($project->sprints as $sprint) {
                             if (!$this->user->hasSprint($sprint->sprint_assembla_id)) {
-                                $this->_addSprintToUser($sprint);
+                                $this->user->sprints()->save($sprint);
                             }
                         }
                     }
 
-                    if (!$this->user->hasProject($projectDto->getProjectAssemblaId())) {
-                        $this->_addProjectToUser($projectDto);
+                    if (!$this->user->hasProject($project->project_assembla_id)) {
+                        $this->user->projects()->save($project);
                     }
                 }
             } else {
@@ -89,16 +88,4 @@ class ProjectImporter
         $minutes = round(($endtime - $startTime)/60, 2);
         Log::info('[Projects Importer] Finished in '.$minutes.' minutes');
     }
-
-    private function _addProjectToUser($projectDto)
-    {
-        $project = Project::getProjectByAssemblaId($projectDto->getProjectAssemblaId());
-        $this->user->projects()->save($project);
-    }
-
-    private function _addSprintToUser($sprint)
-    {
-        $this->user->sprints()->save($sprint);
-    }
-
 }

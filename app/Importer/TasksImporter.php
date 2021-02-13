@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 class TasksImporter
 {
     private $assemblaGateway;
+    private $apiCalls;
 
     function __construct(AssemblaGateway $assemblaGateway)
     {
@@ -22,9 +23,12 @@ class TasksImporter
 
     /**
      * @param \App\Ticket $ticket
+     *
+     * @return int amount of api calls made
      */
     public function importTicketTasks(Ticket $ticket)
     {
+        $this->apiCalls = 0;
         Log::info('[TicketTime Importer] about to retrieve tracked time for ticket '.$ticket->id);
 
         $page = 1;
@@ -33,6 +37,7 @@ class TasksImporter
         do {
 
             $tasks = $this->assemblaGateway->getTrackedTimeForTicket($queryParams);
+            $this->apiCalls++;
             if ($tasks) {
                 Log::info('[TicketTime Importer] Response 200 for page '.$page);
                 $queryParams['page'] = ++$page;
@@ -61,5 +66,42 @@ class TasksImporter
             }
         }
         Log::info('[TicketTime Importer] Ended');
+
+        return $this->apiCalls;
+    }
+
+
+    public function importTicketsTasks($tickets) {
+        $this->apiCalls = 0;
+        $page = 0;
+        $queryParams = [
+            'ticket_ids[]' => $tickets,
+            'page' => $page,
+        ];
+        Log::info('[Ticket Importer] getting tasks for '.count($tickets).' tickets');
+
+        do {
+            $queryParams['page'] = ++$page;
+            $tasks = $this->assemblaGateway->getTrackedTimeForTickets($queryParams);
+            $this->apiCalls++;
+
+            if ($tasks === false) {
+                break;
+            }
+
+            foreach ($tasks as $ticketTimeDto) {
+                $ticketTime = TicketTime::getTicketTimeByAssemblaId($ticketTimeDto->getTicketTimeAssemblaId());
+                if ($ticketTime === null) {
+                    TicketTimeMapper::createTicketTimeFromDTO($ticketTimeDto);
+                } else {
+                    TicketTimeMapper::updateTicketTimeFromDto($ticketTime, $ticketTimeDto);
+                }
+            }
+
+
+        } while(count($tasks) === AssemblaRequest::PER_PAGE);
+        Log::info('[Ticket Importer] Tasks for all tickets were retrieved in '.$page.' pages');
+
+        return $this->apiCalls;
     }
 }
