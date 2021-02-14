@@ -22,6 +22,12 @@
                 <h6 class="m-0 font-weight-bold"><i class="fas fa-cog fa-sm text-gray-400"></i>Settings</h6>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link disabled" href="#" id="user_role">
+                <h6 class="m-0 font-weight-bold"><i class="fas fa-user fa-sm text-gray-400"></i>Your role: {{ $project->getUserRole(Auth::user()) }}</h6>
+            </a>
+        </li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane  urlbox span8" id="awaiting_request">

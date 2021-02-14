@@ -168,14 +168,14 @@ class Helper {
         return explode(' ',$dateString)[0];
     }
 
-    public static function getAssemblaSyncNotification($entityId, $url, $message)
+    public static function getAssemblaSyncNotification($entityId, $url, $message, $bgClass = 'bg-success')
     {
         $notificationDto = new NotificationDto([
             'entity_id' => $entityId,
             'url' => $url,
             'message' => $message,
             'date' => Carbon::now()->format('F d, Y g:i a'),
-            'bg_class' => 'bg-success',
+            'bg_class' => $bgClass,
             'icon_class' =>'fa-download'
         ]);
         return new AssemblaSynced($notificationDto);

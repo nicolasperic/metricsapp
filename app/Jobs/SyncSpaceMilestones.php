@@ -67,12 +67,21 @@ class SyncSpaceMilestones implements ShouldQueue, ShouldBeUnique
 
         try {
             $sprintImporter = new SprintImporter($this->user);
-            $sprintImporter->importProjectMilestonesAsSprints($this->project);
+            $noContent = $sprintImporter->importProjectMilestonesAsSprints($this->project);
+
+            $message = $this->project->name.' milestones were synced correctly';
+            $bgClass = 'bg-success';
+            if ($noContent) {
+                $message = 'No milestones were retrieved for '.$this->project->name;
+                $bgClass = 'bg-warning';
+            }
+
             if ($this->notify) {
                 $this->user->notify(Helper::getAssemblaSyncNotification(
                     $this->project->id,
                     route('projects.show', $this->project->wikiname),
-                    $this->project->name.' milestones were synced correctly'
+                    $message,
+                    $bgClass
                 ));
             }
         } catch (Exception $e) {
