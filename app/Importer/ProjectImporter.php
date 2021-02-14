@@ -71,6 +71,11 @@ class ProjectImporter
                     if (!$this->user->hasProject($project->project_assembla_id)) {
                         $this->user->projects()->save($project);
                     }
+
+                    $role = $this->assemblaGateway->getUserRoleInSpace($this->user->user_assembla_id, $project->wikiname);
+                    if ($role !== false) {
+                        $this->user->projects()->updateExistingPivot($project->id, $role);
+                    }
                 }
             } else {
                 break;

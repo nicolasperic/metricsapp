@@ -185,4 +185,18 @@ class AssemblaGatewayTest
   ]
          */
 
+    /** @test */
+    function get_user_roles()
+    {
+        $userAssemblaId = 'cvixt811Gr4PBcacwqjQYw';
+        $user = $this->loginWithAssemblaUser();
+        $assemblaGateway = new AssemblaGateway($user);
+        $role = $assemblaGateway->getUserRoleInSpace($userAssemblaId, 'sommiercenter');
+
+
+        $this->assertEquals('owner', $role['user_role']);
+        $this->assertEquals('2', $role['user_status']);
+        //dd($result);
+    }
+
 }

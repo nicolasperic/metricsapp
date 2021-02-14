@@ -123,6 +123,45 @@ class AssemblaGateway
         return $spaceUsers;
     }
 
+
+    /**
+     * This function returns the role a user has on a given space
+     * Since Assembla doesn't provide and endpoint for this we are filtering the user
+     * from the list of user roles in space
+     *
+     * Assembla Endpoint used:
+     * Returns list of user roles (space members)
+     * https://api-docs.assembla.cc/content/ref/user_roles_index.html
+     *
+     * @param $userAssemblaId string user id in assembla
+     * @param $space string wikiname or space id in assembla
+     *
+     * @return array|bool
+     */
+    public function getUserRoleInSpace($userAssemblaId, $space)
+    {
+        $userRole = false;
+
+        $page = 0;
+        do {
+            $page++;
+            $queryParams = ['page' => $page];
+            $response = AssemblaRequest::get("spaces/{$space}/user_roles", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
+            $result = json_decode($response->getBody()->getContents(), 1);
+
+            $key = array_search($userAssemblaId, array_column($result, 'user_id'));
+            if ($key !== false) {
+                $userRole = [
+                    'user_role' => $result[$key]['role'],
+                    'user_status' => $result[$key]['status']
+                ];
+                break;
+            }
+        } while(count($result) === AssemblaRequest::PER_PAGE);
+
+        return $userRole;
+    }
+
     /**
      * Returns a ticket by a ticket number.
      * https://api-docs.assembla.cc/content/ref/tickets_show.html
