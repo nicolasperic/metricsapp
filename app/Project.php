@@ -25,6 +25,36 @@ class Project extends Model
         return self::where('project_assembla_id', $projectAssemblaId)->with('assemblaUsers')->first();
     }
 
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function isUserOwner(User $user)
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot(['user_id','user_role', 'user_status'])
+            ->where('user_role', 'owner')
+            ->where('user_status', 2)
+            ->where('user_id', $user->id)
+            ->count() > 0;
+    }
+
+    public function getUserRole(User $user)
+    {
+        $userRole = false;
+        $user = $this->belongsToMany(User::class)
+            ->withPivot(['user_id','user_role', 'user_status'])
+            ->where('user_id', $user->id)->first();
+        if ($user !== null) {
+            $userRole = ucfirst($user->pivot->user_role);
+        }
+
+        return $userRole;
+    }
+
+
+
     public function tickets()
     {
         return $this->hasMany('App\Ticket');
