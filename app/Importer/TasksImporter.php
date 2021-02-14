@@ -80,6 +80,11 @@ class TasksImporter
         ];
         Log::info('[Ticket Importer] getting tasks for '.count($tickets).' tickets');
 
+        if (count($tickets) === 0) {
+            Log::info('[Ticket Importer] No tickets so, no tasks!');
+            return $this->apiCalls;
+        }
+
         do {
             $queryParams['page'] = ++$page;
             $tasks = $this->assemblaGateway->getTrackedTimeForTickets($queryParams);
