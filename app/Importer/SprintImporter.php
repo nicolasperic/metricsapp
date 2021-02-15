@@ -27,6 +27,7 @@ class SprintImporter
      */
     public function importProjectMilestonesAsSprints($project)
     {
+        $noContent = true;
         Log::info('[Milestones Importer] Starting import process');
         $startTime = time();
         $allProjectMilestonesFromAPI = array();
@@ -62,7 +63,10 @@ class SprintImporter
                     $this->user->sprints()->detach($sprint->id);
                 }
             }
+            $noContent = false;
         }
+
+        return $noContent;
     }
 
     private function _addSprintToUser($sprint)

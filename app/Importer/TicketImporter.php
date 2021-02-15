@@ -35,6 +35,7 @@ class TicketImporter
      */
     public function importMilestoneTickets($sprint)
     {
+        $noContent = true;
         $startTime = time();
         $this->apiCalls = 0;
         Log::info('[Ticket Importer] Started');
@@ -55,6 +56,7 @@ class TicketImporter
             $this->apiCalls++;
 
             if ($tickets) {
+                $noContent = false;
                 Log::info('[Ticket Importer] Response 200 for page '.$page);
                 $queryParams['page'] = ++$page;
 
@@ -87,9 +89,13 @@ class TicketImporter
             }
         } while(count($tickets) === AssemblaRequest::PER_PAGE);
 
+        if (count($allSprintTicketsFromAPI) > 0) {
+            //TODO validate query string limit, batch import if many tickets (it worked with ~450 tickets)
+            $this->apiCalls += $this->ticketTimeImporter->importTicketsTasks(array_keys($allSprintTicketsFromAPI));
+            //[Ticket Importer] Ended in 1.95 minutes with 57 api calls vs [Ticket Importer] Ended in 3.82 minutes with 203 api calls
+        }
 
-        $this->apiCalls += $this->ticketTimeImporter->importTicketsTasks(array_keys($allSprintTicketsFromAPI));//TODO validate query string limit, batch import if many tickets (it worked with 147 tickets)
-        //[Ticket Importer] Ended in 1.95 minutes with 57 api calls vs [Ticket Importer] Ended in 3.82 minutes with 203 api calls
+
 
         //sync $tickets received from API with sprints->tickets
         foreach ($sprint->tickets as $ticket) {
@@ -102,6 +108,8 @@ class TicketImporter
         $endTime = time();
         $minutes = round(($endTime - $startTime)/60, 2);
         Log::info('[Ticket Importer] Ended in '.$minutes.' minutes with '.$this->apiCalls.' api calls');
+
+        return $noContent;
     }
 
     /**
