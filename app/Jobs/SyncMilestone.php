@@ -57,15 +57,23 @@ class SyncMilestone implements ShouldQueue//, ShouldBeUnique
 
             Log::info('SyncMilestone executing for '.$this->sprint->refresh()->title);
             $ticketImporter = new TicketImporter($this->user);
-            $ticketImporter->importMilestoneTickets($this->sprint);
+            $noContent = $ticketImporter->importMilestoneTickets($this->sprint);
             Log::info('SyncMilestone ended for '.$this->sprint->title);
 
             $project = $this->sprint->getProject();
             if ($this->notify) {
+                $message = $this->sprint->name.' was synced correctly';
+                $bgClass = 'bg-success';
+                if ($noContent) {
+                    $message = 'No tickets were retrieved for '.$this->sprint->name;
+                    $bgClass = 'bg-warning';
+                }
+
                 $this->user->notify(Helper::getAssemblaSyncNotification(
                     $this->sprint->id,
                     route('sprints.show', [$project->wikiname, $this->sprint->sprint_assembla_id]),
-                    $this->sprint->name.' was synced correctly'
+                    $message,
+                    $bgClass
                 ));
             }
         } catch (\Exception $e) {
