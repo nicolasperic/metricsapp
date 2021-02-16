@@ -153,9 +153,10 @@ class ReportsController extends Controller
         return request()->validate([
             'project'   => 'required',
             'hours_us_from_date' => 'date',
-            'hours_us_to_date' => 'date|after_or_equal:hours_us_from_date',
+            'hours_us_to_date' => 'date|after_or_equal:hours_us_from_date|valid_date_range:hours_us_from_date,6',
         ],[
             'hours_us_to_date.after_or_equal' => 'To date must be a date after or equal From date.',
+            'hours_us_to_date.valid_date_range' => 'Dates range cannot be larger than six months.'
         ]);
     }
 
@@ -186,9 +187,10 @@ class ReportsController extends Controller
         return request()->validate([
             'projects'   => 'required',
             'hours_user_from_date' => 'date',
-            'hours_user_to_date'   => 'date|after_or_equal:hours_user_from_date',
+            'hours_user_to_date'   => 'date|after_or_equal:hours_user_from_date|valid_date_range:hours_us_from_date,12',
         ],[
             'hours_user_to_date.after_or_equal' => 'To date must be a date after or equal From date.',
+            'hours_user_to_date.valid_date_range' => 'Dates range cannot be larger than twelve months.'
         ]);
     }
 
