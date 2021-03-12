@@ -14,7 +14,7 @@ class AddSprintCarryOverData extends Migration
     public function up()
     {
         Schema::table('sprints', function (Blueprint $table) {
-            $table->json('carry_over')->nullable()->after('end_date');
+            $table->longText('carry_over')->nullable()->after('end_date');
         });
     }
 
