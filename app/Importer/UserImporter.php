@@ -9,6 +9,7 @@ use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
 use App\Project;
 use App\User;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
 
 class UserImporter
@@ -101,9 +102,23 @@ class UserImporter
             $assemblaUserDto = $this->assemblaGateway->getUser($userAssemblaId);
             if ($assemblaUserDto !== false) {
                 Log::info('[AssemblaUsers Importer] about to create user '.$assemblaUserDto->getName());
-                $image = $this->assemblaGateway->getUserImage($assemblaUserDto->getUserAssemblaId());
-                Log::info('Image obtained for user '.$image);
-                $assemblaUserDto->setPicture($image);
+                try {
+                    $image = $this->assemblaGateway->getUserImage($assemblaUserDto->getUserAssemblaId());
+                    Log::info('Image obtained for user '.$image);
+                    $assemblaUserDto->setPicture($image);
+                } catch (ClientException $e) {
+                    $image = 'https://assets3.assembla.com/assets/avatars/small/10-34646632626633326534663337306230663564393237353266396538633232383833626339353837396534323061616337666664633662376434376637303134.png';
+                    $assemblaUserDto->setPicture($image);
+                    if ($e->getCode() == 401) {
+                        Log::info('Not authorized to get user image..');
+                    } else {
+                        Log::info('Error Code '.$e->getCode() . ' when retrieving user image');
+                        Log::info($e->getMessage());
+                    }
+                } catch (\Exception $e) {
+                    Log::info($e->getMessage() . '.. Exception $e');
+                }
+
 
                 $user = AssemblaUserMapper::createAssemblaUserFromDTO($assemblaUserDto);
             } else {
@@ -124,6 +139,8 @@ class UserImporter
      * if the assembla user is already on the DB we return the stored name
      * if not it will import the user, store it and return the name
      *
+     * This function is only used on reports that are executedo on the background.
+     * We should never call this function from outside a job (performance degradation)
      * @param $userAssemblaId
      *
      * @return String

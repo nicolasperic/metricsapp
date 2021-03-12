@@ -30,6 +30,7 @@ class TicketFactory extends Factory
             'name' => 'TIC-1234: ticket name',
             'number' => 1234,
             'status' => 'Accepted',
+            'state' => Ticket::OPEN_STATE,
             'is_story' => true,
             'created_at' => Carbon::now(),
         ];

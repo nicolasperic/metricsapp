@@ -10,6 +10,11 @@ use App\Sprint;
 
 class SprintMapper extends AbstractMapper
 {
+    /**
+     * @param SprintDto $sprintDto
+     *
+     * @return mixed
+     */
     public static function createSprintFromDTO(SprintDto $sprintDto)
     {
          $sprint = Sprint::create([

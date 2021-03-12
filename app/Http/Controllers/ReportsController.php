@@ -66,7 +66,7 @@ class ReportsController extends Controller
     }
 
     /**
-     * TODO move this function to a helper
+     * TODO move _getUsersInProjects function to a helper
      * This function will return an array with the assembla users on each project
      * @param $projects
      *

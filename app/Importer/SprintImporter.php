@@ -79,4 +79,9 @@ class SprintImporter
         $project->sprints()->save($sprint);
     }
 
+    public function createNewCurrentSprint($sprintData, $project)
+    {
+        //TODO will this be used?...
+    }
+
 }

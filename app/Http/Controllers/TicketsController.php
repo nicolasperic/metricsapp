@@ -10,9 +10,15 @@ use Illuminate\Support\Facades\Log;
 
 class TicketsController extends Controller
 {
-    public function syncTickets($sprintId)
+    /**
+     * @param $sprintAssemblaId
+     *
+     * *TODO move this under Controllers/Assembla/
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function syncTickets($sprintAssemblaId)
     {
-        $sprint = Auth::user()->sprints()->findOrFail($sprintId);
+        $sprint = Auth::user()->sprints()->where('sprint_assembla_id', $sprintAssemblaId)->firstOrFail();
         try {
             SyncMilestone::dispatch(Auth::user(), $sprint);
             SessionMessage::infoMessage("Tickets sync job was added to the queue");

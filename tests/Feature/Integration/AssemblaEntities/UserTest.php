@@ -5,6 +5,7 @@ namespace Tests\Feature\Integration;
 use App\Dto\AssemblaUserDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
+use App\Integration\FakeAssemblaGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -29,7 +30,24 @@ class UserTest
     }
 
     /** @test */
-    function can_get_authenticated_user_image()
+    function can_get_fake_authenticated_user()
+    {
+        //creating new faceAssembla instance
+        $fakeAssembla  = new FakeAssemblaGateway($this->loginWithAssemblaUser());
+        //setting the instance on the service container
+        $this->instance(AssemblaGateway::class, $fakeAssembla);
+
+        //when resolving the AssemblaGateway class the fake instance will be returned
+        $assemblaGateway = resolve(AssemblaGateway::class)->setUser($this->loginWithAssemblaUser());
+
+        /** @var AssemblaUserDto $userDto */
+        $userDto = $assemblaGateway->getAuthenticatedUser();
+        $this->assertEquals('nicoperic', $userDto->getLogin());
+        $this->assertEquals('nperic@summasolutions.net', $userDto->getEmail());
+    }
+
+    /** @test */
+    function can_get_user_image()
     {
         $assemblaGateway = new AssemblaGateway($this->loginWithAssemblaUser());
         $authenticatedUserImagePath = $assemblaGateway->getUserImage('cvixt811Gr4PBcacwqjQYw');

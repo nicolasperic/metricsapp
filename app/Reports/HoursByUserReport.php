@@ -95,6 +95,7 @@ class HoursByUserReport extends Report implements ReportInterface
 
                 $applicationKey = $this->user->assembla_key;
                 $applicationSecret = $this->user->assembla_secret;
+                //TODO this request can be done with multiple for spaces[]=space_id&spaces[]=another_space_id...
                 $response = AssemblaRequest::get("tasks", $applicationKey, $applicationSecret, $queryParams);
                 $this->apiCalls++;
                 $result = json_decode($response->getBody()->getContents(), 1);

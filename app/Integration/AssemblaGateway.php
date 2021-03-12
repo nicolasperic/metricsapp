@@ -25,6 +25,19 @@ class AssemblaGateway
         $this->user = $user;
     }
 
+    /**
+     * @param User $user
+     *
+     * @return $this
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+
+
 
     /**
      * Returns currently authenticated user.
@@ -246,35 +259,35 @@ class AssemblaGateway
         return $this->getTasks($queryParams);
     }
 
+    /**
+     * This function is used to retrieve tasks for multiple tickets in few API calls
+     * To be able to have multiple Ids with the same param name we use the $multiple = true trigger
+     * i.e: ?ticket_ids[]=ticket_id&ticket_ids[]=another_ticket_id...
+     *
+     * Currently used only on TasksImporter
+     * @param $queryParams
+     *
+     * @return array
+     */
     public function getTrackedTimeForTickets($queryParams)
     {
-        $tasks = false;
-        $response = AssemblaRequest::getMultiple("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
-
-        if ($response->getStatusCode() == 200) {
-            $tasks = [];
-            $result = json_decode($response->getBody()->getContents(), 1);
-            foreach ($result as $trackedTimeData) {
-                $tasks[] = new TicketTimeDto($trackedTimeData);
-            }
-
-        }
-
-        return $tasks;
+        return $this->getTasks($queryParams, $multiple = true);
     }
 
     /**
      * Returns a paginated list of tasks. Pages are default to 25 tasks.
      * https://api-docs.assembla.cc/content/ref/tasks_index.html
      *
-     * @param $queryParams
+     * @param      $queryParams
+     *
+     * @param bool $multiple flag used to trigger URL query strings that allow multiple parameters with same name
      *
      * @return array TicketTimeDto | false
      */
-    public function getTasks($queryParams)
+    public function getTasks($queryParams, $multiple = false)
     {//dowhile
         $tasks = false;
-        $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
+        $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams, $multiple);
         if ($response->getStatusCode() == 200) {
             $tasks = [];
             $result = json_decode($response->getBody()->getContents(), 1);
@@ -287,6 +300,9 @@ class AssemblaGateway
     }
 
     /**
+     * There's no need to be an owner to get the Space Milestones. If no content is retrieved
+     * it could be due to a disabled space
+     *
      * Returns a list of paginated upcoming milestones. Pages are defaulted to 10 milestones.
      * https://api-docs.assembla.cc/content/ref/milestones_index.html
      *
@@ -306,6 +322,55 @@ class AssemblaGateway
             }
         }
         return $milestones;
+    }
+
+    /**
+     * This function is used for creating a new milestone on the given space
+     *
+     * @param $postParams
+     * @param $space
+     *
+     * @return SprintDto|bool
+     */
+    public function createMilestone($postParams, $space)
+    {
+        $milestone = false;
+        $response = AssemblaRequest::post("spaces/{$space}/milestones", $this->user->assembla_key, $this->user->assembla_secret, $postParams);
+        if ($response->getStatusCode() == 201) {//201 result of post new resources were created OK
+            $milestoneData = json_decode($response->getBody()->getContents(), 1);
+            $milestone = new SprintDto($milestoneData);
+        } else {
+            //TODO since the new milestone was not correctly created the user needs to be notified and the SprintIteration process should be halted
+        }
+        return $milestone;
+    }
+
+    /**
+     * @param $putParams
+     * @param $ticketNumber
+     * @param $space
+     *
+     * @return bool
+     */
+    public function updateTicket($putParams, $ticketNumber, $space) {
+        $result = false;
+        $response = AssemblaRequest::put("spaces/{$space}/tickets/{$ticketNumber}", $this->user->assembla_key, $this->user->assembla_secret, $putParams);
+        if ($response->getStatusCode() == 204) {
+            $result = true;
+        }
+
+        return $result;
+    }
+
+    public function updateMilestone($putParams, $milestoneId, $space)
+    {
+        $result = false;
+        $response = AssemblaRequest::put("spaces/{$space}/milestones/{$milestoneId}", $this->user->assembla_key, $this->user->assembla_secret, $putParams);
+        if ($response->getStatusCode() == 204) {
+            $result = true;
+        }
+
+        return $result;
     }
 
     /**

@@ -283,7 +283,7 @@ class MilestoneTest
             'name'                  => 'Sprint A',
             'sprint_assembla_id'  => '13040067',
             'is_active'              => 1,
-            'planner_type'        => 2,
+            'planner_type'        => Sprint::PLANNER_TYPE_CURRENT,
         ]);
 
         $projectA->sprints()->save($sprintA);
@@ -298,7 +298,7 @@ class MilestoneTest
             'name'                  => 'Sprint B',
             'sprint_assembla_id'  => '13040067',
             'is_active'              => 1,
-            'planner_type'        => 2,
+            'planner_type'        => Sprint::PLANNER_TYPE_CURRENT,
         ]);
         $projectB->sprints()->save($sprintB);
         $projectC = Project::factory()->create([
@@ -311,7 +311,7 @@ class MilestoneTest
             'name'                  => 'Sprint C',
             'sprint_assembla_id'  => '13040067',
             'is_active'              => 1,
-            'planner_type'        => 2,
+            'planner_type'        => Sprint::PLANNER_TYPE_CURRENT,
         ]);
 
         $projectC->sprints()->save($sprintC);
@@ -357,14 +357,14 @@ class MilestoneTest
             'name'                  => 'Sprint A',
             'sprint_assembla_id'  => '13040067',
             'is_active'              => 1,
-            'planner_type'        => 2,
+            'planner_type'        => Sprint::PLANNER_TYPE_CURRENT,
         ]);
         $sprintB = Sprint::factory()->create([
             'project_assembla_id' => 'dpT43eCVCr54kBacwqjQYw',
             'name'                  => 'Sprint B',
             'sprint_assembla_id'  => '13041228',
             'is_active'              => 1,
-            'planner_type'        => 2,
+            'planner_type'        => Sprint::PLANNER_TYPE_CURRENT,
         ]);
         $projectA->sprints()->saveMany([$sprintA, $sprintB]);
         $userA->projects()->save($projectA);
@@ -383,6 +383,65 @@ class MilestoneTest
 
         $userA->reports()->save($reportModel);
         ProcessSprintsReport::dispatch($requestData, $reportModel);
+    }
+
+    /**  */
+    function can_create_a_milestone()
+    {
+        $user = $this->loginWithAssemblaUser();
+
+
+        //TESTING PUT FOR UPDATING TICKET MILESTONE
+        //12988349 //SC backlog 2020
+        $params = ['ticket' => [
+            'milestone_id' => '13019911'
+        ]];
+        //PUT /v1/spaces/[space_id]/tickets/[number
+        $response = AssemblaRequest::put("spaces/AD-Barbieri/tickets/762", $user->assembla_key, $user->assembla_secret, $params);
+        dump($response->getStatusCode());//204
+        $result = json_decode($response->getBody()->getContents(), 1);
+        dd($result);//null
+
+        $params = ['milestone' => [
+            'space_id' => 'dxD3_KI5ur6ky6dmr6QqzO',//SommierCenter
+            'title' => 'SE - FEB21 1',//SE [CODE] - MONTHYEAR #sprint of month
+            'updated_by' => 'cvixt811Gr4PBcacwqjQYw',
+            'created_by' => 'cvixt811Gr4PBcacwqjQYw',
+            'user_id' => 'cvixt811Gr4PBcacwqjQYw',
+            'planner_type' => Sprint::PLANNER_TYPE_BACKLOG,
+            'start_date' => '2021-02-08',
+            'due_date' => '2021-02-19'
+        ]];
+        //$response = AssemblaRequest::post("spaces/sommiercenter/milestones", $user->assembla_key, $user->assembla_secret, $params);
+        //dump($response->getStatusCode());
+        //$result = json_decode($response->getBody()->getContents(), 1);
+        //dd($result);
+        /*
+         *
+         * 201
+array:18 [
+  "id" => 13044657
+  "start_date" => "2021-02-08"
+  "due_date" => "2021-02-19"
+  "budget" => null
+  "title" => "SE - Febrero 1"
+  "user_id" => "cvixt811Gr4PBcacwqjQYw"
+  "created_at" => "2021-02-06T00:34:19.000Z"
+  "created_by" => "cvixt811Gr4PBcacwqjQYw"
+  "space_id" => "dxD3_KI5ur6ky6dmr6QqzO"
+  "description" => null
+  "is_completed" => false
+  "completed_date" => null
+  "updated_at" => "2021-02-06T00:34:19.000Z"
+  "updated_by" => "cvixt811Gr4PBcacwqjQYw"
+  "release_level" => null
+  "release_notes" => null
+  "planner_type" => 0
+  "pretty_release_level" => "None"
+]
+         */
+
+        //403 FORBIDDEN
     }
 
 

@@ -33,8 +33,9 @@
                             @forelse ($projects as $project)
                                 <li>
                                     <div class="starred-form-container" style="float:left;">
-                                        <form id="{{$project->id}}" class="starred" name="starred_project_form" action="{{url("projects/starred/{$project->id}")}}" method="POST">
-                                            <input class="project-star" name="starred_project" type="checkbox" @if ($project->pivot->starred) checked @endif/>
+                                        <form id="{{$project->id}}" class="starred" name="starred_project_form" action="{{ route('projects.storePivotAttribute', $project-> wikiname) }}" method="POST">
+                                            <input type="hidden" name="attribute_name" value="starred">
+                                            <input class="project-star" name="starred" type="checkbox" @if ($project->pivot->starred) checked @endif/>
                                         </form>
                                     </div>
 

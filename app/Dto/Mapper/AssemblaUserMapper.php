@@ -20,6 +20,6 @@ class AssemblaUserMapper extends AbstractMapper
             'picture' => $assemblaUserDto->getPicture()
         ]);
     }
-    //TODO create updateAssemblaUserFromDTO function to be able to sync users after creation
+    //TODO create updateAssemblaUserFromDTO function to be able to sync users after creation... hmm this is not important, validate if users are removed from spaces correctly
 
 }

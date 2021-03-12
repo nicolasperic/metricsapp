@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Dto\AssemblaUserDto;
+use App\Dto\Mapper\AssemblaUserMapper;
 use App\Helper\SessionMessage;
 use App\Integration\AssemblaGateway;
 
@@ -57,7 +58,7 @@ class SettingsController extends Controller
         Crypt::decrypt($user->assembla_secret) != request('assembla_secret');
     }
 
-    //TODO this function doesn't belong here
+    //TODO this function doesn't belong here _setUserImageAndId
     private function _setUserImageAndId($user)
     {
         $success = false;
@@ -66,6 +67,8 @@ class SettingsController extends Controller
             /** @var AssemblaUserDto $assemblaUserDto */
             $assemblaUserDto = $gateway->getAuthenticatedUser();
             $imagePath = $gateway->getUserImage($assemblaUserDto->getUserAssemblaId());
+            $assemblaUserDto->setPicture($imagePath);
+            AssemblaUserMapper::createAssemblaUserFromDTO($assemblaUserDto);
             $user->assembla_user_image = $imagePath;
             $user->assembla_username = $assemblaUserDto->getName();
             $user->user_assembla_id = $assemblaUserDto->getUserAssemblaId();

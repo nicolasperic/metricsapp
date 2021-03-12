@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Helper\SessionMessage;
-use App\Importer\ProjectImporter;
-use App\Jobs\SyncSpaces;
-use GuzzleHttp\Exception\ClientException;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 
 class ProjectsController extends Controller
 {
+    /**
+     * Index action that displays user projects
+     * @return \Illuminate\Contracts\Validation\Validator|\Illuminate\Contracts\Validation\Factory
+     */
     public function index()
     {
         return view('projects.index', [
@@ -20,6 +18,13 @@ class ProjectsController extends Controller
         ]);
     }
 
+    /**
+     * Show action that displays the given project page
+     *
+     * @param $wikiname
+     *
+     * @return \Illuminate\Contracts\Validation\Validator|\Illuminate\Contracts\Validation\Factory
+     */
     public function show($wikiname)
     {
         $project = Auth::user()->projects()->where('wikiname', $wikiname)->firstorFail();
@@ -29,99 +34,93 @@ class ProjectsController extends Controller
         ]);
     }
 
-    public function starred($id)
+    /**
+     * Ajax called: returns the settings nav item content
+     * @param $wikiname
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Support\HtmlString|void
+     */
+    public function settingsPane($wikiname)
     {
-        $project = Auth::user()->projects()->findOrFail($id);
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->with('sprintIteration')->firstorFail();
 
-        $starred = (request('starred_project') !== null)?1:0;
-
-        Auth::user()->projects()->updateExistingPivot($project->id,['starred' => $starred]);
-
-
-        return response()->json(['id' => $project->id]);
+        return view('projects.partials.settings', [
+            'project' => $project,
+            'sprintIteration' => $project->sprintIteration,
+            'day_of_week' => Carbon::now()->dayOfWeek,
+            'start_dates' => $project->sprintIteration->getNewMilestoneStartDates(Carbon::now())//TODO this could be calculated on a helper, no instance actually required last and next weekday
+        ]);
     }
 
-    public function syncable($id)
+    /**
+     * Ajax called: returns the project main nav item content
+     * @param $wikiname
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Support\HtmlString|void
+     */
+    public function projectPane($wikiname)
     {
-        $project = Auth::user()->projects()->findOrFail($id);
-
-        $syncable = (request('syncable_project') !== null)?1:0;
-
-        Auth::user()->projects()->updateExistingPivot($project->id,['syncable' => $syncable]);
-
-
-        return response()->json(['id' => $project->id]);
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->firstorFail();
+        return view('projects.partials.project', [
+            'project' => $project
+        ]);
     }
 
-    public function shared($id)
+    /**
+     * Function used to update Project starred and syncable pivot values (project_user table)
+     * @param $wikiname
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function storePivotAttribute($wikiname)
     {
-        $project = Auth::user()->projects()->findOrFail($id);
-        $shared = (request('shared_project') !== null)?1:0;
-        $project->shared = $shared;
-        $project->save();
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->firstorFail();
+        $attributeName = request('attribute_name');
 
+        $allowedAttributes = [
+            'starred' => 1,
+            'syncable' => 1
+        ];
+        if (!array_key_exists($attributeName, $allowedAttributes)) {
+            return response()->json([], 422);
+        }
+        $attributeValue = (request($attributeName) !== null)?1:0;
 
-        return response()->json(['id' => $project->id]);
-    }
-
-    public function estimate($id)
-    {
-        $project = Auth::user()->projects()->findOrFail($id);
-        $estimateType = request('estimate_type');
-        $project->estimate_type = $estimateType;
-        $project->save();
+        Auth::user()->projects()->updateExistingPivot($project->id,[$attributeName => $attributeValue]);
 
 
         return response()->json(['id' => $project->id]);
     }
 
     /**
-     * This function is used for importing user projects (assembla spaces)
+     * Function used to update Project attributes
+     * @param $wikiname
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function syncProjects()
+    public function storeAttribute($wikiname)
     {
-        try {
-            SyncSpaces::dispatch(Auth::user());
-            SessionMessage::infoMessage("Spaces sync job was added to the queue");
-        } catch (ClientException $e) {
+        $attributeName = request('attribute_name');
+        $isCheckbox = request('is_checkbox');
 
-            if ($e->getCode() == 401) {
-                //TODO this wont happen since we are dispatching the job, we could althoug add the same exception on the job and dispatch a failure alert
-                $settingsUrl = '<a href="'.url('/settings').'">here</a>';
-                SessionMessage::errorMessage('Not authorized! Update your Assembla credentials '.$settingsUrl);
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->firstorFail();
+        $allowedAttributes = [
+            'estimate_type' => 1,
+            'shared' => 1,
+        ];
 
-            } else {
-                SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');
-
-            }
-
-            Log::error($e->getMessage());
-            Log::error($e->getTraceAsString());
-        } catch (\Exception $e) {
-            SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');
-            Log::error($e->getMessage());
-            Log::error($e->getTraceAsString());
+        if (!array_key_exists($attributeName, $allowedAttributes)) {
+            return response()->json([], 422);
         }
+        if ($isCheckbox) {
+            $attributeValue = (request($attributeName) !== null)?1:0;
+        } else {
+            $attributeValue = request($attributeName);
+        }
+        $project->{$attributeName} = $attributeValue;
+        $project->save();
 
-        return redirect()->route('projects.index');
-    }
 
-    public function settingsPane($id)
-    {
-        $project = Auth::user()->projects()->findOrFail($id);
-        return view('projects.partials.settings', [
-            'project' => $project
-        ]);
-    }
-
-    public function projectPane($id)
-    {
-        $project = Auth::user()->projects()->findOrFail($id);
-        return view('projects.partials.project', [
-            'project' => $project
-        ]);
-
+        return response()->json(['id' => $project->id]);
     }
 }
