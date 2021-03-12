@@ -1,5 +1,6 @@
 <?php
 
+use App\AssemblaUser;
 use App\Project;
 use App\Report;
 use App\Sprint;
@@ -43,6 +44,14 @@ class DatabaseSeeder extends Seeder
             'assembla_user_image' => 'https://s3.amazonaws.com/assembla-avatars/1e7f71fc/cvixt811Gr4PBcacwqjQYw:1571509138',
             'assembla_username' => 'Nicolás Peric',
             'user_assembla_id' => 'cvixt811Gr4PBcacwqjQYw',
+        ]);
+
+        AssemblaUser::create([
+            'user_assembla_id' => 'cvixt811Gr4PBcacwqjQYw',
+            'login' => 'nicoperic',
+            'name' => 'Nicolás Peric',
+            'picture' => 'https://s3.amazonaws.com/assembla-avatars/1e7f71fc/cvixt811Gr4PBcacwqjQYw:1571509138',
+            'email' => 'nperic@summasolutions.net'
         ]);
 
         $eperez = User::create([

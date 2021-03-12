@@ -35,7 +35,7 @@
                             @else
                                 <img class="rounded-circle" style="width: 32px; height: 32px;" src="https://assets3.assembla.com/assets/avatars/small/10-34646632626633326534663337306230663564393237353266396538633232383833626339353837396534323061616337666664633662376434376637303134.png"/>
                             @endif
-                            {{ $user->name }}
+                            {{ Helper::substrNameIf($user->name, 21) }}
                         </li>
 
 

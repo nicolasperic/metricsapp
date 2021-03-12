@@ -6,6 +6,7 @@ namespace App\Dto\Mapper;
 
 use App\Dto\ProjectDto;
 use App\Project;
+use App\SprintIteration;
 
 class ProjectMapper extends AbstractMapper
 {
@@ -24,6 +25,8 @@ class ProjectMapper extends AbstractMapper
             'project_assembla_id' => $projectDto->getProjectAssemblaId(),
             'status' => $projectDto->getStatus(),
         ]);
+
+        $sprintIteration = SprintIteration::createForProject($project);
 
         return $project;
 

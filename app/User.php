@@ -13,6 +13,14 @@ class User extends Authenticatable
 {
     use Notifiable, HasFactory;
 
+
+    const STATUS_INVITED = 1;
+    const STATUS_ACCEPTED = 2;
+    const STATUS_REMOVED = 3;
+
+    const ROLE_MEMBER = 'member';
+    const ROLE_OWNER = 'owner';
+    const ROLE_WATCHER = 'watcher';
     /**
      * The attributes that are mass assignable.
      *

@@ -3,8 +3,8 @@
 @section('breadcrumbs',  Breadcrumbs::render('projects.show', $project))
 
 @section('actions')
-<a href="{{ url("users/syncUsers/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Users</a>
-<a href="{{ url("sprints/syncSprints/{$project->id}") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm ml-3"><i class="fas fa-download fa-sm text-white-50"></i> Sync Milestones</a>
+<a href="{{ route('users.sync', $project->wikiname) }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Users</a>
+<a href="{{ route('sprints.sync', $project->wikiname) }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm ml-3"><i class="fas fa-download fa-sm text-white-50"></i> Sync Milestones</a>
 @endsection
 
 @section('container-title', $project->name . ' Milestones')
@@ -12,12 +12,12 @@
 @section('content')
     <ul class="nav nav-pills mb-4">
         <li class="nav-item">
-            <a class="nav-link active" href="{{route('projects.projectPane', $project->id)}}" id="project_tab" data-toggle="tabajax" data-target="#project">
+            <a class="nav-link active" href="{{route('projects.projectPane', $project->wikiname)}}" id="project_tab" data-toggle="tabajax" data-target="#project">
                 <h6 class="m-0 font-weight-bold">{{ $project->name }}</h6>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{route('projects.settingsPane', $project->id)}}" id="settings_tab" data-toggle="tabajax" data-target="#settings">
+            <a class="nav-link" href="{{route('projects.settingsPane', $project->wikiname)}}" id="settings_tab" data-toggle="tabajax" data-target="#settings">
 
                 <h6 class="m-0 font-weight-bold"><i class="fas fa-cog fa-sm text-gray-400"></i>Settings</h6>
             </a>

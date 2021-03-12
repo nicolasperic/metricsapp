@@ -39,6 +39,27 @@ class Helper {
         return $string;
     }
 
+    public static function substrNameIf($string, $length = 80)
+    {
+        if (strlen($string) > $length) {
+            $names = explode(' ', $string);
+            $result = '';
+            foreach ($names as $name) {
+                if (strlen($name) <= $length && strlen($result.' '.$name) <= $length) {
+                    $result .= ' '.$name;
+                } else if (strlen($result) + 2 <= $length) {
+                    $result .= ' '.substr($name, 0, 1).'.';
+                }
+            }
+
+
+            return $result;
+
+            $string = substr($string,0,$length).'...';
+        }
+        return $string;
+    }
+
     public static function getPercentageClass($percentageValue, $reverse = false)
     {
         if ($percentageValue < 35) {//TODO this values should be configurable for the users

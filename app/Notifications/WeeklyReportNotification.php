@@ -94,20 +94,20 @@ class WeeklyReportNotification extends Notification
         $htmlContent .= '<h4>Hours by Users and Spaces Report</h4>';
 
         $htmlContent .= '<div class="report-dates-totals">
-                                <span style="display: block;">From <strong>'.$header->from.'</strong> to <strong>'.$header->to.'</strong></span>
+                                <span style="display: block;">From <strong>'.Helper::getDateWithoutHours($header->from).'</strong> to <strong>'.Helper::getDateWithoutHours($header->to).'</strong></span>
                                 <span style="display: block;">Total Hours <strong>'.$header->total_hours.'</strong> Total Tasks <strong>'.$header->total_tasks.'</strong></span>
                         </div>
                         </div>';
 
         $htmlContent .= '<h4>Hours by Projects</h4>';
     foreach($projects as $project) {
-        $htmlContent .=  '<div class="report-table-header">
-                            <h4>'.$project->wikiname.'</h4>
-                            <span>Total hours: '.$project->total_hours.' ('. Helper::getPercentageValue($project->total_hours, $header->total_hours, $decimals = 2) .'%)</span>
-                            <span>Total tasks: '.$project->total_tasks.' ('. Helper::getPercentageValue($project->total_tasks, $header->total_tasks, $decimals = 2) .'%)</span>
+        $htmlContent .=  '<div class="report-table-header" style="margin-bottom: 15px;">
+                            <h4 style="margin-bottom: 10px;">'.$project->wikiname.'</h4>
+                            <span>Total hours: <strong>'.$project->total_hours.'</strong> ('. Helper::getPercentageValue($project->total_hours, $header->total_hours, $decimals = 2) .'%)</span>
+                            <span>Total tasks: <strong>'.$project->total_tasks.'</strong> ('. Helper::getPercentageValue($project->total_tasks, $header->total_tasks, $decimals = 2) .'%)</span>
                         </div>
                         <div class="report-user-stories">
-                            <table class="table table-striped">
+                            <table class="table table-striped" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th scope="col" style="text-align: left;">User</th>

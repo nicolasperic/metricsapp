@@ -12,9 +12,10 @@ use Illuminate\Support\Facades\Log;
 
 class UsersController extends Controller
 {
-    public function syncUsers($spaceId)
+     //TODO move this under Controllers/Assembla ProjectsController syncUsers
+    public function syncUsers($wikiname)
     {
-        $project = Auth::user()->projects()->findOrFail($spaceId);
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->firstorFail();
 
         try {
             SyncSpaceUsers::dispatch(Auth::user(), $project);

@@ -2,10 +2,13 @@
 
 namespace App;
 
+use App\Jobs\SyncUser;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Sprint extends Model
 {
@@ -139,6 +142,20 @@ class Sprint extends Model
     public function users()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    /**
+     * This function returns open tickets that are not subtasks for carry over
+     * The sprint iteration process uses this data when creating a new milestone,
+     * carry over will be assigned from the closed milestone
+     *
+     * @return mixed
+     */
+    public function getOpenTicketsForCarryOver()
+    {
+        return $this->tickets()
+            ->where('hierarchy_type', '!=', Ticket::HIERARCHY_SUBTASK)
+            ->where('state','=', Ticket::OPEN_STATE)->get();
     }
 
     /**
@@ -576,8 +593,16 @@ class Sprint extends Model
                 $picture = ($users[$ticketTime->user_assembla_id]['picture'])? $users[$ticketTime->user_assembla_id]['picture']: $defaultPicture;
 
             } else {
-                $userName = 'Oops sync space users';
+                $userName = 'Oops user deleted from space';
+                Log::info('Dispatching user job for '.$ticketTime->user_assembla_id);
+                SyncUser::dispatch(Auth::user(), $ticketTime->user_assembla_id, $this->projects[0]);
                 $picture = $defaultPicture;
+
+                //Adding not found user to array to prevent dispatching more than one job
+                $users[$ticketTime->user_assembla_id] = [
+                    'name' => $userName,
+                    'picture' => $picture
+                ];
             }
 
             $this->userHours[$ticketTime->user_assembla_id]['label'] = $userName;

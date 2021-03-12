@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helper\SessionMessage;
+use App\Jobs\SprintIteration;
 use App\Jobs\SyncSpaceMilestones;
 use App\Jobs\SyncUserSyncableSpaces;
 use Illuminate\Support\Facades\Auth;
@@ -39,13 +40,15 @@ class SprintsController extends Controller
      * This function is used to dispatch a Milestone Sync for the received project
      * and then a current mylestone ticket sync
      *
-     * @param $projectId
+     * @param $wikiname
      *
      * @return \Illuminate\Http\RedirectResponse
+     * @internal param $projectId
+     *TODO move this under Controllers/Assembla ProjectsController syncProjectSprints
      */
-    public function syncSprints($projectId)
+    public function syncSprints($wikiname)
     {
-        $project = Auth::user()->projects()->findOrFail($projectId);
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->firstorFail();
         try {
             SyncSpaceMilestones::dispatch(Auth::user(), $project);
             SessionMessage::infoMessage("Milestones sync job was added to the queue");
@@ -62,11 +65,24 @@ class SprintsController extends Controller
     /**
      * This function will trigger a job that will update all syncable spaces
      * current milestones : )
+     *
+     * *TODO move this under Controllers/Assembla/
      */
     public function syncAllCurrentSprints()
     {
         SyncUserSyncableSpaces::dispatch(Auth::user());
         SessionMessage::infoMessage("Current spaces sync job was added to the queue");
         return redirect()->route('sprints.current');
+    }
+
+    //TODO remove this function and the milestine with CO button on the milestone show page
+    public function sprintIteration($sprintAssemblaId)
+    {
+        $sprint = Auth::user()->sprints()->where('sprint_assembla_id', $sprintAssemblaId)->firstOrFail();
+
+        //SprintIteration::dispatch(Auth::user(), $sprint, //today);
+        SessionMessage::infoMessage("Milestone iteration job was added to the queue");
+        $project = $sprint->getProject();
+        return redirect()->route('sprints.show', [$project->wikiname, $sprint->sprint_assembla_id]);
     }
 }

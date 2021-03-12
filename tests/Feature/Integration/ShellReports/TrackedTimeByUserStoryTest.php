@@ -403,7 +403,7 @@ class TrackedTimeByUserStoryTest
                 'to' => $to,
                 'page' => $page,
             ];
-            $response = AssemblaRequest::getMultiple("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams);
+            $response = AssemblaRequest::get("tasks", $this->user->assembla_key, $this->user->assembla_secret, $queryParams, true);
             $result = json_decode($response->getBody()->getContents(), 1);
 
             //dd($result);

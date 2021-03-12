@@ -34,8 +34,8 @@ class Project extends Model
     {
         return $this->belongsToMany(User::class)
             ->withPivot(['user_id','user_role', 'user_status'])
-            ->where('user_role', 'owner')
-            ->where('user_status', 2)
+            ->where('user_role', User::ROLE_OWNER)
+            ->where('user_status', User::STATUS_ACCEPTED)
             ->where('user_id', $user->id)
             ->count() > 0;
     }
@@ -88,5 +88,10 @@ class Project extends Model
     public function assemblaUsers()
     {
         return $this->belongsToMany(AssemblaUser::class);
+    }
+
+    public function sprintIteration()
+    {
+        return $this->hasOne(SprintIteration::class);
     }
 }
