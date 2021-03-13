@@ -165,10 +165,22 @@
 
 <script type="text/javascript">
 
-    function canDisplayStatusBasedConent() {
-        var sprintPrefix = $('input[name="sprint_prefix"]').get(0).value;
-        var milestoneDuration = $('select[name="sprint_duration"]').get(0).value;
-        var startingOn = $('select[name="sprint_start_weekday"]').get(0).value;
+    function canDisplayStatusBasedContent() {
+        var sprintPrefix = '';
+        var milestoneDuration = '';
+        var startingOn = '';
+
+        if ($('input[name="sprint_prefix"]').length) {
+            sprintPrefix = $('input[name="sprint_prefix"]').get(0).value;
+        }
+
+        if ($('select[name="sprint_duration"]').length) {
+            milestoneDuration = $('select[name="sprint_duration"]').get(0).value;
+        }
+
+        if ($('select[name="sprint_start_weekday"]').length) {
+            startingOn = $('select[name="sprint_start_weekday"]').get(0).value;
+        }
 
         if (sprintPrefix != '' && milestoneDuration != '' && startingOn != '') {
             $('#iteration-status-container').show();
@@ -177,7 +189,7 @@
         }
     }
     $(document).ready(function() {
-        canDisplayStatusBasedConent();
+        canDisplayStatusBasedContent();
     });
     var currentWeekday = {!! $day_of_week !!};
 
@@ -203,7 +215,7 @@
             url: $(this).attr('action'),
             data: $(this).serialize(),
             success: function(data) {
-                canDisplayStatusBasedConent();
+                canDisplayStatusBasedContent();
                 if (data && data.last && data.next) {
                     $('#last_weekday_label').text(data.last);
                     $('#last_weekday').val(data.last_date);
