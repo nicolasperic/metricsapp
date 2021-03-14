@@ -124,7 +124,7 @@
 
                                     <div id="not_same_day" @if(!isset($sprintIteration->sprint_start_weekday) || $sprintIteration->sprint_start_weekday == $day_of_week) style="display: none" @endif>
                                         <div class="form-group">
-                                            <input type="radio" name="start_date" id="last_weekday" value="{{ $start_dates['last_date'] }}">
+                                            <input type="radio" name="start_date" id="last_weekday" value="{{ $start_dates['last_date'] }}" checked="checked">
                                             <label id="last_weekday_label" for="last_weekday" class="mb-0">{{ $start_dates['last'] }}</label>
                                         </div>
                                         <div class="form-group">
@@ -136,6 +136,9 @@
                                     <label for="iteration_status" class="mb-0">Automate Sprint Iteration</label><br>
                                     <label>Current milestone: <strong>{{ $currentSprint->name }}</strong></label><br/>
 
+                                    @if($sprintIteration->error_message)
+                                        <p class="help is-danger">{{$sprintIteration->error_message}}</p>
+                                    @endif
                                     <button class="btn btn-primary">Start Iteration</button>
                                     <small class="form-text text-muted ml-4">
                                         Starting iteration enables automatic iterations.
@@ -150,6 +153,7 @@
                                     <input type="hidden" name="is_checkbox" value="1">
 
                                     <h6 class="m-0 font-weight-bold"><i class="fas fa-user fa-sm text-gray-400"></i>Started By: {{ $sprintIteration->getStartedBy() }}</h6>
+                                    <p>Next Iteration on {{$sprintIteration->next_iteration_start_date}}</p>
                                     <button class="btn btn-danger">Stop Iteration</button>
                                 </form>
                             @endif

@@ -56,6 +56,7 @@ class SprintIteration extends Model
         $this->iteration_status = self::ITERATION_STATUS_RUNNING;
         $this->iteration_user_assembla_id = $user->user_assembla_id;
         $this->next_iteration_start_date = Carbon::parse($startDate)->addDays($this->sprint_duration * 7)->format('Y/m/d');
+        $this->error_message = null;
         $this->save();
 
         //$this->iterate();//DISPATCH AN ITERATION JOB! The start function gets called from a controller watch out!
