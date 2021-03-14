@@ -94,7 +94,8 @@ class Helper {
     public static function getLastWeekMonday()
     {
         $now = Carbon::now();
-        return $now->subDays($now->dayOfWeek-1)->subWeek()->format('Y/m/d');
+        $subDays = ($now->dayOfWeek === 0)? 6: $now->dayOfWeek - 1;
+        return $now->subDays($subDays)->subWeek()->format('Y/m/d');
     }
 
     /**
@@ -104,7 +105,8 @@ class Helper {
     public static function getLastWeekSunday()
     {
         $now = Carbon::now();
-        return $now->subDays($now->dayOfWeek)->format('Y/m/d');
+        $subDays = ($now->dayOfWeek === 0)? 7: $now->dayOfWeek;
+        return $now->subDays($subDays)->format('Y/m/d');
     }
 
     /**
