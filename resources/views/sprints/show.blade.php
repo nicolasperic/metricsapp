@@ -15,10 +15,6 @@
     ?>
 
     <div class="actions" style="position: relative; top: -55px; width: 80%;">
-        @if($sprint->isCurrent() && $project->isUserOwner(Auth::user()) && count($sprint->tickets) > 0)
-        <a href="{{ route('sprints.sprintiteration',[$sprint->sprint_assembla_id]) }}" class="d-none d-sm-inline-block btn btn-sm btn-warning shadow-sm"><i class="fas fa-upload fa-sm text-white-50"></i> Start New Milestone with Carry Over</a>
-        @endif
-
         <a href="{{ route('tickets.sync', $sprint->sprint_assembla_id) }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Tickets</a>
         <small><i>Last synced on {{$sprint->updated_at }} ({{Helper::getTimeDiff($sprint->updated_at)}})</i></small>
     </div>

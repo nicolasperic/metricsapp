@@ -74,15 +74,4 @@ class SprintsController extends Controller
         SessionMessage::infoMessage("Current spaces sync job was added to the queue");
         return redirect()->route('sprints.current');
     }
-
-    //TODO remove this function and the milestine with CO button on the milestone show page
-    public function sprintIteration($sprintAssemblaId)
-    {
-        $sprint = Auth::user()->sprints()->where('sprint_assembla_id', $sprintAssemblaId)->firstOrFail();
-
-        //SprintIteration::dispatch(Auth::user(), $sprint, //today);
-        SessionMessage::infoMessage("Milestone iteration job was added to the queue");
-        $project = $sprint->getProject();
-        return redirect()->route('sprints.show', [$project->wikiname, $sprint->sprint_assembla_id]);
-    }
 }

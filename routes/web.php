@@ -44,7 +44,6 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::get('/milestones/current', 'SprintsController@current')->name('sprints.current')->middleware('auth');
     Route::get('/sprints/syncSprints/{projectId}', 'SprintsController@syncSprints')->name('sprints.sync')->middleware('auth');
     Route::get('/sprints/syncAllCurrentSprints', 'SprintsController@syncAllCurrentSprints')->name('sprints.sync-all-current-sprints')->middleware('auth');
-    Route::get('/sprints/sprintIteration/{id}', 'SprintsController@sprintIteration')->name('sprints.sprintiteration')->middleware('auth');
     Route::get('/spaces/{wikiname}/milestones/{id}', 'SprintsController@show')->name('sprints.show')->middleware('auth');
     Route::get('/tickets/syncTickets/{sprintId}', 'TicketsController@syncTickets')->name('tickets.sync')->middleware('auth');
     Route::get('/users/syncUsers/{userId}', 'UsersController@syncUsers')->name('users.sync')->middleware('auth');
