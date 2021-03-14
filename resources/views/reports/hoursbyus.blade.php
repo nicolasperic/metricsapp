@@ -16,10 +16,17 @@
     <h4>{{$header->wikiname}} | Hours By User Story Report</h4>
 
     <div class="report-dates-totals">
-        <span>From <strong>{{$header->from}}</strong> to <strong>{{$header->to}}</strong></span>
-        <span>Total Hours {{$header->total_hours}} | Total Tasks {{$header->total_tasks}}</span>
+        <span>From <strong>{{ Helper::getDateWithoutHours($header->from) }}</strong> to <strong>{{ Helper::getDateWithoutHours($header->to) }}</strong></span>
     </div>
 
+</div>
+<div class="report-stats">
+    <div class="text-xs font-weight-bold text-uppercase mb-1">Total Hours</div>
+    <div class="h5 mb-0 font-weight-bold text-gray-800">{{$header->total_hours}}</div>
+</div>
+<div class="report-stats">
+    <div class="text-xs font-weight-bold text-uppercase mb-1">Total Tasks</div>
+    <div class="h5 mb-0 font-weight-bold text-gray-800">{{$header->total_tasks}}</div>
 </div>
 
 <div class="report-table-header">
