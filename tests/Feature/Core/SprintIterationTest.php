@@ -3,7 +3,6 @@
 namespace Tests\Feature\Core;
 
 use App\Dto\SprintDto;
-use App\Exceptions\MilestoneNotCreatedException;
 use App\Exceptions\SprintIterationException;
 use App\Integration\AssemblaGateway;
 use App\Project;
@@ -18,8 +17,7 @@ use Mockery\MockInterface;
 use Tests\TestCase;
 
 /**
- * @group integration
- *        ^any test that will test my integration with another service
+ * @group fake-integration
  */
 class SprintIterationTest
     extends TestCase
@@ -386,7 +384,7 @@ class SprintIterationTest
         try {
             /** @var \App\SprintIteration $twoWeeksIteration */
             $twoWeeksIteration->iterate();
-        } catch(MilestoneNotCreatedException $e) {
+        } catch(SprintIterationException $e) {
             $expectedException = true;
         }
 
