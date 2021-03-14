@@ -77,13 +77,16 @@ class SprintIterationTest extends TestCase
         $iterationB = SprintIteration::factory()->create([
             'sprint_prefix' => 'Grassi - ',
         ]);
-        $milestoneTitle = $iteration->getNewMilestoneUniqueTitle('2021/01/14');
+        Carbon::setTestNow(Carbon::parse('2021-01-14'));
+        $milestoneTitle = $iteration->getNewMilestoneUniqueTitle();
         $this->assertEquals('SE - 14JAN21', $milestoneTitle);
 
-        $milestoneTitle = $iterationB->getNewMilestoneUniqueTitle('2021/02/22');
+        Carbon::setTestNow(Carbon::parse('2021-02-22'));
+        $milestoneTitle = $iterationB->getNewMilestoneUniqueTitle();
         $this->assertEquals('Grassi - 22FEB21', $milestoneTitle);
 
-        $milestoneTitle = $iteration->getNewMilestoneUniqueTitle('2022/07/05');
+        Carbon::setTestNow(Carbon::parse('2022-07-05'));
+        $milestoneTitle = $iteration->getNewMilestoneUniqueTitle();
         $this->assertEquals('SE - 05JUL22', $milestoneTitle);
     }
 

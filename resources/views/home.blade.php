@@ -22,6 +22,12 @@
             </div>
         </div-->
 
+        <div class="col-md-12" style="margin-bottom: 25px;">
+            <blockquote class="kelvin">
+                What is not defined cannot be measured. What is not measured, cannot be improved. What is not improved, is always degraded.
+                <footer>William T. Kelvin</footer>
+            </blockquote>
+        </div>
 
         <div class="col-md-12" style="margin-bottom: 25px;">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">

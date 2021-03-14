@@ -4,6 +4,7 @@ namespace App\Importer;
 
 
 use App\Dto\Mapper\SprintMapper;
+use App\Exceptions\MilestoneNotCreatedException;
 use App\Integration\AssemblaGateway;
 use App\Sprint;
 use App\Ticket;
@@ -60,6 +61,8 @@ class SprintIteration {
     /** @var AssemblaGateway  */
     private $assemblaGateway;
 
+    const ERROR_MILESTONE_NOT_CREATED = 'There was a problem when creating a new Milestone in Assembla. Iteration stopped.';
+
     /**
      * @param User $user
      */
@@ -95,11 +98,6 @@ class SprintIteration {
         $project = $oldSprint->getProject();
 
         $newSprint = $this->_createNewCurrentMilestone($project, $startDate, $endDate);
-
-        if ($newSprint === false) {
-            Log::info("[Sprint Iteration] We were not able to create a new milestone. Stopping iteration..");
-            return false;
-        }
 
         //getting open tickets != subtask
         $carryOverTickets = $oldSprint->getOpenTicketsForCarryOver();
@@ -177,10 +175,9 @@ class SprintIteration {
      */
     private function _createNewCurrentMilestone($project, $startDate, $endDate)
     {
-        $today = Carbon::now()->format('Y/m/d');
         $postParams = ['milestone' => [
             'space_id' => $project->project_assembla_id,
-            'title' => $project->sprintIteration->getNewMilestoneUniqueTitle($today),
+            'title' => $project->sprintIteration->getNewMilestoneUniqueTitle(),
             'updated_by' => $this->user->user_assembla_id,
             'created_by' => $this->user->user_assembla_id,
             'user_id' => $this->user->user_assembla_id,
@@ -195,9 +192,8 @@ class SprintIteration {
         $sprintDto = $this->assemblaGateway->createMilestone($postParams, $project->wikiname);
 
         if ($sprintDto === false) {
-            Log::info('[Sprint Iteration] oops milestone was not created!');
-            //new milestone was not created
-            return false;
+            Log::info('[Sprint Iteration] oops milestone was not created! Throwing exception');
+            throw new MilestoneNotCreatedException(self::ERROR_MILESTONE_NOT_CREATED);
         }
         Log::info('[Sprint Iteration] New milestone was created in Assembla!');
 

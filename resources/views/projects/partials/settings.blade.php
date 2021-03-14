@@ -74,7 +74,7 @@
                             <input type="hidden" name="attribute_name" value="sprint_prefix">
                             <label for="name" class="mb-0">Milestone Title Prefix</label>
                             <input type="text" name="sprint_prefix" value="{{ $sprintIteration->sprint_prefix }}" {{ $autoRunningDisabled }}>
-                            <small class="form-text text-muted ml-4">Title needs to be unique, an auto generated code will be added after the prefix i.e {{ $sprintIteration->getNewMilestoneUniqueTitle(\Carbon\Carbon::today()) }}</small>
+                            <small class="form-text text-muted ml-4">Title needs to be unique, an auto generated code will be added after the prefix i.e {{ $sprintIteration->getNewMilestoneUniqueTitle() }}</small>
                         </form>
                     </div>
 

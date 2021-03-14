@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\SprintIterationException;
 use App\Helper\Helper;
 use App\Sprint;
 use App\User;
@@ -11,7 +12,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class SprintIteration implements ShouldQueue, ShouldBeUnique
 {
@@ -56,22 +56,25 @@ class SprintIteration implements ShouldQueue, ShouldBeUnique
     public function handle()
     {
         try {
-            $iterationProcess = new \App\Importer\SprintIteration($this->user);
-            $newSprint = $iterationProcess->closeCurrentSprintAndCreateNewOneWithCarryOver($this->sprint, $this->startDate, $this->endDate);
-            $project = $newSprint->getProject();
-            $project->sprintIteration->iterate();
-            
+            $project = $this->sprint->getProject();
+
+            $newSprint = $project->sprintIteration->iterate();
+
             
             $this->user->notify(Helper::getAssemblaSyncNotification(
                 $newSprint->id,
-                route('sprints.show', [$project->wikiname, $newSprint->sprint_assembla_id]),
+                route('sprints.show', [$project->wikiname, $newSprint->sprint_assembla_id]),'Sprint Iteration succeeded! '.
                 $newSprint->name.' was created correctly'
             ));
-        } catch (\Exception $e) {
-            Log::info($e->getMessage());
-            Log::info($e->getTraceAsString());
-        }
 
+        } catch (SprintIterationException $e) {
+            $this->user->notify(Helper::getAssemblaSyncNotification(
+                null,
+                route('home'),
+                $e->getMessage(),
+                'bg-warning'
+            ));
+        }
     }
     /**
      * The unique ID of the job.

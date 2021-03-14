@@ -74,8 +74,9 @@ class SprintIterationsController extends Controller
         }
 
         $startDate = (request('start_date') != null)? request('start_date'): Carbon::now()->format('Y/m/d');
-        $project->sprintIteration->start(Auth::user(), $startDate, request('current_sprint_id'));
-        dd('');
+
+        $project->sprintIteration->start(Auth::user(), $startDate);
+
         SessionMessage::infoMessage("Sprint Iteration started");
 
         return redirect()->route('projects.show', $project->wikiname);

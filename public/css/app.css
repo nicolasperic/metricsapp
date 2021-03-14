@@ -11117,3 +11117,57 @@ a.text-dark:focus {
   }
 }
 
+@media screen and (max-width: 480px) {
+  blockquote.kelvin {
+    font-size: 1.2em !important;
+    line-height: 1.2em !important;
+    padding-right: 0px !important;
+  }
+
+  blockquote.kelvin:after {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  blockquote.kelvin {
+    font-size: 1.3em;
+    line-height: 1.3em;
+    padding-right: 57px;
+  }
+
+  blockquote.kelvin:after {
+    font-size: 5em;
+  }
+}
+
+.kelvin {
+  position: relative;
+  font-family: "Sanchez", serif;
+  font-size: 2em;
+  line-height: 1.4em;
+  padding-right: 100px;
+}
+
+.kelvin footer {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 0.6em;
+  font-weight: 700;
+  color: #d3d3cf;
+  float: right;
+}
+
+.kelvin footer:before {
+  content: "\2015";
+}
+
+.kelvin:after {
+  content: "\201D";
+  position: absolute;
+  top: 0.28em;
+  right: 0;
+  font-size: 6em;
+  font-style: italic;
+  color: #e7e6e4;
+}
+
