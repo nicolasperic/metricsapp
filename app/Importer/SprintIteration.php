@@ -177,7 +177,7 @@ class SprintIteration {
     {
         $postParams = ['milestone' => [
             'space_id' => $project->project_assembla_id,
-            'title' => $project->sprintIteration->getNewMilestoneUniqueTitle(),
+            'title' => $project->sprintIteration->getNewMilestoneUniqueTitle($startDate),
             'updated_by' => $this->user->user_assembla_id,
             'created_by' => $this->user->user_assembla_id,
             'user_id' => $this->user->user_assembla_id,

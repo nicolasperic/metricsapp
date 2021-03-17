@@ -118,10 +118,6 @@
                             @if(!$sprintIteration->isAutoIterationRunning())
                                 <form id="{{$project->id}}_iteration_status" class="auto-sprint-iteration-status" name="iteration_status_form" action="{{ route('iterations.start',$project->wikiname) }}" method="POST">
                                     {{ csrf_field() }}
-                                    <input type="hidden" name="attribute_name" value="iteration_status">
-                                    <input type="hidden" name="is_checkbox" value="1">
-                                    <input type="hidden" name="current_sprint_id" value="{{ $currentSprint->sprint_assembla_id }}">
-
                                     <div id="not_same_day" @if(!isset($sprintIteration->sprint_start_weekday) || $sprintIteration->sprint_start_weekday == $day_of_week) style="display: none" @endif>
                                         <div class="form-group">
                                             <input type="radio" name="start_date" id="last_weekday" value="{{ $start_dates['last_date'] }}" checked="checked">
@@ -139,23 +135,80 @@
                                     @if($sprintIteration->error_message)
                                         <p class="help is-danger">{{$sprintIteration->error_message}}</p>
                                     @endif
-                                    <button class="btn btn-primary">Start Iteration</button>
+
+                                    <a href="#" class="btn btn-primary" data-toggle="modal" onclick="setModalInformation()" data-target="#startIterationModal">
+                                        <i class="fas fa-window-maximize fa-sm fa-fw mr-2 text-gray-400"></i> Start Iteration
+                                    </a>
+                                    <!-- button class="btn btn-primary">Start Iteration</button-->
                                     <small class="form-text text-muted ml-4">
                                         Starting iteration enables automatic iterations.
-                                        New current milestones will be created every <strong>{{$sprintIteration->sprint_duration}} weeks</strong>
+                                        New current milestones will be created every <span class="font-weight-bold" id="sprint_duration_info">{{$sprintIteration->sprint_duration}} weeks</span>
                                         with the carry over of the previous current milestone
                                     </small>
                                 </form>
+
+                                <!-- StartIteration Modal-->
+                                <div class="modal fade" id="startIterationModal" tabindex="-1" role="dialog" aria-labelledby="startModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="startModalLabel">Are you sure you want to start the iteration?</h5>
+                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>As soon as you press start a new milestone will be created with the carry over from current milestone.</p>
+                                                <p>Will enable auto iteration and repeat the process every <span class="font-weight-bold" id="modal-sprint-weeks-duration">{{$sprintIteration->sprint_duration}} weeks</span></p>
+                                                <p class="mt-4"><label>Current Milestone: <strong>{{ $currentSprint->name }}</strong></label></p>
+                                                <p><label>New Milestone Title: <strong><span id="modal-milestone-title"></span></strong></label></p>
+                                                <p><label>Start Date: <strong><span id="modal-start-date"></span></strong></label></p>
+                                                <p><label>Due Date: <strong><span id="modal-end-date"></span></strong></label></p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                                                <!--a class="btn btn-primary" href="login.html">Logout</a-->
+                                                <a class="btn btn-success" href="#"
+                                                   onclick="event.preventDefault();document.getElementById('{{$project->id}}_iteration_status').submit();">
+                                                    {{ __('Start Iteration') }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             @else
-                                <form id="{{$project->id}}_iteration_status" class="auto-sprint-iteration-status" name="iteration_status_form" action="{{ route('iterations.stop',$project->wikiname) }}" method="POST">
+                                <form id="{{$project->id}}_stop_iteration_form" class="auto-sprint-iteration-status" name="stop_iteration_form" action="{{ route('iterations.stop',$project->wikiname) }}" method="POST">
                                     {{ csrf_field() }}
-                                    <input type="hidden" name="attribute_name" value="iteration_status">
-                                    <input type="hidden" name="is_checkbox" value="1">
 
                                     <h6 class="m-0 font-weight-bold"><i class="fas fa-user fa-sm text-gray-400"></i>Started By: {{ $sprintIteration->getStartedBy() }}</h6>
                                     <p>Next Iteration on {{$sprintIteration->next_iteration_start_date}}</p>
-                                    <button class="btn btn-danger">Stop Iteration</button>
+                                    
+                                    <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#stopIterationModal">
+                                        Stop Iteration
+                                    </a>
                                 </form>
+
+                                <!-- StopIteration Modal-->
+                                <div class="modal fade" id="stopIterationModal" tabindex="-1" role="dialog" aria-labelledby="stopModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="stopModalLabel">Are you sure you want to stop the iteration?</h5>
+                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                                                <!--a class="btn btn-primary" href="login.html">Logout</a-->
+                                                <a class="btn btn-danger" href="#"
+                                                   onclick="event.preventDefault();document.getElementById('{{$project->id}}_stop_iteration_form').submit();">
+                                                    {{ __('Stop Iteration') }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
 
                         </div>
@@ -169,6 +222,32 @@
 
 <script type="text/javascript">
 
+    function setModalInformation() {
+        var startDate = '{!! $today !!}';
+        if ($("input[name='start_date']:checked").length && $("input[name='start_date']:checked").is(":visible")) {
+            startDate = $("input[name='start_date']:checked").val()
+        }
+
+        $("#modal-start-date").text(startDate);
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            dataType: 'JSON',
+            url: '{!! route('iterations.modalContent', $project-> wikiname) !!}',
+            data: {'start_date': startDate},
+            success: function(data) {
+                $("#modal-milestone-title").text(data.milestone_title);
+                $("#modal-end-date").text(data.milestone_end_date);
+            }
+        });
+
+    }
     function canDisplayStatusBasedContent() {
         var sprintPrefix = '';
         var milestoneDuration = '';
@@ -205,6 +284,10 @@
             } else {
                 $('#not_same_day').hide();
             }
+        } else if ($(this).attr('name') == 'sprint_duration_project_form') {
+            var sprintDuration = $('select[name="sprint_duration"]').get(0).value + ' weeks';
+            $("#modal-sprint-weeks-duration").text(sprintDuration);
+            $("#sprint_duration_info").text(sprintDuration);
         }
 
         $.ajaxSetup({

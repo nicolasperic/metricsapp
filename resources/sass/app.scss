@@ -126,3 +126,10 @@ $base-line-height: 1.4em;
         color: darken($white, 7%);
     }
 }
+
+#startIterationModal div.modal-content {
+    div.modal-body p {
+        margin-bottom: 0px;
+    }
+
+}

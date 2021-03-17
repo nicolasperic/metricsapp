@@ -47,6 +47,7 @@ class ProjectsController extends Controller
         return view('projects.partials.settings', [
             'project' => $project,
             'sprintIteration' => $project->sprintIteration,
+            'today' => Carbon::now()->format('Y/m/d'),
             'day_of_week' => Carbon::now()->dayOfWeek,
             'start_dates' => $project->sprintIteration->getNewMilestoneStartDates(Carbon::now())//TODO this could be calculated on a helper, no instance actually required last and next weekday
         ]);

@@ -62,10 +62,16 @@ class SprintIteration extends Model
         //$this->iterate();//DISPATCH AN ITERATION JOB! The start function gets called from a controller watch out!
     }
 
-    public function iterate()
+    /**
+     * @param bool $startDate received only when called from the start process
+     *
+     * @return Sprint|bool
+     * @throws SprintIterationException
+     */
+    public function iterate($startDate = false)
     {
         $sprint = $this->project->getCurrentSprint();
-        $startDate = Carbon::now()->format('Y/m/d');
+        $startDate = ($startDate)? $startDate : Carbon::now()->format('Y/m/d');
         $endDate = $this->getNewMilestoneEndDate($startDate);
         $user = User::where('user_assembla_id',$this->iteration_user_assembla_id)->first();
 
@@ -128,11 +134,14 @@ class SprintIteration extends Model
      * This function will generate the unique title for the new milestone
      * Since Assembla Milestone titles are unique we use the defined milestone prefix + a date based content
      * i.e: with SE - as prefix we would generate SE - 12FEB21
+     *
+     * @param bool $startDate start date will only be set when calling this function from the start process
+     *
      * @return string
      */
-    public function getNewMilestoneUniqueTitle()
+    public function getNewMilestoneUniqueTitle($startDate = false)
     {
-        $startDate = Carbon::today();
+        $startDate = ($startDate)? $startDate : Carbon::today();
 
         $milestonePrefix = $this->sprint_prefix;
         $milestoneStartDate = Carbon::parse($startDate);

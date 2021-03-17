@@ -11171,3 +11171,7 @@ a.text-dark:focus {
   color: #e7e6e4;
 }
 
+#startIterationModal div.modal-content div.modal-body p {
+  margin-bottom: 0px;
+}
+

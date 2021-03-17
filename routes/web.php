@@ -40,6 +40,7 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::post('/iteration/start/{wikiname}', 'SprintIterationsController@start')->name('iterations.start')->middleware('auth');
     Route::post('/iteration/stop/{wikiname}', 'SprintIterationsController@stop')->name('iterations.stop')->middleware('auth');
     Route::post('/iteration/startDate/{wikiname}', 'SprintIterationsController@startDate')->name('iterations.startDate')->middleware('auth');
+    Route::post('/iteration/modalContent/{wikiname}', 'SprintIterationsController@sprintModalDynamicContent')->name('iterations.modalContent')->middleware('auth');
     Route::get('/milestones', 'SprintsController@index')->name('sprints.index')->middleware('auth');
     Route::get('/milestones/current', 'SprintsController@current')->name('sprints.current')->middleware('auth');
     Route::get('/sprints/syncSprints/{projectId}', 'SprintsController@syncSprints')->name('sprints.sync')->middleware('auth');

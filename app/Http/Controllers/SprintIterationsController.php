@@ -97,4 +97,20 @@ class SprintIterationsController extends Controller
         return redirect()->route('projects.show', $project->wikiname);
     }
 
+    public function sprintModalDynamicContent($wikiname)
+    {
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->with('sprintIteration')->firstorFail();
+
+
+        $startDate = (request('start_date') != null)? request('start_date'): Carbon::now()->format('Y/m/d');
+
+
+        $responseData = [
+            'milestone_title' => $project->sprintIteration->getNewMilestoneUniqueTitle($startDate),
+            'milestone_end_date' => $project->sprintIteration->getNewMilestoneEndDate($startDate)
+        ];
+
+        return response()->json($responseData);
+    }
+
 }
