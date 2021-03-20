@@ -59,7 +59,8 @@ class SprintIteration extends Model
         $this->error_message = null;
         $this->save();
 
-        //$this->iterate();//DISPATCH AN ITERATION JOB! The start function gets called from a controller watch out!
+        //SprintIterationJob::dispatch($user, $this, $startDate);
+
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Exceptions\SprintIterationException;
 use App\Helper\Helper;
 use App\Sprint;
+use App\SprintIteration as SprintIterationModel;
 use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -21,17 +22,13 @@ class SprintIteration implements ShouldQueue, ShouldBeUnique
      */
     private $user;
     /**
-     * @var Sprint
+     * @var SprintIterationModel
      */
-    private $sprint;
+    private $sprintIteration;
     /**
      * @var
      */
     private $startDate;
-    /**
-     * @var
-     */
-    private $endDate;
 
     /**
      * Create a new job instance.
@@ -40,12 +37,11 @@ class SprintIteration implements ShouldQueue, ShouldBeUnique
      * @param Sprint $sprint
      * @param string $startDate format Y/m/d
      */
-    public function __construct(User $user, Sprint $sprint, $startDate, $endDate)
+    public function __construct(User $user, SprintIterationModel $sprintIteration, $startDate = false)
     {
         $this->user = $user;
-        $this->sprint = $sprint;
+        $this->sprintIteration = $sprintIteration;
         $this->startDate = $startDate;
-        $this->endDate = $endDate;
     }
 
     /**
@@ -56,9 +52,8 @@ class SprintIteration implements ShouldQueue, ShouldBeUnique
     public function handle()
     {
         try {
-            $project = $this->sprint->getProject();
-
-            $newSprint = $project->sprintIteration->iterate();
+            $newSprint = $this->sprintIteration->iterate($this->startDate);
+            $project = $this->sprintIteration->project;
 
             
             $this->user->notify(Helper::getAssemblaSyncNotification(

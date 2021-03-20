@@ -41,6 +41,14 @@ class Kernel extends ConsoleKernel
             $now = new Carbon();
             return $now->hour % 6 == 0;//every six hours
         });
+
+        /*$schedule->command('sprintiteration:iterate')->everyMinute()->when(function (){
+            //workaround for Heroku scheduler
+            $today = new Carbon();
+            return $today->hour == 8;//every day at 8AM
+        });*/
+
+
     }
 
     /**

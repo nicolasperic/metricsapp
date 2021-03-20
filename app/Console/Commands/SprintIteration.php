@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\SprintIteration as SprintIterationModel;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -47,7 +48,8 @@ class SprintIteration extends Command
         if (count($iterations)) {
             /** @var \App\SprintIteration $iteration */
             foreach ($iterations as $iteration) {
-                $iteration->iterate();
+                $user = User::where('user_assembla_id',$iteration->iteration_user_assembla_id)->first();
+                //SprintIterationJob::dispatch($user, $iteration, $today);
             }
 
             $infoMessage = 'Iterated '.count($iterations).' '.Str::plural('sprint', count($iterations));
