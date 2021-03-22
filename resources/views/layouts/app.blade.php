@@ -280,6 +280,16 @@
             <div class="container-fluid @yield('container-class','')">
                 @yield('breadcrumbs')
 
+                <p class="alert alert-warning">
+                    La información relacionada a tickets y horas trackeadas es <strong>volátil</strong>. Esto se debe a que la base tiene un <strong>límite de 5 megas</strong> por ser un servicio gratuito.
+                    <br>
+                    <strong>Tus configuraciones y proyectos no serán removidos</strong>, debido a esta restricción te sugiero sincronizar los milestones antes de validar cualquier métrica.
+                    <br>
+                    Los reportes se generan contra la API por lo que no hay problema. Recordá que tenés que ser <strong>owner</strong> para poder ver las horas de otros usuarios.
+                    <br>
+                    Gracias : )
+                </p>
+
                 @if(Session::has('message'))
                     <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{!! Session::get('message') !!}</p>
                 @endif
