@@ -113,16 +113,16 @@ Distinto tipos de planes | PRICING (7 días gratis, medium plan, pro plan)
 - Reportes (duración en días) Ej: US story máximo una semana (no podes sacar el mes entero o el año)
 - Cantidad de spaces que podes auto-sincronizar
 - Cantidad de spaces que podes starrear
-- No tenes weekly report!
+- Weekly report! (solo plan pro? O tal vez lo tenés pero para un único space)
 - Job para sync current milestons (solo plan pro)
-- Sin importar qué plan sea debería limitar el uso de jobs (para que no hagan syncs tode el tiempo)
+- Sin importar qué plan sea debería limitar el uso de jobs (para que no hagan syncs tudo el tiempo)
 - Validar el USO de la API de los usuarios
  (ej: si tengo un HDP que se la pasa llamando a la API con muchos años, bloquear por un rato)
 - TODO: ya de base debería limitar la cantidad de días a consultar a la API en los reportes (me matan el sitio si eligen la totalidad de tickets)
 
 > la cantidad que puede cada plan debería tenerlo en una variable de entorno, o en una tabla (backend)
 ej: syncable_sprints_pro: 10; syncable_sprints_med = 3; syncable_sprints_free = 0
-escribir testing de todo esto para ser un user pro, medium, free
+escribir testing de tudo esto para > Trial period, Basic Plan, Premium Plan
 
 
 TODO investigar sobre queues

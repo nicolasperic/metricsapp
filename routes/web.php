@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Middleware\ForceAssemblaKeys;
+use App\Http\Middleware\SubscriptionStatus;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Laravel\Cashier\Http\Controllers\WebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,8 +21,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('/stripe/webhook',[WebhookController::class, 'handleWebhook']);
 
-Route::group(['middleware' => ForceAssemblaKeys::class], function () {
+Route::group(['middleware' => [SubscriptionStatus::class, ForceAssemblaKeys::class]], function () {
     Route::get('/reports', 'ReportsController@index')->name('reports.index')->middleware('auth');
     Route::get('/reports/weekly', 'ReportsController@weekly')->name('reports.weekly')->middleware('auth');
     Route::post('/reports/weeklyStore', 'ReportsController@weeklyStore')->middleware('auth');
@@ -54,9 +58,18 @@ Route::group(['middleware' => ForceAssemblaKeys::class], function () {
     Route::get('/home', 'HomeController@index')->name('home');
 });
 
+//Subscription routes
+Route::get('/subscription/settings', 'SubscriptionController@settings')->name('subscription.index')->middleware('auth');
+Route::post('/subscribe', 'UsersController@checkoutPortal')->name('checkout')->middleware('auth');
+Route::post('/customerPortal', 'UsersController@customerPortal')->name('customer.portal')->middleware('auth');
+Route::get('/billing-portal', function (Request $request) {
+    return $request->user()->redirectToBillingPortal();
+})->name('billing.portal')->middleware('auth');
+//Settings routes
 Route::get('/settings', 'SettingsController@index')->name('settings.index')->middleware('auth');
 Route::post('/settings', 'SettingsController@store')->name('settings.post')->middleware('auth');
 
+//adding routes related to auth features (login, register, etc)
 Auth::routes();
 
 
