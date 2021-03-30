@@ -118,16 +118,19 @@
                             @if(!$sprintIteration->isAutoIterationRunning())
                                 <form id="{{$project->id}}_iteration_status" class="auto-sprint-iteration-status" name="iteration_status_form" action="{{ route('iterations.start',$project->wikiname) }}" method="POST">
                                     {{ csrf_field() }}
-                                    <div id="not_same_day" @if(!isset($sprintIteration->sprint_start_weekday) || $sprintIteration->sprint_start_weekday == $day_of_week) style="display: none" @endif>
-                                        <div class="form-group">
-                                            <input type="radio" name="start_date" id="last_weekday" value="{{ $start_dates['last_date'] }}" checked="checked">
-                                            <label id="last_weekday_label" for="last_weekday" class="mb-0">{{ $start_dates['last'] }}</label>
+
+                                    @if($start_dates)
+                                        <div id="not_same_day" @if(!isset($sprintIteration->sprint_start_weekday) || $sprintIteration->sprint_start_weekday == $day_of_week) style="display: none" @endif>
+                                            <div class="form-group">
+                                                <input type="radio" name="start_date" id="last_weekday" value="{{ $start_dates['last_date'] }}" checked="checked">
+                                                <label id="last_weekday_label" for="last_weekday" class="mb-0">{{ $start_dates['last'] }}</label>
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="radio" name="start_date" id="next_weekday" value="{{ $start_dates['next_date'] }}">
+                                                <label id="next_weekday_label" for="next_weekday" class="mb-0">{{ $start_dates['next'] }}</label>
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <input type="radio" name="start_date" id="next_weekday" value="{{ $start_dates['next_date'] }}">
-                                            <label id="next_weekday_label" for="next_weekday" class="mb-0">{{ $start_dates['next'] }}</label>
-                                        </div>
-                                    </div>
+                                    @endif
 
                                     <label for="iteration_status" class="mb-0">Automate Sprint Iteration</label><br>
                                     <label>Current milestone: <strong>{{ $currentSprint->name }}</strong></label><br/>
