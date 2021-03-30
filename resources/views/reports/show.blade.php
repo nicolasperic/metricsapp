@@ -1,0 +1,3 @@
+<pre>
+{!!$report->body !!}
+</pre>

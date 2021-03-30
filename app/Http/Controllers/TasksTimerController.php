@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Dto\TicketDto;
 use App\Integration\AssemblaGateway;
 use App\Project;
 use App\TicketTime;
@@ -24,15 +25,16 @@ class TasksTimerController extends Controller
     public function store()
     {
         $this->validateRequest();
+        /** @var TicketDto $validTicket */
         $validTicket = $this->validateTicket();
 
         if ($validTicket !== false) {
             TicketTime::create([
-                'description' => $validTicket['summary'],
+                'description' => $validTicket->getSummary(),
                 'begin_at' => Carbon::now(),
                 'ticket_number' => request('ticket_number'),
                 'project_assembla_id' => request('project'),
-                'user_assembla_id' => 'cvixt811Gr4PBcacwqjQYw'//TODO avoid hardcoded user assembla id
+                'user_assembla_id' => Auth::user()->user_assembla_id
             ]);
 
             return redirect(route('taskstimer.index'));
@@ -58,7 +60,7 @@ class TasksTimerController extends Controller
     protected function validateTicket()
     {
         $project = Project::getProjectByAssemblaId(request('project'));
-        $assemblaGateway = new AssemblaGateway();
+        $assemblaGateway = new AssemblaGateway(Auth::user());
         return $assemblaGateway->validateTicketExistsBySpaceAndNumber($project->wikiname, request('ticket_number'), ['is_story' => false]);
     }
 }

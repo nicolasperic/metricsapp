@@ -15,7 +15,7 @@ class ViewProjectListingTest extends TestCase
     /** @test */
     public function guest_cannot_view_a_project_list_page()
     {
-        $response = $this->get('/projects');
+        $response = $this->get('/spaces');
         $response->assertStatus(302);
         $response->assertRedirect('/login');
     }
@@ -23,10 +23,10 @@ class ViewProjectListingTest extends TestCase
     /** @test */
     public function guest_cannot_view_a_project_page()
     {
-        $project =  factory(Project::class)->create([
+        $project =  Project::factory()->create([
             'name' => 'ProjectTest 1',
         ]);
-        $response = $this->get('/projects/'.$project->id);
+        $response = $this->get('/spaces/'.$project->wikiname);
 
         $response->assertStatus(302);
         $response->assertRedirect('/login');
@@ -37,14 +37,14 @@ class ViewProjectListingTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $project =  factory(Project::class)->create([
+        $project =  Project::factory()->create([
             'name' => 'Project Test 1',
         ]);
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $user->projects()->save($project);
 
-        $response = $this->actingAs($user)->get('/projects/'.$project->id);
+        $response = $this->actingAs($user)->get('/spaces/'.$project->wikiname);
         $response->assertStatus(200);
         $response->assertSee('Project Test 1');
     }
@@ -54,21 +54,21 @@ class ViewProjectListingTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $user = factory(User::class)->create();
-        $projectA = factory(Project::class)->create([
+        $user = User::factory()->create();
+        $projectA = Project::factory()->create([
             'name' => 'Test Project A',
         ]);
-        $projectB = factory(Project::class)->create([
+        $projectB = Project::factory()->create([
             'name' => 'Test Project B',
         ]);
-        $projectC = factory(Project::class)->create([
+        $projectC = Project::factory()->create([
             'name' => 'Test Project C',
         ]);
 
         $user->projects()->saveMany([$projectA, $projectB, $projectC]);
 
 
-        $response = $this->actingAs($user)->get('/projects');
+        $response = $this->actingAs($user)->get('/spaces');
         $response->assertStatus(200);
         $response->data('projects')->assertContains($projectA);
         $response->data('projects')->assertContains($projectB);
@@ -80,26 +80,26 @@ class ViewProjectListingTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $user = factory(User::class)->create();
-        $otherUser = factory(User::class)->create();
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
 
-        $projectA =  factory(Project::class)->create([
+        $projectA =  Project::factory()->create([
             'name' => 'Project Test A',
         ]);
-        $projectB =  factory(Project::class)->create([
+        $projectB =  Project::factory()->create([
             'name' => 'Project Test B',
         ]);
-        $projectC =  factory(Project::class)->create([
+        $projectC =  Project::factory()->create([
             'name' => 'Project Test C',
         ]);
-        $projectD =  factory(Project::class)->create([
+        $projectD =  Project::factory()->create([
             'name' => 'Project Test C',
         ]);
 
         $user->projects()->saveMany([$projectA, $projectB, $projectC]);
         $otherUser->projects()->save($projectD);
 
-        $response = $this->actingAs($user)->get('/projects');
+        $response = $this->actingAs($user)->get('/spaces');
         $response->assertStatus(200);
         $response->data('projects')->assertContains($projectA);
         $response->data('projects')->assertContains($projectB);

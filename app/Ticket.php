@@ -4,13 +4,23 @@ namespace App;
 
 use App\Integration\AssemblaGateway;
 use DateTime;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Ticket extends Model
 {
+    use HasFactory;
+
     const CLOSED_STATE = 0;
     const OPEN_STATE = 1;
+
+    //Hierarchy Types 0 No plan level, 1 Subtask, 2 Story, 3 Epic */
+    const HIERARCHY_NO_PLAN_LEVEL = 0;
+    const HIERARCHY_SUBTASK = 1;
+    const HIERARCHY_STORY = 2;
+    const HIERARCHY_EPIC = 3;
+
     protected $guarded = [];
 
     public static function ticketExists($assemblaId)
@@ -20,7 +30,7 @@ class Ticket extends Model
 
     public static function getTicketByAssemblaId($assemblaId)
     {
-        return self::where('ticket_assembla_id', $assemblaId)->firstOrFail();
+        return self::where('ticket_assembla_id', $assemblaId)->first();//firstOrFail
     }
 
     public function subtasks()
@@ -46,7 +56,6 @@ class Ticket extends Model
     {
         if ($this->is_story && $this->state === self::CLOSED_STATE) {
             //Cualquier estado distinto de done o invalid! Es considerado inconsistente
-            //todo status could have a state to easily validate if its open or closed
             return $this->subtasks->whereNotIn('status', ['Done','Invalid']);
         }
         return [];
@@ -70,18 +79,14 @@ class Ticket extends Model
         return TicketTime::where('ticket_assembla_id', $this->ticket_assembla_id)->sum('hours');
     }
 
-    public function getFormattedName()
-    {
-        $name = $this->name;
-        if (strlen($this->name) > 80) {
-            $name = substr($this->name,0,80).'...';
-        }
-        return $name;
-    }
-
     public function sprints()
     {
         return $this->belongsToMany(Sprint::class);
+    }
+
+    public function ticketTimes()
+    {
+        return $this->hasMany(TicketTime::class, 'ticket_assembla_id', 'ticket_assembla_id');
     }
 
     public function scopeCompleted($query)

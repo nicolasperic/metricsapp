@@ -3,6 +3,7 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\Project;
+use App\Report;
 use App\Sprint;
 use App\Ticket;
 use App\AssemblaUser;
@@ -10,6 +11,7 @@ use App\TicketTime;
 use App\User;
 use Carbon\Carbon;
 use Faker\Generator as Faker;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
 /*
@@ -22,7 +24,7 @@ use Illuminate\Support\Str;
 | model instances for testing / seeding your application's database.
 |
 */
-
+//migrated
 $factory->define(User::class, function (Faker $faker) {
     return [
         'name' => $faker->name,
@@ -30,9 +32,12 @@ $factory->define(User::class, function (Faker $faker) {
         'email_verified_at' => now(),
         'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
         'remember_token' => Str::random(10),
+        'assembla_key'=>'TEST',
+        'assembla_secret' => Crypt::encrypt('TEST')
     ];
 });
 
+//migrated
 $factory->define(AssemblaUser::class, function (Faker $faker) {
     return [
         'user_assembla_id' => 'TESTID1234',
@@ -42,6 +47,7 @@ $factory->define(AssemblaUser::class, function (Faker $faker) {
     ];
 });
 
+//migrated
 $factory->define(Project::class, function (Faker $faker) {
     return [
         'name' => 'Test Project',
@@ -53,6 +59,7 @@ $factory->define(Project::class, function (Faker $faker) {
 });
 
 
+//migrated
 $factory->define(Ticket::class, function (Faker $faker) {
     return [
         'project_id' => function () {
@@ -66,6 +73,16 @@ $factory->define(Ticket::class, function (Faker $faker) {
     ];
 });
 
+//migrated
+$factory->state(Ticket::class, 'completed', function () {
+    return [
+        'ticket_assembla_id' => 'ticket123',
+        'completed_at' => Carbon::parse('+1 week'),
+        'state' => Ticket::CLOSED_STATE
+    ];
+});
+
+//migrated
 $factory->define(TicketTime::class, function(Faker $faker) {
     return [
         'ticket_time_assembla_id' => 1234,
@@ -80,18 +97,31 @@ $factory->define(TicketTime::class, function(Faker $faker) {
     ];
 });
 
+//migrated
 $factory->define(Sprint::class, function (Faker $faker) {
     return [
         'name' => 'Sprint 1',
         'start_date' => Carbon::parse('4 days ago'),
         'end_date' => Carbon::parse('+5 days'),
+        'is_active' => 1,
+        'planner_type' => 0,
     ];
 });
 
-$factory->state(Ticket::class, 'completed', function () {
+//migrated
+$factory->define(Report::class, function (Faker $faker) {
     return [
-        'ticket_assembla_id' => 'ticket123',
-        'completed_at' => Carbon::parse('+1 week'),
-        'state' => Ticket::CLOSED_STATE
+        'user_id' => 1,
+        'request_data' => serialize(['wikiname' => 'Grassi', 'from_date' => '2020/11/30', 'to_date' => '2020/12/13']),
+        'title' => 'Hours by User Story',
+    ];
+});
+
+//migrated
+$factory->state(Report::class, 'processed', function () {
+    return [
+        'status' => Report::PROCESSED_STATUS,
+        'body' => '160 horas',
+        'finished_at' => Carbon::parse('-1 hour'),
     ];
 });

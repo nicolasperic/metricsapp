@@ -15,13 +15,13 @@ class TicketTimeTest extends TestCase
     /** @test */
     function can_track_time_for_a_ticket()
     {
-        $ticket = factory(Ticket::class)->create([
+        $ticket = Ticket::factory()->create([
             'ticket_assembla_id' => '1234abcd',
             'number' => 1122,
         ]);
 
         /** @var TicketTime $ticketTime */
-        $ticketTime = factory(TicketTime::class)->create([
+        $ticketTime = TicketTime::factory()->create([
             'description' => 'Tracking time test',
             'hours' => 1.5,
             'begin_at' => Carbon::parse('-1 hour'),

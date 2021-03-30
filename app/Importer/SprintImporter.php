@@ -2,57 +2,86 @@
 
 namespace App\Importer;
 
+use App\Dto\Mapper\SprintMapper;
 use App\Dto\SprintDto;
 use App\Integration\AssemblaGateway;
 use App\Sprint;
-use Illuminate\Support\Facades\Auth;
+use App\User;
+use Illuminate\Support\Facades\Log;
 
 class SprintImporter
 {
+    /**
+     * @var User
+     */
+    private $user;
+
+    function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
 
     /**
      *
      */
     public function importProjectMilestonesAsSprints($project)
     {
-        $assemblaGateway = new AssemblaGateway();
-        $response = $assemblaGateway->getMilestonesForSpace($project->wikiname);
+        $noContent = true;
+        Log::info('[Milestones Importer] Starting import process');
+        $startTime = time();
+        $allProjectMilestonesFromAPI = array();
+        $assemblaGateway = new AssemblaGateway($this->user);
+        $sprints = $assemblaGateway->getMilestonesForSpace($project->wikiname);
 
-        if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);
-            foreach ($result as $milestoneData) {
-                $sprintDto = new SprintDto($milestoneData);
+        $APIEndTime = time();
+        $minutes = round(($APIEndTime - $startTime)/60, 2);
+        Log::info('[Milestones Importer] API response time '.$minutes.' minutes');
 
-                if (!Sprint::sprintExists($sprintDto->getSprintAssemblaId())) {
-                    $this->_createSprintFromDTO($sprintDto, $project);
-                } elseif (!Auth::user()->hasSprint($sprintDto->getSprintAssemblaId())) {
-                    $sprint = Sprint::getSprintByAssemblaId($sprintDto->getSprintAssemblaId());
+        if ($sprints !== false) {
+            /** @var SprintDTO $sprintDto */
+            foreach ($sprints as $sprintDto) {
+                $allProjectMilestonesFromAPI[$sprintDto->getSprintAssemblaId()] = true;
+                $sprint = Sprint::getSprintByAssemblaId($sprintDto->getSprintAssemblaId());
+                if ($sprint === null) {
+                    $sprint = SprintMapper::createSprintFromDTO($sprintDto);
+                    $this->_addSprintToProject($sprint, $project);
+                } else {
+
+                    $sprint = SprintMapper::updateSprintFromDTO($sprint, $sprintDto);
+                }
+
+                if (!$this->user->hasSprint($sprintDto->getSprintAssemblaId())) {
                     $this->_addSprintToUser($sprint);
                 }
             }
-        }
-    }
 
-    private function _createSprintFromDTO(SprintDto $sprintDto, $project)
-    {
-        $sprint = Sprint::create([
-            'name' => $sprintDto->getTitle(),
-            'sprint_assembla_id' => $sprintDto->getSprintAssemblaId(),
-            'project_assembla_id' => $sprintDto->getProjectAssemblaId(),
-            'is_active' => $sprintDto->getStatus(),
-        ]);
-        $this->_addSprintToUser($sprint);
-        $this->_addSprintToProject($sprint, $project);
+            //sync milestones received from API with project->sprints
+            foreach ($project->sprints as $sprint) {
+                if (!array_key_exists($sprint->sprint_assembla_id, $allProjectMilestonesFromAPI)) {
+                    $project->sprints()->detach($sprint->id);
+                    $this->user->sprints()->detach($sprint->id);
+                }
+            }
+            $noContent = false;
+        }
+
+        return $noContent;
     }
 
     private function _addSprintToUser($sprint)
     {
-        Auth::user()->sprints()->save($sprint);
+        $this->user->sprints()->save($sprint);
     }
 
     private function _addSprintToProject($sprint, $project)
     {
         $project->sprints()->save($sprint);
+    }
+
+    public function createNewCurrentSprint($sprintData, $project)
+    {
+        //TODO will this be used?...
     }
 
 }

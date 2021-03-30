@@ -1,13 +1,56 @@
+
+
+Summa Beta Testers (features, feedback, bugs) | LANDING PAGE | SUBSCRIBE
+- ideas, feedback que te guste, y los bugs
+    > implementar la parte de auth, teams, billing, etc.
+- armar una landing page, con un par de screenshots o sample downloads (xls o loq ue sea que uses)
+    - con un mini form de “subscribite para recibir noticias” que guarde mails en algún lugar.
+    - eso puede ir dandote una idea de randoms que visiten y puedan tener interés. y una mailing list para enviar un mail de launch.
+
 sudo vim /usr/local/etc/php/7.3/php.ini
 max_execution_time
 
 
-- Reporte de tickets
+- Current sprints Assembla Metrics
+- Hours > Worked (OK) y Remaining (attr working_hours o total_working_horus de ticket abiertos?not paused)
+    //228 es subtask pausada; le puse 4 hs de work remaining y no la vi en la subtask (no validé US parent)
+
+
+- Reporte de tickets (esto es más del feed/filter)
     - (subtasks > 6hs)
     - US con más de 15hs >
         Done- US y subtasks con estados inconsistentes (definir algunas reglas) > ej US con "working_hours" != 0.0 quiere decir que reportaron horas en la US
         Done- User Stories sin story points
     - releases
+
+> FILTERS para validaciones en atributos de tickets | Name > validaciones | Ícono/color/badge
+- Poder generar un filtro tipo Feed que basado en las condiciones retorne tickets de los spaces elegidos
+- Generar condiciones ej: ALL/ANY of these are TRUE/FALSE
+            - state  is/is not opened/closed
+
+- operadores: is, is not,  equals or greater than, equals or less than, greater than, less than, contains, does not contains, is one of, is not one of
+Atributos para condiciones:
+    - state: 0 closed, 1 opened
+    - status: string
+    - is_story:
+    - estimate
+    - hierarchy_type (subtask, us and epic)
+    - total_estimate
+    - total_invested_hours
+    - worked_hours
+    - working_hours
+
+Ejemplos:
+    OK 1. Subtask working hours > 6hs//DOS atributos SUBTASK && HOURS
+    OK 2. User Stories total inv hours > 15hs (?) //DOS attr US %% HOURS
+    OK 3. US without story points//ATRIUTO
+    OK 4. US con horas trackeadas//ATRIBUTO
+    5. Completed US with open subtasks (or not in Done)
+        //complicado armar esta regla :think: US && completed > subtasks status != Done
+        is_story YES
+        state is closed
+        [US subtasks statuses] is one of [In Progress, Accepted, Delivered, Paused, etc]
+
 
 
 Indicadores
@@ -21,13 +64,75 @@ Indicadores
 
 Visualización
     - Dashboard con métrics (poder ver por sprint, por equipo, por proyecto, etc)
-    - Visualización histórica de métricas
-    - Board multi projects (ver en qué anda cada dev ej in progress)
+    - Visualización histórica de métricas | guardar un "print" de stats por semana (con el reporte semanal)
+                horas, estimate, tickets, % bugs por semana, por mes
+    - Board multi projects (ver en qué anda cada dev ej in progress) || esto no se si vale la pena, assembla tiene el ticket list (se la re banca)
 
 
 Features
     - Tracking de horas (por tickets que tenés asignados, timer & send all, send each reporta a Assembla)
         de todos los spaces importados, definir cuales son los trackable para filtrado.
         Tenés entonces un dropdown con los spaces y pones el # de ticket a manopla > genera un counter y después submit!
-    - Manejar los sprints, crearlos (armar grupo de tickets)
-        -> tener en cuenta carry over de S1 para crear S2
+
+
+Atributos configs de space:
+DONE - Starred: favorito, lo agrego en el menú (+ current) | esto es por usuario en un PIVOT en project_user
+DONE - syncable Auto_importing Assembla API (por usario en PIVOT)
+- espacio "trackeable": para los dropdowns de reportes y task timer (muy verde aún)//esto es por usuario PIVOT
+    //más que "trackeable", tmb puedo considerar ENABLED/DISABLED por user inda HIDE/SHOW  si no querés verlo en dropdowns
+DONE - espacio compartido (para usar el filtro de equipo en el reporte de horas)
+DONE - estimate: hours, story points, [small, medium, large]
+
+Widgets configurables | Type > pie chart, X opciones, Y default, Z colores
+    - name: US Type
+    - assembla_code: Type
+    - IS CUSTOM [ ]//si lo busco o no dentro de custom fields
+        //ej puedo hacer cálculos con assigned_to (pie de US por persona y unassigned), bar chart de estimate (1,2,3,4,5,6)
+        //1. Active Tickets by User, Closed Tickets by User//tanto user story como subtask
+        //2. Tickets by Status | Active by Status | Closed By Status Ej: New 10 53%, Accepted 3 16%, In Progress 2 11%, Paused 1 %%
+        //3. Tickets by Priority | Active y Priority | Closed by Priority
+    - Ticket Type: All, US, Subtask//para filtrar por tipo de ticket
+    - Field Type: Text (complicado métricas), Numeric (avg, sum,?) , List, Team List, Date (i.e: 2021-01-03), Date Time (i.e: 2021-01-03 22:47), Checkbox (Yes/No)
+        List: values, colors
+    - visualization/chart: [pie, bar %] //q más opciones?
+    - default value
+    - spaces (multi select)
+    - sort order
+    - active: yes/no
+    - hours related (?) > type: Soporte 23% 10 horas //ver si esto vale la pena o es algo que YA vamos a hacer seguro
+    - user stories related (?) type: Soporte 40% 3 US//ver si vale la pena o es la info de la métrica
+
+
+Laravel Socialite > Facebook/Google login
+> Register page con estilos del theme
+
+> US Report on background with queued jobs
+    > cronjob to clear reports older than 7 days
+
+Distinto tipos de planes | PRICING (7 días gratis, medium plan, pro plan)
+- Reportes (duración en días) Ej: US story máximo una semana (no podes sacar el mes entero o el año)
+- Cantidad de spaces que podes auto-sincronizar
+- Cantidad de spaces que podes starrear
+- No tenes weekly report!
+- Job para sync current milestons (solo plan pro)
+- Sin importar qué plan sea debería limitar el uso de jobs (para que no hagan syncs tode el tiempo)
+- Validar el USO de la API de los usuarios
+ (ej: si tengo un HDP que se la pasa llamando a la API con muchos años, bloquear por un rato)
+- TODO: ya de base debería limitar la cantidad de días a consultar a la API en los reportes (me matan el sitio si eligen la totalidad de tickets)
+
+> la cantidad que puede cada plan debería tenerlo en una variable de entorno, o en una tabla (backend)
+ej: syncable_sprints_pro: 10; syncable_sprints_med = 3; syncable_sprints_free = 0
+escribir testing de todo esto para ser un user pro, medium, free
+
+
+TODO investigar sobre queues
+- Unique jobs ej: solo oquiero un space mylestone en cola por espacio (no encoles sommier center más de una vez)
+- Rate limiting
+- ProcessPodcast::dispatchSync($podcast);//con esto al parecer hago dispatch sin pasar por la cola,
+//tal vez me sirva para que el CRON ejecute al instante el proceso (vale la pena probarlo)
+
+
+
+
+php artisan queue:work --timeout=1200
+php artisan queue:table

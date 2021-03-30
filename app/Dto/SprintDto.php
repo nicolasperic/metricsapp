@@ -21,7 +21,7 @@ namespace App\Dto;
 [updated_by] => awkfUI9wer46vDacwqEsg8
 [release_level] =>
 [release_notes] =>
-[planner_type] => 0
+[planner_type] => 0 //0 None, 1 Backlog, 2 Current
 [pretty_release_level] => None
 )
  * Class SprintDto
@@ -34,6 +34,9 @@ class SprintDto
     private $projectAssemblaId;
     private $title;
     private $status;
+    private $plannerType;//0 None, 1 Backlog, 2 Current
+    private $startDate;
+    private $endDate;
 
     private $responseData;
 
@@ -57,9 +60,12 @@ class SprintDto
     {
         $data = $this->getResponseData();
         $this->setTitle($data['title']);
-        $this->setStatus($data['is_completed']);
+        $this->setStatus(!boolval($data['is_completed']));
+        $this->setStartDate($data['start_date']);
+        $this->setEndDate($data['due_date']);
         $this->setSprintAssemblaId($data['id']);
         $this->setProjectAssemblaId($data['space_id']);
+        $this->setPlannerType($data['planner_type']);
     }
 
     /**
@@ -126,12 +132,67 @@ class SprintDto
         $this->title = $title;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getPlannerType()
+    {
+        return $this->plannerType;
+    }
+
+    /**
+     * @param mixed $plannerType
+     */
+    public function setPlannerType($plannerType)
+    {
+        $this->plannerType = $plannerType;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * @param mixed $startDate
+     */
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    /**
+     * @param mixed $endDate
+     */
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
+    }
+
+
+
+
+
     public function toString()
     {
         return "Name: ".$this->getTitle().PHP_EOL.
         "Status: ".$this->getStatus().PHP_EOL.
-        "Sprint ID: ".$this->getSprintAssemblaId();
-        "Project ID: ".$this->getProjectAssemblaId();
+        "Start Date: ".$this->getStartDate().PHP_EOL.
+        "End Date: ".$this->getEndDate().PHP_EOL.
+        "Sprint ID: ".$this->getSprintAssemblaId().
+        "Project ID: ".$this->getProjectAssemblaId().
+        "Planner Type: ".$this->getPlannerType();
     }
     
 

@@ -2,14 +2,7 @@
 
 namespace App\Dto;
 
-/**
- * id" => "cvixt811Gr4PBcacwqjQYw"
-"login" => "nicoperic"
-"name" => "Nicolás Peric"
-"picture" => "https://www.assembla.com/v1/users/cvixt811Gr4PBcacwqjQYw/picture"
-"email" => "nperic@summasolutions.net"
-"organization" => ""
-"phone" => ""*/
+
 class AssemblaUserDto
 {
     private $userAssemblaId;
@@ -22,6 +15,7 @@ class AssemblaUserDto
 
     public function __construct($responseData)
     {
+        //print print_r($responseData,1).PHP_EOL;
         $this->setResponseData($responseData);
         $this->processInfo();
     }
@@ -32,7 +26,17 @@ class AssemblaUserDto
         $this->setUserAssemblaId($data['id']);
         $this->setLogin($data['login']);
         $this->setName($data['name']);
-        $this->setEmail($data['email']);
+        $this->setEmail($this->_validate('email', $data, ''));
+        $this->setPicture($this->_validate('picture', $data, ''));
+    }
+
+    private function _validate($key, $data, $default = null)
+    {
+        $value = $default;
+        if (array_key_exists($key, $data)) {
+            $value = $data[$key];
+        }
+        return $value;
     }
 
     private function setResponseData($responseData)
@@ -123,6 +127,16 @@ class AssemblaUserDto
     public function setEmail($email)
     {
         $this->email = $email;
+    }
+
+    public function toString()
+    {
+        return 'ID: '.$this->getUserAssemblaId().PHP_EOL.
+        'Login: '.$this->getLogin().PHP_EOL.
+        'Name: '.$this->getName().PHP_EOL.
+        'Email: '.$this->getEmail().PHP_EOL.
+        'Picture: '.$this->getPicture().PHP_EOL;
+
     }
 
 

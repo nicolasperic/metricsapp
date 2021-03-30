@@ -1,0 +1,76 @@
+.sprint-container {
+    .user-story-type-stats {
+        padding-left: 16px;
+    }
+
+    .card-body.hours-per-user-table-container {
+        padding-top: 0px;
+        overflow-x: scroll;
+        table.table-striped.hours-per-user-table {
+            display: table;
+            thead th {
+                border-top: none;
+            }
+        }
+    }
+
+}
+@include media-breakpoint-down(sm) {
+    .container-fluid.sprint-container {
+        padding-left: .5rem;
+        padding-right: .5rem;
+        div.row div.col-xl-3.col-md-6.mb-4 {
+            //padding-left: 0px;
+            //padding-right: 0px;
+        }
+
+        .validator {
+            display: block;
+        }
+        .stats-card {
+            width: 50%;
+        }
+        table.table {
+            display: block;
+            overflow-x: auto;
+            //white-space: nowrap;
+            td, th {
+                padding: 0.4rem;
+                font-size: 14px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .container-fluid.sprint-container {
+        .user-stories-types {
+            width: 86%;
+            margin-left: 7%;
+            .user-story-type {
+                width: 50%;
+                float: left;
+                .type-label {
+                    font-size: 1em;
+                }
+            }
+        }
+
+        .stats-card {
+            .card-body {
+                padding: .7rem;
+                div.col-auto i {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .container-fluid.sprint-container {
+        .actions {
+            top: 0px !important;
+        }
+    }
+}

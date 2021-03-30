@@ -4,13 +4,23 @@ namespace App;
 
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, HasFactory;
 
+
+    const STATUS_INVITED = 1;
+    const STATUS_ACCEPTED = 2;
+    const STATUS_REMOVED = 3;
+
+    const ROLE_MEMBER = 'member';
+    const ROLE_OWNER = 'owner';
+    const ROLE_WATCHER = 'watcher';
     /**
      * The attributes that are mass assignable.
      *
@@ -43,9 +53,60 @@ class User extends Authenticatable
         return $this->belongsToMany(Sprint::class);
     }
 
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    public function lastWeekReports()
+    {
+        $date = Carbon::today()->subDays(7);
+        return $this->reports()->where('created_at', '>=', $date)->orderBy('created_at', 'desc')->get();
+    }
+
+    public function getOpenSprints()
+    {
+        return $this->sprints()->open();
+    }
+
+    public function getClosedSprints()
+    {
+        return $this->sprints()->closed();
+    }
+
     public function projects()
     {
-        return $this->belongsToMany(Project::class);
+        return $this->belongsToMany(Project::class)->withPivot(['starred','syncable']);
+    }
+
+    public function starredProjects()
+    {
+        return $this->belongsToMany(Project::class)->with('sprints', function($query){
+            $query->current();
+        })->withPivot('starred')->where('starred', 1);
+    }
+
+    public function syncableProjects()
+    {
+        return $this->belongsToMany(Project::class)->withPivot('syncable')->where('syncable', 1);
+    }
+
+    /**
+     * This function will iterate user starred projects and collect current sprints
+     *
+     * @return \Illuminate\Support\Collection|null|\Symfony\Component\HttpKernel\Profiler\Profile|void
+     */
+    public function starredProjectsCurrentSprints()
+    {
+        $sprints = collect();
+        $this->starredProjects->each( function ($project) use (&$sprints){
+            $current = $project->getCurrentSprint();
+            if ($current) {
+                $sprints->add($current);
+            }
+        });
+
+        return $sprints;
     }
 
     /**
@@ -54,9 +115,7 @@ class User extends Authenticatable
      */
     public function tasks()
     {
-        //TODO add userAssemblaId on a configuration table or other suitable place
-        $npericUserAssemblaId = 'cvixt811Gr4PBcacwqjQYw';
-        return TicketTime::where('user_assembla_id', $npericUserAssemblaId)->whereDate('begin_at', Carbon::today())->get();
+        return TicketTime::where('user_assembla_id', Auth::user()->user_assembla_id)->whereDate('begin_at', Carbon::today())->get();
     }
 
     public function hasProject($projectAssemblaId)

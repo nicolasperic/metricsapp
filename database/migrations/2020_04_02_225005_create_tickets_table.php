@@ -21,12 +21,19 @@ class CreateTicketsTable extends Migration
             $table->string('status');
             $table->boolean('state')->default(1);
             $table->string('ticket_assembla_id')->nullable();
+            $table->string('sprint_assembla_id')->nullable();
+            $table->string('assigned_to_user_assembla_id')->nullable();
             $table->boolean('is_story');
-            $table->unsignedFloat('worked_hours')->default(0);
+            $table->string('type')->nullable();
             $table->unsignedFloat('total_invested_hours')->default(0);
+            $table->unsignedFloat('worked_hours')->default(0);
+            $table->unsignedFloat('working_hours')->default(0);
+            $table->unsignedFloat('estimate')->default(0);
+            $table->unsignedFloat('total_estimate')->default(0);
+            $table->unsignedFloat('total_working_hours')->default(0);
+            $table->longtext('custom_fields')->nullable();
             $table->datetime('started_at')->nullable();
             $table->datetime('completed_at')->nullable();
-            $table->integer('story_points')->nullable();
             $table->timestamps();
         });
     }

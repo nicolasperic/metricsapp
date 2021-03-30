@@ -1,0 +1,66 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+.report-container {
+    padding: 25px;
+
+    .table thead th {
+        text-transform: uppercase;
+    }
+
+    .report-header {
+        margin-bottom: 20px;
+        span {
+            display: block;
+        }
+        h4 {
+            text-transform: capitalize;
+        }
+        .report-dates-totals strong {
+            font-size: 1.2rem;
+        }
+    }
+
+    .report-table-header {
+        padding: 15px;
+        background-color: #333333;
+        color: #ded5d5;
+        border-radius: 0.35rem 0.35rem 0 0;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        h6 {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    }
+
+
+    .report-stats {
+        width: 160px;
+        padding: 15px;
+        border: 1px solid #e3e6f0;
+        border-radius: 0.35rem;
+        border-left: .25rem solid #333333;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        display: inline-block;
+        margin: 0 20px 20px 0;
+    }
+
+    .report {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+        .report-user-stories {
+            border-left: 1px solid #e3e6f0;
+            border-right: 1px solid #e3e6f0;
+            border-bottom: 1px solid #e3e6f0;
+            border-radius: 0 0 0.35rem 0.35rem;
+            margin-bottom: 20px;
+        }
+    }
+
+
+
+}
+
+

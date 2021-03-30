@@ -3,7 +3,9 @@
 namespace App\Integration;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Query;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class AssemblaRequest extends Model
 {
@@ -16,28 +18,25 @@ class AssemblaRequest extends Model
      * Assembla API URL used to shorten endpoints
      */
     const ASSEMBLA_API_URL = 'https://api.assembla.com/v1/';
-    //TODO generate configuration page to allow customer to set the key and secret
-    const APPLICATION_KEY = 'a5aa5632989ec768d71d';//https://app.assembla.com/user/edit/manage_clients
-    const APPLICATION_SECRET = '497e452c605c29f8971aeb367e6c15a872749efe';
 
     /**
-     * This function is used for the GET action on the Assembla API
+     * This function is used for the GET request to the Assembla API
      *
-     * @param       $url
+     * @param string $endpoint
+     * @param string $applicationKey Key for Assembla Authorization
+     * @param string $applicationSecret Secret for Assembla Authorization
      * @param array $queryParams
-     * @param bool  $assemblaPrefix
+     *
+     * @param bool  $multiple this parameter triggers logic to enable query string requests (to be able to have i.e multiple productIds)
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function get($url, $queryParams = [], $assemblaPrefix = true)
+    public static function get($endpoint, $applicationKey, $applicationSecret, $queryParams = [], $multiple = false)
     {
-        if ($assemblaPrefix)
-            $url = self::ASSEMBLA_API_URL.$url;
-
         $requestData = [
             'headers' => [
-                'X-Api-Key'    => self::APPLICATION_KEY,
-                'X-Api-Secret' => self::APPLICATION_SECRET
+                'X-Api-Key'    => $applicationKey,
+                'X-Api-Secret' => Crypt::decrypt($applicationSecret),
             ],
             'allow_redirects' => [
                 'max'             => 10,        // allow at most 10 redirects.
@@ -54,35 +53,65 @@ class AssemblaRequest extends Model
         ];
         $requestData['query'] = array_merge($requestData['query'], $queryParams);
 
+        if ($multiple) {
+            $requestData['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
+            $queryString = Query::build($requestData['query']);
+            $requestData['body'] = $queryString ;
+            unset($requestData['query']);
+        }
+
         $client = new Client();
-        return $client->request('GET', $url, $requestData);
+        return $client->request('GET', self::ASSEMBLA_API_URL.$endpoint, $requestData);//GuzzleHttp\Exception\ConnectException
     }
 
     /**
-     * This function is used for POST to the Assembla API
+     * This function is used for POST requests to the Assembla API
      * currently used only when tracking time
      *
-     * @param      $url
+     * @param      $endpoint
      * @param      $params
-     * @param bool $assemblaPrefix
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function post($url, $params, $assemblaPrefix = true)
+    public static function post($endpoint, $applicationKey, $applicationSecret, $params)
     {
-        if ($assemblaPrefix)
-            $url = self::ASSEMBLA_API_URL.$url;
-
         $requestData = [
             'headers' => [
-                'X-Api-Key'    => self::APPLICATION_KEY,
-                'X-Api-Secret' => self::APPLICATION_SECRET
+                'X-Api-Key'    => $applicationKey,
+                'X-Api-Secret' => Crypt::decrypt($applicationSecret),
             ],
             'form_params' => $params,
         ];
 
         $client = new Client();
-
-        return $client->post($url, $requestData);
+        return $client->post(self::ASSEMBLA_API_URL.$endpoint, $requestData);
     }
+
+    /**
+     * This function is used for PUT requests to the Assembla API
+     * currently used only for:
+     * - Updating a Milestone as closed
+     * - Updating a ticket milestone
+     *
+     * @param      $endpoint
+     * @param      $params
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public static function put($endpoint, $applicationKey, $applicationSecret, $params)
+    {
+        $requestData = [
+            'headers' => [
+                'X-Api-Key'    => $applicationKey,
+                'X-Api-Secret' => Crypt::decrypt($applicationSecret),
+            ],
+            'form_params' => $params,
+        ];
+
+        /** @var \GuzzleHttp\Client $client */
+        $client = new Client();
+        return $client->put(self::ASSEMBLA_API_URL.$endpoint, $requestData);
+    }
+
+
 }

@@ -1,0 +1,44 @@
+.current-sprints {
+    width: 100%;
+    .w-33 {
+        width: 34% !important;
+    }
+    .planner-type {
+        padding: 3px 5px 3px;
+        border-radius: 3px;
+        line-height: 17px;
+        font-size: 11px;
+        color: white;
+        position: relative;
+        top: -3px;
+    }
+
+    .planner-type.current {
+        background-color: rgb(122, 185, 102);
+    }
+
+    .planner-type.backlog {
+        background-color: rgb(51, 54, 55);
+    }
+    .last-sync {
+        font-size: 11px;
+    }
+}
+
+@include media-breakpoint-down(sm) {
+    .current-sprints {
+        .planner-type.current, .assembla-link-text {
+            display: none;
+        }
+
+        h4.mt-4 {
+            font-size: 1rem;
+        }
+
+        .row.justify-content-center div.col-10 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+    }
+}

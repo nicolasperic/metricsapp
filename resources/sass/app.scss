@@ -6,3 +6,130 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+@import "sections/currentsprints.scss";
+@import "sections/sprints.show.scss";
+
+.help {
+    display: block;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+.help.is-danger {
+    color: #ff3860;
+}
+.is-danger.input, .is-danger.textarea {
+    border-color: #ff3860;
+}
+
+.row {
+    margin-right: 0px !important;
+    margin-left: 0px !important;
+}
+
+.container-fluid {
+    padding-right: 1.5rem ;
+    padding-left: 1.5rem ;
+}
+.col-12 {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+
+.alert.alert-info {
+    a {
+        color: #4e73df;
+        text-decoration: underline;
+    }
+}
+
+.planner-type {
+    padding: 3px 5px 3px;
+    border-radius: 3px;
+    line-height: 17px;
+    font-size: 11px;
+    cursor: pointer;
+    color: white;
+    position: relative;
+    top: -3px;
+}
+
+.planner-type.current {
+    background-color: rgb(122, 185, 102);
+}
+.planner-type.backlog {
+    background-color: rgb(51, 54, 55);
+}
+
+
+@media screen and (max-width: 1000px) {
+    .d-flex.project-report-fields {
+        display: block!important;
+    }
+    .card-bg-secondary .d-flex .w-33 {
+        width: 100% !important;
+    }
+}
+
+$background-color: hsl(50, 5, 97);
+$black: hsl(200, 40, 10);
+$white: $background-color;
+$base-font-size: 2em;
+$base-line-height: 1.4em;
+
+@media screen and (max-width: 480px) {
+    blockquote.kelvin {
+        font-size: 1.2em !important;
+        line-height: 1.2em !important;
+        padding-right: 0px !important;
+        &:after {
+            display: none;
+        }
+    }
+}
+
+@include media-breakpoint-down(sm) {
+    blockquote.kelvin {
+        font-size: 1.3em;
+        line-height: 1.3em;
+        padding-right: 57px;
+        &:after {
+            font-size: 5em;
+        }
+    }
+}
+
+.kelvin {
+    position: relative;
+    font-family: 'Sanchez', serif;
+    font-size: $base-font-size;
+    line-height: $base-line-height;
+    padding-right: 100px;
+    footer {
+        font-family: 'Noto Sans', sans-serif;
+        font-size: 0.6em;
+        font-weight: 700;
+        color: darken($white, 15%);
+        float: right;
+
+        &:before {
+            content: '\2015';
+        }
+    }
+    &:after {
+        content: '\201D';
+        position: absolute;
+        top: 0.28em;
+        right: 0;
+        font-size: 6em;
+        font-style: italic;
+        color: darken($white, 7%);
+    }
+}
+
+#startIterationModal div.modal-content {
+    div.modal-body p {
+        margin-bottom: 0px;
+    }
+
+}

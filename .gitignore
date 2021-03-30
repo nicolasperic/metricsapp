@@ -1,4 +1,4 @@
-#/node_modules
+node_modules/
 #/public/hot
 #/public/storage
 #/storage/*.key
@@ -96,5 +96,4 @@ Homestead.json
 /vendor
 .env
 /public/.htaccess
-/storage
 storage/*.key

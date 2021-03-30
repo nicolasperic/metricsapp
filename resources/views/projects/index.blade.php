@@ -1,22 +1,51 @@
 @extends('layouts.app')
 
+@section('head')
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+@endsection
+
+@section('container-title', 'Spaces')
+
+@section('breadcrumbs',  Breadcrumbs::render('projects'))
+
+@section('actions')
+
+    <a href="{{ route("projects.sync") }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Spaces</a>
+
+@endsection
+
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">Your Projects <a href="{{url("projects/importProjects")}}" style="float:right;">Import Projects</a></div>
+            <div class="col-12">
+                <div class="card shadow mb-12">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Your Assembla Spaces</h6>
+                    </div>
 
 
-                        <ul>
+
+                    <div style="margin-left: 40px;">
+                        * only checked spaces will be considered on the <a href="{{route('sprints.current')}}">Current Milestones</a> page
+                    </div>
+
+                        <ul style="list-style: none;">
                             @forelse ($projects as $project)
                                 <li>
-                                    <a href="{{url("projects/{$project->id}")}}">{{ $project->name}}</a>
+                                    <div class="starred-form-container" style="float:left;">
+                                        <form id="{{$project->id}}" class="starred" name="starred_project_form" action="{{ route('projects.storePivotAttribute', $project-> wikiname) }}" method="POST">
+                                            <input type="hidden" name="attribute_name" value="starred">
+                                            <input class="project-star" name="starred" type="checkbox" @if ($project->pivot->starred) checked @endif/>
+                                        </form>
+                                    </div>
+
+                                    <a href="{{route('projects.show',$project->wikiname)}}">{{ $project->name}}</a>
+
                                 </li>
 
 
                             @empty
-                                <p>No projects imported yet. What are you waiting for? Import your projects <a href="{{url("projects/importProjects")}}">here!<a/></p>
+                                <p>No spaces imported yet. What are you waiting for? Import your spaces <a href="{{ route('projects.sync') }}">here!<a/></p>
                             @endforelse
                         </ul>
 
@@ -24,6 +53,25 @@
             </div>
         </div>
     </div>
+
+    <script type="text/javascript">
+        jQuery("[name='starred_project_form']").change('.project-star', function(e) {
+            jQuery.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            jQuery.ajax({
+                type: 'POST',
+                cache: false,
+                dataType: 'JSON',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                success: function(data) {
+                }
+            });
+        });
+    </script>
 @endsection
 
 

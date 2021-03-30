@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Importer\SprintImporter;
+use App\Helper\SessionMessage;
+use App\Jobs\SprintIteration;
+use App\Jobs\SyncSpaceMilestones;
+use App\Jobs\SyncUserSyncableSpaces;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 
 class SprintsController extends Controller
@@ -11,26 +15,63 @@ class SprintsController extends Controller
     public function index()
     {
         return view('sprints.index', [
-            'sprints' => Auth::user()->sprints,
+            'openSprints' => Auth::user()->getOpenSprints,
+            'closedSprints' => Auth::user()->getClosedSprints,
         ]);
     }
 
-    public function show($id)
+    public function current()
     {
-        $sprint = Auth::user()->sprints()->findOrFail($id);
+        return view('sprints.current', [
+            'currentSprints' => Auth::user()->starredProjectsCurrentSprints(),
+        ]);
+    }
+
+    public function show($wikiname, $id)
+    {
+        $sprint = Auth::user()->sprints()->with(['tickets.ticketTimes', 'tickets.subtasks', 'projects.assemblaUsers'])->where('sprint_assembla_id', $id)->firstOrFail();
 
         return view('sprints.show', [
             'sprint' => $sprint,
         ]);
     }
 
-    public function importSprints($projectId)
+    /**
+     * This function is used to dispatch a Milestone Sync for the received project
+     * and then a current mylestone ticket sync
+     *
+     * @param $wikiname
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     * @internal param $projectId
+     *TODO move this under Controllers/Assembla ProjectsController syncProjectSprints
+     */
+    public function syncSprints($wikiname)
     {
-        $project = Auth::user()->projects()->findOrFail($projectId);
+        $project = Auth::user()->projects()->where('wikiname', $wikiname)->firstorFail();
+        try {
+            SyncSpaceMilestones::dispatch(Auth::user(), $project);
+            SessionMessage::infoMessage("Milestones sync job was added to the queue");
+        } catch (\Exception $e) {
+            SessionMessage::errorMessage('Oops something went wrong when contacting Assembla, please try again later. If the problem persists contact support.');
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+        }
 
-        $sprintImporter = new SprintImporter();
-        $sprintImporter->importProjectMilestonesAsSprints($project);
+        return redirect()->route('projects.show', $project->wikiname);
 
-        return redirect()->route('projects.show', $project);
+    }
+
+    /**
+     * This function will trigger a job that will update all syncable spaces
+     * current milestones : )
+     *
+     * *TODO move this under Controllers/Assembla/
+     */
+    public function syncAllCurrentSprints()
+    {
+        SyncUserSyncableSpaces::dispatch(Auth::user());
+        SessionMessage::infoMessage("Current spaces sync job was added to the queue");
+        return redirect()->route('sprints.current');
     }
 }

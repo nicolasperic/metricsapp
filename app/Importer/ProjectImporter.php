@@ -2,52 +2,95 @@
 
 namespace App\Importer;
 
+use App\Dto\Mapper\ProjectMapper;
 use App\Dto\ProjectDto;
 use App\Integration\AssemblaGateway;
+use App\Integration\AssemblaRequest;
 use App\Project;
-use Illuminate\Support\Facades\Auth;
+use App\User;
+use Illuminate\Support\Facades\Log;
 
 class ProjectImporter
 {
+    /**
+     * @var User
+     */
+    private $user;
+    /** @var AssemblaGateway  */
+    private $assemblaGateway;
+
+    /**
+     * @param User $user
+     */
+    function __construct(User $user)
+    {
+        $this->user = $user;
+        $this->assemblaGateway = new AssemblaGateway($this->user);
+    }
+
 
     /**
      *
      */
     public function importAllAssemblaSpacesAsProjects()
     {
-        $assemblaGateway = new AssemblaGateway();
-        $response = $assemblaGateway->getSpaces();
+        Log::info('[Projects Importer] Starting import process');
+        $allProjectsFromAPI = array();
 
-        if ($response->getStatusCode() == 200) {
-            $result = json_decode($response->getBody()->getContents(), 1);
-            foreach ($result as $spaceData) {
-                $projectDto = new ProjectDto($spaceData);
+        $page = 1;
+        $queryParams = ['page' => $page];
 
-                if (!Project::projectExists($projectDto->getProjectAssemblaId())) {
-                    $this->_createProjectFromDTO($projectDto);
-                } elseif (!Auth::user()->hasProject($projectDto->getProjectAssemblaId())) {
+        do {
+            $startTime = time();
+            $spaces = $this->assemblaGateway->getSpaces($queryParams);
+
+            $APIEndTime = time();
+            $minutes = round(($APIEndTime - $startTime)/60, 2);
+            Log::info('[Projects Importer] API response time '.$minutes.' minutes');
+
+            if ($spaces) {
+                $queryParams['page'] = ++$page;
+                /** @var ProjectDto $projectDto */
+                foreach ($spaces as $projectDto) {
+                    $allProjectsFromAPI[$projectDto->getProjectAssemblaId()] = true;
+                    /** @var Project $project */
                     $project = Project::getProjectByAssemblaId($projectDto->getProjectAssemblaId());
-                    $this->_addProjectToUser($project);
+                    if ($project === null) {
+                        $project = ProjectMapper::createProjectFromDTO($projectDto);
+                    } else {
+                        $project = ProjectMapper::updateProjectFromDTO($project, $projectDto);//Importer syncing project data
+
+                        //if project already exists it might already have sprints so we need to add those sprints to the logged user
+                        foreach ($project->sprints as $sprint) {
+                            if (!$this->user->hasSprint($sprint->sprint_assembla_id)) {
+                                $this->user->sprints()->save($sprint);
+                            }
+                        }
+                    }
+
+                    if (!$this->user->hasProject($project->project_assembla_id)) {
+                        $this->user->projects()->save($project);
+                    }
+
+                    $role = $this->assemblaGateway->getUserRoleInSpace($this->user->user_assembla_id, $project->wikiname);
+                    if ($role !== false) {
+                        $this->user->projects()->updateExistingPivot($project->id, $role);
+                    }
                 }
+            } else {
+                break;
+            }
+        } while(count($spaces) === AssemblaRequest::PER_PAGE);
+
+        //sync milestones received from API with project->sprints
+        foreach ($this->user->projects as $project) {
+            if (!array_key_exists($project->project_assembla_id, $allProjectsFromAPI)) {
+                $this->user->projects()->detach($project->id);
             }
         }
-    }
 
-    private function _createProjectFromDTO(ProjectDto $projectDto)
-    {
-        $project = Project::create([
-            'name' => $projectDto->getName(),
-            'code' => 'TPJ',
-            'wikiname' => $projectDto->getWikiName(),
-            'project_assembla_id' => $projectDto->getProjectAssemblaId(),
-            'status' => $projectDto->getStatus(),
-        ]);
-        $this->_addProjectToUser($project);
+        $endtime = time();
+        $minutes = round(($endtime - $startTime)/60, 2);
+        Log::info('[Projects Importer] Finished in '.$minutes.' minutes');
     }
-
-    private function _addProjectToUser($project)
-    {
-        Auth::user()->projects()->save($project);
-    }
-
 }
