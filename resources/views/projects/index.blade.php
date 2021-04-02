@@ -45,7 +45,7 @@
 
 
                             @empty
-                                <p>No spaces imported yet. What are you waiting for? Import your spaces <a href="{{ route('projects.sync') }}">here!<a/></p>
+                                <p>No spaces imported yet. What are you waiting for? Import your spaces <a href="{{ route('projects.sync') }}">here!</a></p>
                             @endforelse
                         </ul>
 

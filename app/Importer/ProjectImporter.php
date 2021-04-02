@@ -4,11 +4,15 @@ namespace App\Importer;
 
 use App\Dto\Mapper\ProjectMapper;
 use App\Dto\ProjectDto;
+use App\Dto\TicketTimeDto;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
+use App\Models\ProjectStat;
 use App\Project;
 use App\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use PHPUnit\Framework\Exception;
 
 class ProjectImporter
 {
@@ -92,5 +96,72 @@ class ProjectImporter
         $endtime = time();
         $minutes = round(($endtime - $startTime)/60, 2);
         Log::info('[Projects Importer] Finished in '.$minutes.' minutes');
+    }
+
+    public function calculateAndStoreProjectStatsFor($project, $year, $month)
+    {
+        //we need to calculate the start and end dates for the given month
+        $firstDayOfMonth = Carbon::parse($year.'/'.$month.'/01')->startOfMonth()->format('Y/m/d H:i');
+        $lastDayOfMonth = Carbon::parse($year.'/'.$month.'/01')->endOfMonth()->format('Y/m/d H:i');
+
+
+        $totalHours = null;
+        $totalTasks = null;
+
+        try {
+            $page = 1;
+            do {
+                $queryParams = [
+                    'spaces' => $project->project_assembla_id,
+                    'from'   => $firstDayOfMonth,
+                    'to'     => $lastDayOfMonth,
+                    'page'   => $page,
+                ];
+
+                $tasks = $this->assemblaGateway->getTasks($queryParams);
+                if ($tasks) {
+                    /** @var  TicketTimeDto $task */
+                    foreach ($tasks as $task) {
+                        $totalHours += $task->getHours();
+                        $totalTasks++;
+
+                    }
+                }
+
+
+
+                if (count($tasks) === AssemblaRequest::PER_PAGE) {
+                    $page++;
+                }
+            } while(count($tasks) === AssemblaRequest::PER_PAGE);
+        } catch(\Exception $e) {
+            Log::info($e->getMessage());
+        }
+
+
+        //Here we will update the project stat
+        $projectStat = ProjectStat::where('project_id', $project->id)->where('month', $month)->where('year', $year)->first();
+        if ($projectStat == null) {
+
+            ProjectStat::create([
+                'project_id' => $project->id,
+                'from_date' => $firstDayOfMonth,
+                'to_date' => $lastDayOfMonth,
+                'year' => $year,
+                'month' => $month,
+                'worked_hours' => $totalHours,
+                'total_tasks' => $totalTasks,
+                'range_type' => ProjectStat::MONTH_RANGE_TYPE
+            ]);
+        } else {
+
+            $projectStat->from_date = $firstDayOfMonth;
+            $projectStat->to_date = $lastDayOfMonth;
+            $projectStat->worked_hours = $totalHours;
+            $projectStat->total_tasks = $totalTasks;
+            $projectStat->save();
+        }
+
+        Log::info("$project->wikiname hours: $totalHours tasks: $totalTasks for $year $month in $page pages");
     }
 }

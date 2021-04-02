@@ -53,7 +53,10 @@ class Project extends Model
         return $userRole;
     }
 
-
+    public function stats()
+    {
+        return $this->hasMany('App\Models\ProjectStat');
+    }
 
     public function tickets()
     {

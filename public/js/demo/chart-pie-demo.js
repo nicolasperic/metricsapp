@@ -7,7 +7,7 @@ Chart.defaults.global.defaultFontColor = '#858796';
 //console.log('chart-pie-demo.js');
 //console.log(percentages);
 
-if (typeof timeReport !== 'undefined') {
+if (typeof timeReport !== 'undefined' && typeof percentages!== 'undefined') {
 
 
     let usTypesLabels = [];

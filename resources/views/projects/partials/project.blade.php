@@ -1,5 +1,6 @@
+<?php $lineChartAdapter = new \App\Charts\Adapters\ProjectLineChart();?>
+@include('charts.partials.line', ['chart' => $lineChartAdapter->generateMonthlyHoursChart($project)])
 <div class="row ">
-
     <div class="col-xl-6 col-lg-6">
         <div class="card shadow mb-4">
             <div class="card-header py-3">

@@ -69,6 +69,27 @@ Visualización
     - Board multi projects (ver en qué anda cada dev ej in progress) || esto no se si vale la pena, assembla tiene el ticket list (se la re banca)
 
 
+statistics:
+- tablas para guardar info histórica por período (week, month, year)
+
+- Una tabla para Info de tasks y horas
+- Otra tabla para info de tipo de task? bug, requirement, etc horas y cantidad
+
+columnas compartidas
+id, range_type, date_from, date_to, hours, tasks, project, month, year, week  (no tan seguro de week, los otros creo q sí)
+
+range_type: week, month, year
+date_from: ie: 22/03/2021
+date_to: 29/03/2021
+hours: 189.5
+tasks: 122
+project: assembla id
+month: 1/12 (number)
+year: number i.e 2021
+week: week of the year (week number)
+
+
+
 Features
     - Tracking de horas (por tickets que tenés asignados, timer & send all, send each reporta a Assembla)
         de todos los spaces importados, definir cuales son los trackable para filtrado.

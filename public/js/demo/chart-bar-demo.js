@@ -97,32 +97,36 @@ if (typeof timeReport !== 'undefined') {
     ];
 
 
-    new Chart(document.getElementById("userHoursBarChart"),{
-        "type":"horizontalBar",
-        "data":{
-            "labels": userBarLabels,
-            "datasets":[{
-                "label": " hours",
-                "data": userBarHours,
-                "fill":false,
-                "backgroundColor": userBarColors,
-                "borderColor":userBarBorderColors,
-                "borderWidth":1
-            }]
-        },
-        "options":{
-            "scales":{
-                "xAxes":[{
-                    "ticks":{
-                        "beginAtZero":true
-                    }
+    var chartBar = document.getElementById("userHoursBarChart");
+    if (chartBar != null) {
+        new Chart(chartBar,{
+            "type":"horizontalBar",
+            "data":{
+                "labels": userBarLabels,
+                "datasets":[{
+                    "label": " hours",
+                    "data": userBarHours,
+                    "fill":false,
+                    "backgroundColor": userBarColors,
+                    "borderColor":userBarBorderColors,
+                    "borderWidth":1
                 }]
             },
-            legend: {
-                display: false
-            },
-            maintainAspectRatio: false
-        }
-    });
+            "options":{
+                "scales":{
+                    "xAxes":[{
+                        "ticks":{
+                            "beginAtZero":true
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                },
+                maintainAspectRatio: false
+            }
+        });
+    }
+
 
 }
