@@ -124,6 +124,9 @@
                 intersect: false,
                 mode: 'index',
                 caretPadding: 10,
+                itemSort: function(a, b, data) {
+                    return  b.yLabel - a.yLabel;
+                },
                 callbacks: {
                     afterTitle: function() {
                         window.total = 0;
