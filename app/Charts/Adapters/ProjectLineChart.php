@@ -43,7 +43,7 @@ class ProjectLineChart
         return $this->lineChart;
     }
 
-    public function generateStarredProjectsMonthlyHoursChart($chartTitle = 'Starred projects hours per month')
+    public function generateStarredProjectsMonthlyHoursChart($chartTitle = 'Starred Projects Hours per Month')
     {
         $elementId = 'starredMonthlyHoursChart';
         $this->lineChart = new LineChart($chartTitle, $elementId);

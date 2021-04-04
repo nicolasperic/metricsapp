@@ -10,6 +10,16 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * This command will dispatch SyncProjectStats job for all projects set as auto sync TRUE
+ * For now we are only calculating monthly stats
+ * Extra logic required for this kind of model
+ * fromDate, toDate, rangeType (week, month, year)//maybe we just keep month
+ *
+ * Class SyncProjectsStats
+ *
+ * @package App\Console\Commands
+ */
 class SyncProjectsStats extends Command
 {
     /**
@@ -29,7 +39,6 @@ class SyncProjectsStats extends Command
     /**
      * Create a new command instance.
      *
-     * @return void
      */
     public function __construct()
     {

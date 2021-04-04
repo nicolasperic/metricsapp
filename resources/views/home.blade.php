@@ -29,8 +29,11 @@
         </div>
 
 
-        <?php $lineChartAdapter = new \App\Charts\Adapters\ProjectLineChart();?>
-        @include('charts.partials.line', ['chart' => $lineChartAdapter->generateStarredProjectsMonthlyHoursChart()])
+        <?php $lineChart = new \App\Charts\Adapters\ProjectLineChart();?>
+        @include('charts.partials.line', ['chart' => $lineChart->generateStarredProjectsMonthlyHoursChart()])
+
+        <?php $doughnutChart = new \App\Charts\Adapters\ProjectDoughnutChart();?>
+        @include('charts.partials.doughnut', ['chart' => $doughnutChart->generateStarredProjectsMonthlyHoursChart()])
 
         <div class="col-md-12" style="margin-bottom: 25px;">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
