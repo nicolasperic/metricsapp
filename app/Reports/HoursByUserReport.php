@@ -147,7 +147,7 @@ class HoursByUserReport extends Report implements ReportInterface
         $reportBody['header'] = [
             'from' => $from,
             'to' => $to,
-            'total_hours' => $totalHours,
+            'total_hours' => number_format($totalHours, 2),
             'total_tasks' => $totalTasks,
         ];
         $reportBody['projects'] = [];

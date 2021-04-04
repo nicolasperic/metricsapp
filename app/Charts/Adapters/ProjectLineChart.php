@@ -171,7 +171,9 @@ class ProjectLineChart
             $tasks[intval($monthIndex)] = $stat->total_tasks;
 
             $totalHours += $stat->worked_hours;
-            $totalItems++;
+            if ($stat->worked_hours !== null) {
+                $totalItems++;
+            }
         }
 
 

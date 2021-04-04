@@ -46,11 +46,8 @@ class SyncProjectsStats extends Command
         $year = $this->option('year');
         $month = $this->option('month');
 
-        if ($this->confirm('Do you wish to continue?')) {
-            print 'Confirmaste '.$year.' '.$month.PHP_EOL;
-        } else {
+        if ($month < 1 || $month > 12)
             return;
-        }
 
         //workaround to prevent scheduling more than one autosync batch of jobs! (this is for Heroku since the CRON does not awake the worker)
         $unprocessedBatches = DB::table('job_batches')->where('name','=','SyncProjectStats')->where('pending_jobs','>','0')->count();

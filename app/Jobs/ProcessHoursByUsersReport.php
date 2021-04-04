@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Helper\Helper;
 use App\Notifications\WeeklyReportNotification;
 use App\Report;
 use App\Reports\HoursByUserReport;
@@ -54,7 +55,9 @@ class ProcessHoursByUsersReport implements ShouldQueue
             $this->reportModel->execute();
             if ($this->sendEmail) {
                 $user = $this->reportModel->user;
-                $subject = 'Weekly Report ('.$this->requestData['from_date'].' - '.$this->requestData['to_date'].')';
+                $fromDate = Helper::getDateWithoutHours($this->requestData['from_date']);
+                $toDate = Helper::getDateWithoutHours($this->requestData['to_date']);
+                $subject = 'Weekly Report ('.$fromDate.' - '.$toDate.')';
                 Notification::route('mail', $user->email)->notify(new WeeklyReportNotification($this->reportModel, $subject));
             }
         } catch (\Exception $e) {

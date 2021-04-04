@@ -137,7 +137,7 @@ class WeeklyReportNotification extends Notification
 
 </div>
 <div class="report-user-stories">
-    <table class="table table-striped">
+    <table class="table table-striped" style="width: 100%;">
         <thead>
         <tr>
             <th scope="col" style="text-align: left;">User</th>
