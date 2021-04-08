@@ -3,9 +3,7 @@
 namespace App\Charts\Adapters;
 
 use App\Charts\DoughnutChart;
-use App\Helper\Helper;
 use App\Models\ProjectStat;
-use App\Project;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,15 +16,31 @@ class ProjectDoughnutChart
     
     private $statsAvailable = false;
 
-
-    public function generateStarredProjectsMonthlyHoursChart($chartTitle = false)
+    public function generateStarredProjectsCurrentMonthHoursChart()
     {
-        if ($chartTitle === false) {
-            $monthLabel = Carbon::now()->subMonth()->monthName;
-            $year = Carbon::now()->subMonth()->year;
-            $chartTitle = "Starred Projects Hours for last month ($monthLabel $year)";
-        }
-        $elementId = 'starredMonthlyHoursDoughnutChart';
+        $date = Carbon::now();
+        $monthLabel = $date->monthName;
+        $month = $date->month;
+        $year = $date->year;
+        $chartTitle = "Starred Projects Hours for current month ($monthLabel $year)";
+
+        return $this->generateStarredProjectsMonthlyHoursChart($chartTitle, $month, $year);
+    }
+
+    public function generateStarredProjectsLastMonthHoursChart()
+    {
+        $date = Carbon::now()->subMonth();
+        $monthLabel = $date->monthName;
+        $month = $date->month;
+        $year = $date->year;
+        $chartTitle = "Starred Projects Hours for last month ($monthLabel $year)";
+
+        return $this->generateStarredProjectsMonthlyHoursChart($chartTitle, $month, $year);
+    }
+
+    private function generateStarredProjectsMonthlyHoursChart($chartTitle = false, $month, $year)
+    {
+        $elementId = 'starredMonthlyHoursDoughnutChart_'.$month.'_'.$year;
         $this->doughnutChart = new DoughnutChart($chartTitle, $elementId);
 
 
@@ -39,7 +53,7 @@ class ProjectDoughnutChart
         foreach ($starredProjects as $project) {
             $labels[] = $project->wikiname;
 
-            $projectHours = $this->getProjectStats($project, ProjectStat::MONTH_RANGE_TYPE);
+            $projectHours = $this->getProjectStats($project, ProjectStat::MONTH_RANGE_TYPE, $month, $year);
 
             $hoursValues[] = $projectHours;
             $totalHours += $projectHours;
@@ -70,15 +84,15 @@ class ProjectDoughnutChart
         return $this->doughnutChart;
     }
 
-    private function getProjectStats($project, $rangeType)
+    private function getProjectStats($project, $rangeType, $month, $year)
     {
         $hours = null;
 
         $projectStat = $project->stats()
             ->where('range_type', $rangeType)
             ->orderBy('from_date')
-            ->where('month',Carbon::now()->subMonth()->month)
-            ->where('year', Carbon::now()->subMonth()->year)
+            ->where('month', $month)
+            ->where('year', $year)
             ->first();
 
         if ($projectStat !== null) {
