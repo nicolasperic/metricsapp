@@ -19,6 +19,7 @@
                         <div class="user-stories-types mt-2 small">
 
                             <?php $dataset = $chart->getDatasets()[0]; $labels = $chart->getLabels();?>
+                            <?php arsort($dataset['data']);?>
                             @foreach($dataset['data'] as $i => $percentage)
                                     <div class="user-story-type">
                                         <i class="fas fa-circle" style="color: {{$dataset['backgroundColor'][$i]}}"></i>
