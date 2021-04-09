@@ -5,6 +5,7 @@
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">{{ $chart->getChartTitle() }}</h6>
+                    <i class="last-sync" style="font-size: 11px;">Stats from  ({{Helper::getTimeDiff($chart->getLastUpdated())}})</i>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">

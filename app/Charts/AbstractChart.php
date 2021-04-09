@@ -29,6 +29,8 @@ abstract class AbstractChart
 
     private $colorIndex = 0;
 
+    private $lastUpdated;
+
     /**
      * @return mixed
      */
@@ -178,6 +180,24 @@ abstract class AbstractChart
     {
         return $this->hasFooter;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLastUpdated()
+    {
+        return $this->lastUpdated;
+    }
+
+    /**
+     * @param mixed $lastUpdated
+     */
+    public function setLastUpdated($lastUpdated)
+    {
+        $this->lastUpdated = $lastUpdated;
+    }
+
+
 
 
 

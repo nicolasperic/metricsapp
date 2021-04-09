@@ -49,19 +49,23 @@ class ProjectDoughnutChart
         $hoursValues = [];
         $totalHours = 0;
         $labels = [];
-        $i = 0;
+
+        $olderUpdatedAt = false;
         foreach ($starredProjects as $project) {
             $labels[] = $project->wikiname;
 
-            $projectHours = $this->getProjectStats($project, ProjectStat::MONTH_RANGE_TYPE, $month, $year);
+            $projectStats = $this->getProjectStats($project, ProjectStat::MONTH_RANGE_TYPE, $month, $year);
 
-            $hoursValues[] = $projectHours;
-            $totalHours += $projectHours;
+            $hoursValues[] = $projectStats['hours'];
+            $totalHours += $projectStats['hours'];
+
+            $olderUpdatedAt = ($olderUpdatedAt === false || $projectStats['updated_at'] < $olderUpdatedAt)?$projectStats['updated_at']: $olderUpdatedAt;
 
             //$i++;
         }
 
 
+        $this->doughnutChart->setLastUpdated($olderUpdatedAt);
         $this->doughnutChart->setLabels($labels);
 
 
@@ -100,7 +104,10 @@ class ProjectDoughnutChart
             $hours = $projectStat->worked_hours;
         }
 
-        return $hours;
+        return [
+            'hours' => $hours,
+            'updated_at' => $projectStat->updated_at
+        ];
     }
 
     private function createDataset($label, $data, $hourValues, $color)
