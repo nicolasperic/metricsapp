@@ -424,6 +424,9 @@ class Sprint extends Model
             'Spike' => ['main' => '#f6c23e', 'hover' => '#cea334'],//amarillo
             'Recurrent' => ['main' => '#dbd8ce', 'hover' => '#bdbab1'],//gris
             'Empty' => ['main' => '#a947c4', 'hover' => '#8d3ba3'],//violeta
+            'BA' => ['main' => '#66e0ff', 'hover' => '#008fb3'],//celeste
+            'QA' => ['main' => '#ff9933', 'hover' => '#cc6600'],//naranja
+            'Design-UX' => ['main' => '#ff99ff', 'hover' => '#ff4dff']//violeta más claro
         ];
         $typesUsCount= $this->belongsToMany(Ticket::class)//DB::table('tickets')
             ->select('type', DB::raw('count(*) as total'))
@@ -454,7 +457,7 @@ class Sprint extends Model
                 'count_percentage' => $countPercentage,
                 'total_invested_hours' => 0,
                 'hours_percentage' => 0,
-                'color' => (array_key_exists($label, $colors))?$colors[$label]: '#ABC123',
+                'color' => (array_key_exists($label, $colors))?$colors[$label]: ['main' => '#ABC123', 'hover' => '#ABC123'],//TODO generate random colors
             ];
         }
 
