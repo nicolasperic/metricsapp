@@ -18,17 +18,26 @@
                     <div class="col-xl-6 col-lg-6" style="float: right; padding-right: 0px;">
                         <div class="user-stories-types mt-2 small">
 
+
                             <?php $dataset = $chart->getDatasets()[0]; $labels = $chart->getLabels();?>
-                            <?php arsort($dataset['data']);?>
+                            <?php arsort($dataset['data']); $totalHours = 0;?>
                             @foreach($dataset['data'] as $i => $percentage)
                                     <div class="user-story-type">
                                         <i class="fas fa-circle" style="color: {{$dataset['backgroundColor'][$i]}}"></i>
                                         <span class="type-label">{{$labels[$i]}}</span>
                                         <div class="user-story-type-stats">
-                                            <span class="hours">{{$dataset['realValues'][$i]}} hours ({{$percentage}}%)</span>
+                                            <span class="hours">{{($dataset['realValues'][$i])? $dataset['realValues'][$i]: 0}} hours ({{$percentage}}%)</span>
                                         </div>
                                     </div>
+                                <?php $totalHours += $dataset['realValues'][$i]; ?>
                             @endforeach
+                                <div class="user-story-type">
+                                    <i class="fas fa-circle" style="color: black"></i>
+                                    <span class="type-label">Total Hours</span>
+                                    <div class="user-story-type-stats">
+                                        <span class="hours">{{$totalHours}}</span>
+                                    </div>
+                                </div>
                                 <style>
                                     .user-story-type {
 

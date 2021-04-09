@@ -154,7 +154,7 @@ class ProjectLineChart
 
         $projectStats = $project->stats()
             ->where('range_type', $rangeType)
-            ->orderBy('from_date')
+            ->orderBy('from_date', 'desc')
             ->limit(12)
             ->get();
 
