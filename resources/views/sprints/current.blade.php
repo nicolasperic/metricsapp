@@ -16,6 +16,10 @@
 
             <?php $totalEstimate = 0;$totalRemainingEstimate = 0;$totalCompletedEstimate = 0; $totalWorkedHours = 0; $totalRemainingHours = 0; $totalStories = 0; $totalCompletedStories = 0; $totalOpenStories = 0; $olderUpdatedAt = false;?>
             @forelse ($currentSprints as $sprint)
+            <?php
+                    /** @var \App\Models\Metrics\Sprint\TicketsMetrics $ticketsMetrics */
+                    $ticketsMetrics = $sprint->getTicketsMetricsInstance();
+            ?>
             <div class="col-12" style="margin-bottom:20px">
                 <div>
                     <div class="card shadow mb-12">
@@ -46,20 +50,20 @@
                                 <div class="w-33 border-right border-bottom">
                                     <div class="p-4">
                                         <small class="text-uppercase">Worked Hours</small>
-                                        <h4 class="mt-4 mb-0">{{ $sprintTotalWorkedHours = $sprint->getTotalWorkedHours() }}</h4>
+                                        <h4 class="mt-4 mb-0">{{ $sprintTotalWorkedHours = $ticketsMetrics->getTotalWorkedHours() }}</h4>
                                     </div>
                                 </div>
                                 <div class="w-33 border-right border-bottom">
                                     <div class="p-4">
                                         <small class="text-uppercase">Remaining Hours</small>
-                                        <h4 class="mt-4 mb-0">{{ $sprintTotalRemainingHours = $sprint->getTotalWorkingHours() }}</h4>
+                                        <h4 class="mt-4 mb-0">{{ $sprintTotalRemainingHours = $ticketsMetrics->getTotalWorkingHours() }}</h4>
                                     </div>
                                 </div>
                                 <div class="w-33 border-bottom">
                                     <div class="p-4">
                                         <small class="text-uppercase">Stories</small>
-                                        <h4 class="mt-4 mb-0">{{ $sprintTotalStories = $sprint->getTotalStories() }}</h4>
-                                        <?php $sprintTotalCompletedStories = $sprint->getCompletedStories();?>
+                                        <h4 class="mt-4 mb-0">{{ $sprintTotalStories = $ticketsMetrics->getStoriesCount() }}</h4>
+                                        <?php $sprintTotalCompletedStories = $ticketsMetrics->getCompletedStoriesCount();?>
                                         <span class="text-danger">{{ $sprintOpenTotalStories = ($sprintTotalStories - $sprintTotalCompletedStories) }} Open ({{Helper::getPercentageValue($sprintOpenTotalStories, $sprintTotalStories)}}%)</span>
                                         <span class="text-success">{{ $sprintTotalCompletedStories }} Closed ({{Helper::getPercentageValue($sprintTotalCompletedStories, $sprintTotalStories)}}%)</span>
 
@@ -70,19 +74,19 @@
                                 <div class="w-33 border-right">
                                     <div class="p-4 mb-0">
                                         <small class="text-uppercase">Remaining Estimates</small>
-                                        <h4 class="mt-4">{{ $sprintRemainingEstimate = $sprint->getTotalRemainingEstimate() }} ({{ ($sprint->getTotalCompletedEstimatePercentage() != 0)?100 - $sprint->getTotalCompletedEstimatePercentage():0 }}%)</h4>
+                                        <h4 class="mt-4">{{ $sprintRemainingEstimate = $ticketsMetrics->getTotalRemainingEstimate() }} ({{ ($ticketsMetrics->getTotalCompletedEstimatePercentage() != 0)?100 - $ticketsMetrics->getTotalCompletedEstimatePercentage():0 }}%)</h4>
                                     </div>
                                 </div>
                                 <div class="w-33 border-right">
                                     <div class="p-4 mb-0">
                                         <small class="text-uppercase">Completed Estimates</small>
-                                        <h4 class="mt-4">{{ $sprintCompletedEstimate = $sprint->getTotalCompletedEstimate() }} ({{ $sprint->getTotalCompletedEstimatePercentage() }}%)</h4>
+                                        <h4 class="mt-4">{{ $sprintCompletedEstimate = $ticketsMetrics->getTotalCompletedEstimate() }} ({{ $ticketsMetrics->getTotalCompletedEstimatePercentage() }}%)</h4>
                                     </div>
                                 </div>
                                 <div class="w-33">
                                     <div class="p-4 mb-0">
                                         <small class="text-uppercase">Total Estimates</small>
-                                        <h4 class="mt-4">{{ $sprintTotalEstimate = $sprint->getTotalEstimate() }}</h4></div>
+                                        <h4 class="mt-4">{{ $sprintTotalEstimate = $ticketsMetrics->getTotalEstimate() }}</h4></div>
                                 </div>
                             </div>
                         </div>

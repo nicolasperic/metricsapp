@@ -1,5 +1,9 @@
 @extends('layouts.app')
-<?php $project = $sprint->projects->first();?>
+<?php
+$project = $sprint->projects->first();
+/** @var \App\Models\Metrics\Sprint\TicketsMetrics $ticketsMetrics */
+$ticketsMetrics = $sprint->getTicketsMetricsInstance();
+?>
 @section('breadcrumbs',  Breadcrumbs::render('sprints.show', $project, $sprint))
 
 @section('container-title', $project->name. " | $sprint->name")
@@ -7,11 +11,11 @@
 @section('content')
     <?php
         $timeReport = $sprint->getTimeReport();
-        $percentCompletedStories = $sprint->getPercentCompletedStories();
-        $percentCompletedSubtasks = $sprint->getPercentCompletedSubtasks();
-        $totalCompletedTickets = $sprint->getTotalCompletedTickets();
-        $totalTickets = $sprint->getTotalTickets();
-        $percentCompletedTickets = Helper::getPercentageValue($totalCompletedTickets, $totalTickets);
+        $percentCompletedStories = $ticketsMetrics->getTotalCompletedStoriesPercentage();
+        $percentCompletedSubtasks = $ticketsMetrics->getTotalCompletedSubtasksPercentage();
+        $completedTicketsCount = $ticketsMetrics->getCompletedTicketsCount();
+        $totalTickets = $ticketsMetrics->getAllTicketsCount();
+        $percentCompletedTickets = Helper::getPercentageValue($completedTicketsCount, $totalTickets);
     ?>
 
     <div class="actions" style="position: relative; top: -55px; width: 80%;">
@@ -27,7 +31,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Worked Hours</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $sprint->getTotalWorkedHours() }}</div>
+                            <?php $totalWorkedHours = $ticketsMetrics->getTotalWorkedHours()?>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalWorkedHours }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-hourglass-end fa-2x text-gray-300"></i>
@@ -44,7 +49,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Remaining Hours</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $sprint->getTotalWorkingHours() }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $ticketsMetrics->getTotalWorkingHours() }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-hourglass-start fa-2x text-gray-300"></i>
@@ -63,9 +68,9 @@
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Stories</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $sprint->getTotalStories() }}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $ticketsMetrics->getStoriesCount() }}</div>
                                 </div>
-                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $sprint->getCompletedStories() }} completed stories {{ $percentCompletedStories }}%">
+                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $ticketsMetrics->getCompletedStoriesCount() }} completed stories {{ $percentCompletedStories }}%">
                                     <div class="progress progress-sm mr-2">
                                         <div class="progress-bar {{Helper::getPercentageClass($percentCompletedStories)}}" role="progressbar" style="width: {{ $percentCompletedStories }}%" aria-valuenow="{{ $percentCompletedStories }}" aria-valuemin="0" aria-valuemax="100">{{$percentCompletedStories}}%</div>
                                     </div>
@@ -89,9 +94,9 @@
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Subtasks</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $sprint->getTotalSubtasks() }}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $ticketsMetrics->getSubtasksCount() }}</div>
                                 </div>
-                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $sprint->getCompletedSubtasks() }} completed subtasks {{ $percentCompletedSubtasks }}%">
+                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $ticketsMetrics->getCompletedSubtasksCount() }} completed subtasks {{ $percentCompletedSubtasks }}%">
                                     <div class="progress progress-sm mr-2">
                                         <div class="progress-bar {{ Helper::getPercentageClass($percentCompletedSubtasks)  }}" role="progressbar" style="width: {{ $percentCompletedSubtasks }}%" aria-valuenow="{{ $percentCompletedSubtasks }}" aria-valuemin="0" aria-valuemax="100">{{$percentCompletedSubtasks}}%</div>
                                     </div>
@@ -119,7 +124,7 @@
                                 <div class="col-auto">
                                     <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalTickets }}</div>
                                 </div>
-                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalCompletedTickets }} completed tickets {{ $percentCompletedTickets }}%">
+                                <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $completedTicketsCount }} completed tickets {{ $percentCompletedTickets }}%">
                                     <div class="progress progress-sm mr-2">
                                         <div class="progress-bar {{Helper::getPercentageClass($percentCompletedTickets)}}" role="progressbar" style="width: {{ $percentCompletedTickets }}%" aria-valuenow="{{ $percentCompletedTickets }}" aria-valuemin="0" aria-valuemax="100">{{$percentCompletedTickets}}%</div>
                                     </div>
@@ -142,9 +147,9 @@
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Remaining Estimate</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalRemainingEstimate = $sprint->getTotalRemainingEstimate() }}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalRemainingEstimate = $ticketsMetrics->getTotalRemainingEstimate() }}</div>
                                 </div>
-                                <?php $totalCompletedEstimatePercentage = $sprint->getTotalCompletedEstimatePercentage()?>
+                                <?php $totalCompletedEstimatePercentage = $ticketsMetrics->getTotalCompletedEstimatePercentage()?>
                                 <?php $remainingEstimatePercentage = ($totalCompletedEstimatePercentage != 0)?100 - $totalCompletedEstimatePercentage:0?>
                                 <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalRemainingEstimate }} remaining estimate {{ $remainingEstimatePercentage }}%">
                                     <div class="progress progress-sm mr-2">
@@ -170,7 +175,7 @@
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Completed Estimate</div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalCompletedEstimate = $sprint->getTotalCompletedEstimate() }}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ $totalCompletedEstimate = $ticketsMetrics->getTotalCompletedEstimate() }}</div>
                                 </div>
                                 <div class="col" data-toggle="tooltip" data-placement="top" title="{{ $totalCompletedEstimate }} completed estimate {{ $totalCompletedEstimatePercentage }}%">
                                     <div class="progress progress-sm mr-2">
@@ -194,7 +199,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Estimate</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $sprint->getTotalEstimate() }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $ticketsMetrics->getTotalEstimate() }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -303,7 +308,6 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <?php $totalWorkedHours = $sprint->getTotalWorkedHours()?>
                             @foreach($timeReport['user_hours'] as $user)
                                 <tr>
                                     <td style="width: 32px; padding: 8px 0 0 5px;">
@@ -496,9 +500,9 @@
 
                     <div class="small">
                     <?php //TODO generate the getUserStoriesWithInconsistentState working with eager data ?>
-                        <!--span class="validator">❌  subtasks with invalid status <strong>({{ 1/*$sprint->getUserStoriesWithInconsistentState()*/}})</strong></span-->
+                        <!--span class="validator">❌  subtasks with invalid status <strong>({{ 1/*$ticketsMetrics->getStoriesWithInconsistentStateCount()*/}})</strong></span-->
                         <span class="validator">⏱   tracked time directly on User Story</span>
-                        <span class="validator">🚨  User Story without estimate <strong>({{ $sprint->getUserStoriesWithoutStoryPoints() }})</strong></span>
+                        <span class="validator">🚨  User Story without estimate <strong>({{ $ticketsMetrics->getStoriesWithoutEstimateCount() }})</strong></span>
                     </div-->
 
 

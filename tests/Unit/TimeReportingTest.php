@@ -117,9 +117,9 @@ class TimeReportingTest extends TestCase
 
         $sprint->tickets()->saveMany([$userstory, $subtaskA, $subtaskB, $subtaskC, $relatedD]);
 
-        //$this->assertEquals(2, $sprint->getTotalTickets());
+        //$this->assertEquals(2, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
 
-        print $sprint->getTotalTickets().' total tickets'.PHP_EOL;
+        print $sprint->getTicketsMetricsInstance()->getAllTicketsCount().' total tickets'.PHP_EOL;
 
         $date = Carbon::parse('2020-07-23');
         $monday = $date->startOfWeek()->format('Y-m-d'); // monday

@@ -24,7 +24,7 @@ class SprintTest extends TestCase
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC]);
 
-        $this->assertEquals(3, $sprint->getTotalTickets());
+        $this->assertEquals(3, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
     }
 
     /** @test */

@@ -7,6 +7,7 @@ use App\Dto\TicketDto;
 use App\Helper\Helper;
 use App\Integration\AssemblaGateway;
 use App\Integration\AssemblaRequest;
+use App\Models\Metrics\Sprint\TicketsMetrics;
 use App\Report;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -59,20 +60,23 @@ class SprintsReport extends Report implements ReportInterface
         $totalSubtasks = 0; $totalCompletedSubtasks = 0;
         $sprints = $this->user->sprints()->whereIn('sprint_assembla_id', $this->request_data['sprints'])->get();
         Log::info(count($sprints). " cuenta de sprints");
+        /** @var \App\Sprint $sprint */
         foreach ($sprints as $sprint) {
-            $sprintTotalWorkedHours = $sprint->getTotalWorkedHours();
-            $sprintTotalRemainingHours = $sprint->getTotalWorkingHours();
-            $sprintTotalStories = $sprint->getTotalStories();
-            $sprintTotalCompletedStories = $sprint->getCompletedStories();
-            $sprintRemainingEstimate = $sprint->getTotalRemainingEstimate();
-            $sprintCompletedEstimate = $sprint->getTotalCompletedEstimate();
-            $sprintTotalEstimate = $sprint->getTotalEstimate();
+            /** @var TicketsMetrics $ticketsMetrics */
+            $ticketsMetrics = $sprint->getTicketsMetricsInstance();
+            $sprintTotalWorkedHours = $ticketsMetrics->getTotalWorkedHours();
+            $sprintTotalRemainingHours = $ticketsMetrics->getTotalWorkingHours();
+            $sprintTotalStories = $ticketsMetrics->getStoriesCount();
+            $sprintTotalCompletedStories = $ticketsMetrics->getCompletedStoriesCount();
+            $sprintRemainingEstimate = $ticketsMetrics->getTotalRemainingEstimate();
+            $sprintCompletedEstimate = $ticketsMetrics->getTotalCompletedEstimate();
+            $sprintTotalEstimate = $ticketsMetrics->getTotalEstimate();
 
-            $sprintTotalSubtasks = $sprint->getTotalSubtasks();
-            $sprintTotalCompletedSubtasks = $sprint->getCompletedSubtasks();
+            $sprintTotalSubtasks = $ticketsMetrics->getSubtasksCount();
+            $sprintTotalCompletedSubtasks = $ticketsMetrics->getCompletedSubtasksCount();
 
 
-            $remainingEstimatePercentage = ($sprint->getTotalCompletedEstimatePercentage() != 0)?100 - $sprint->getTotalCompletedEstimatePercentage():0;
+            $remainingEstimatePercentage = ($ticketsMetrics->getTotalCompletedEstimatePercentage() != 0)?100 - $ticketsMetrics->getTotalCompletedEstimatePercentage():0;
 
             $totalRemainingEstimate += $sprintRemainingEstimate;
             $totalCompletedEstimate += $sprintCompletedEstimate;
@@ -91,14 +95,14 @@ class SprintsReport extends Report implements ReportInterface
                 'remaining_hours' => $sprintTotalRemainingHours,
                 'stories' => $sprintTotalStories,
                 'completed_stories' => $sprintTotalCompletedStories,
-                'completed_stories_percentage' => $sprint->getPercentCompletedStories(),
+                'completed_stories_percentage' => $ticketsMetrics->getTotalCompletedStoriesPercentage(),
                 'subtasks' => $sprintTotalSubtasks,
                 'completed_subtasks' => $sprintTotalCompletedSubtasks,
-                'completed_subtasks_percentage' => $sprint->getPercentCompletedSubtasks(),
+                'completed_subtasks_percentage' => $ticketsMetrics->getTotalCompletedSubtasksPercentage(),
                 'remaining_estimate' => $sprintRemainingEstimate,
                 'remaining_estimate_percentage' => $remainingEstimatePercentage,
                 'completed_estimate' => $sprintCompletedEstimate,
-                'completed_estimate_percentage' => $sprint->getTotalCompletedEstimatePercentage(),
+                'completed_estimate_percentage' => $ticketsMetrics->getTotalCompletedEstimatePercentage(),
                 'total_estimate' => $sprintTotalEstimate,
                 'assembla_url' => "https://app.assembla.com/spaces/".$sprint->getProject()->wikiname ."/milestones/".$sprint->sprint_assembla_id,
             ];
@@ -109,10 +113,10 @@ class SprintsReport extends Report implements ReportInterface
             $reportBody .= "========================================".PHP_EOL;
             $reportBody .= 'Worked hours '.$sprintTotalWorkedHours.PHP_EOL;
             $reportBody .= 'Remaining hours '.$sprintTotalRemainingHours.PHP_EOL;
-            $reportBody .= 'Stories '.$sprintTotalStories."[ $sprintTotalCompletedStories completed, ".$sprint->getPercentCompletedStories()."%]".PHP_EOL;
-            $reportBody .= 'Subtasks '.$sprintTotalSubtasks."[ $sprintTotalCompletedSubtasks completed, ".$sprint->getPercentCompletedSubtasks()."%]".PHP_EOL;
+            $reportBody .= 'Stories '.$sprintTotalStories."[ $sprintTotalCompletedStories completed, ".$ticketsMetrics->getTotalCompletedStoriesPercentage()."%]".PHP_EOL;
+            $reportBody .= 'Subtasks '.$sprintTotalSubtasks."[ $sprintTotalCompletedSubtasks completed, ".$ticketsMetrics->getTotalCompletedSubtasksPercentage()."%]".PHP_EOL;
             $reportBody .= 'Remaining Estimates '.$sprintRemainingEstimate. '('.$remainingEstimatePercentage.'%)'.PHP_EOL;
-            $reportBody .= 'Completed Estimates '.$sprintCompletedEstimate.' ('.$sprint->getTotalCompletedEstimatePercentage().'%)'.PHP_EOL;
+            $reportBody .= 'Completed Estimates '.$sprintCompletedEstimate.' ('.$ticketsMetrics->getTotalCompletedEstimatePercentage().'%)'.PHP_EOL;
             $reportBody .= 'Total Estimates '.$sprintTotalEstimate.PHP_EOL;
             $reportBody .= 'Assembla URL '."https://app.assembla.com/spaces/".$sprint->getProject()->wikiname ."/milestones/".$sprint->sprint_assembla_id.PHP_EOL;
         }

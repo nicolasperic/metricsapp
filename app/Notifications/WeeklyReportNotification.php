@@ -100,7 +100,12 @@ class WeeklyReportNotification extends Notification
                         </div>';
 
         $htmlContent .= '<h4>Hours by Projects</h4>';
+        $labels = [];
+        $hours = [];
     foreach($projects as $project) {
+        $labels[] = $project->wikiname;
+        $hours[] = $project->total_hours;
+
         $htmlContent .=  '<div class="report-table-header" style="margin-bottom: 15px;">
                             <h4 style="margin-bottom: 10px;">'.$project->wikiname.'</h4>
                             <span>Total hours: <strong>'.$project->total_hours.'</strong> ('. Helper::getPercentageValue($project->total_hours, $header->total_hours, $decimals = 2) .'%)</span>
@@ -157,6 +162,10 @@ class WeeklyReportNotification extends Notification
         $htmlContent .=  '</tbody>
                     </table>
                 </div>';
+
+
+        $htmlContent .= '<img src="https://quickchart.io/chart?c={type:%27doughnut%27,data:{labels:'.str_replace('"', '%27',json_encode($labels)).',datasets:[{label:%27Projects%27,data:'.str_replace('"', '%27',json_encode($hours)).'}]}}" />';
+
 
         return $htmlContent;
     }

@@ -177,7 +177,7 @@ class MilestoneTest
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC, $ticketD, $ticketE, $ticketF]);
         $sprint->projects()->save($project);
 
-        $this->assertEquals(6, $sprint->getTotalTickets());
+        $this->assertEquals(6, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
 
         //MISSING TICKETS 909 and 910 will be added by importer
         //TICKET 911 will be removed by importer
@@ -185,7 +185,7 @@ class MilestoneTest
         $ticketImporter->importMilestoneTickets($sprint);
 
 
-        $this->assertEquals(6, $sprint->getTotalTickets());
+        $this->assertEquals(6, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
     }
 
     /** @test */

@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Jobs\SyncUser;
+use App\Models\Metrics\Sprint\TicketsMetrics;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,20 +25,8 @@ class Sprint extends Model
     private $weeklyHours;
     private $userHours;
 
-    private $totalEstimate;
-    private $totalCompletedEstimate;
-    private $totalTickets;
-    private $totalInvestedHours;
-    private $totalWorkedHours;
-    private $totalWorkingHours;
-    private $totalSubtasks;
-    private $totalStories;
-    private $completedStoriesTotal;
-    private $completedSubtasksTotal;
-    private $totalCompletedTickets;
-    private $userStoriesWithoutStoryPointsTotal;
-    private $completedStoryPointsTotal;
-    private $totalStoryPoints;
+    /** @var TicketsMetrics */
+    private $ticketMetrics = null;
 
     /**
      * This function will validate if there's a sprint matching the received assembla ID
@@ -104,8 +93,9 @@ class Sprint extends Model
 
     public function getProjectName()
     {
-        if ($this->projects->first()) {
-            return $this->projects->first()->name;
+        $project = $this->projects->first();
+        if ($project !== null) {
+            return $project->name;
         }
 
         return '';
@@ -159,85 +149,14 @@ class Sprint extends Model
     }
 
     /**
-     * This function returns the total amount of worked hours for the sprint
-     * It's a calculated value by adding the worked_hours attribute for all tickets that belong to the sprint
-     * @return mixed
+     * @return TicketsMetrics
      */
-    public function getTotalWorkedHours()
+    public function getTicketsMetricsInstance()
     {
-        if (!isset($this->totalWorkedHours)) {
-            $this->totalWorkedHours = $this->tickets()->sum('worked_hours');
+        if ($this->ticketMetrics === null) {
+            $this->ticketMetrics = new TicketsMetrics($this);
         }
-        return $this->totalWorkedHours;
-    }
-
-    /**
-     * This function returns the total amount of working hours for the sprint.
-     * It's a calculated value by adding the working_hours attribute for all tickets that belong to the sprint.
-     * This value represents the Remaining work based on hours for the Sprint.
-     * @return mixed
-     */
-    public function getTotalWorkingHours()
-    {
-        if (!isset($this->totalWorkingHours)) {
-            $this->totalWorkingHours = $this->tickets()->sum('working_hours');
-        }
-        return $this->totalWorkingHours;
-    }
-
-    /**
-     * This function returns the total amount of invested hours for the sprint
-     * It's a calculaed value by adding the total_invested_hours attribute for all tickets that belong to the sprint
-     *
-     * @return mixed
-     */
-    public function getTotalInvestedHours()
-    {
-        if (!isset($this->totalInvestedHours)) {
-            $this->totalInvestedHours = $this->tickets()->sum('total_invested_hours');
-        }
-        return $this->totalInvestedHours;
-    }
-
-    /**
-     * This function returns the total amount of tickets on the sprint,
-     * both stories and subtasks are considered
-     *
-     * @return mixed
-     */
-    public function getTotalTickets()
-    {
-        if (!isset($this->totalTickets)) {
-            $this->totalTickets = $this->tickets()->count();
-        }
-
-        return $this->totalTickets;
-    }
-
-    /**
-     * This function returns the total amount of subtasks on the sprint
-     * User stories are not considered on this calculation
-     * @return mixed
-     */
-    public function getTotalSubtasks()
-    {
-        if (!isset($this->totalSubtasks)) {
-            $this->totalSubtasks =$this->tickets()->where('is_story', false)->count();
-        }
-        return $this->totalSubtasks;
-    }
-
-    /**
-     * This function returns the total amount of user stories on the sprint
-     * Subtasks are not considered on this calculation
-     * @return mixed
-     */
-    public function getTotalStories()
-    {
-        if (!isset($this->totalStories)) {
-            $this->totalStories = $this->tickets()->where('is_story', true)->count();
-        }
-        return $this->totalStories;
+        return $this->ticketMetrics;
     }
 
     /**
@@ -250,163 +169,6 @@ class Sprint extends Model
     public function getCompletedTickets()
     {
         return $this->tickets()->completed();
-    }
-
-    /**
-     * This function returns the total amount completed tickets
-     * both subtasks and user stories are considered
-     * @return mixed
-     */
-    public function getTotalCompletedTickets()
-    {
-        if (!isset($this->totalCompletedTickets)) {
-            $this->totalCompletedTickets = $this->getCompletedTickets()->count();
-        }
-        return $this->totalCompletedTickets;
-    }
-
-    /**
-     * This function will return completed user stories on the sprint
-     *
-     * TODO ticket function is not consistent with the return value Count!
-     * @return mixed
-     */
-    public function getCompletedStories()
-    {
-        if (!isset($this->completedStoriesTotal)) {
-            $this->completedStoriesTotal = $this->tickets()->where('is_story', true)->completed()->count();
-        }
-        return $this->completedStoriesTotal;
-    }
-
-    /**
-     * This function will return completed subtasks on the sprint
-     *
-     * TODO ticket function is not consistent with the return value Count!
-     * @return mixed
-     */
-    public function getCompletedSubtasks()
-    {
-        if (!isset($this->completedSubtasksTotal)) {
-            $this->completedSubtasksTotal = $this->tickets()->where('is_story', false)->completed()->count();
-        }
-        return $this->completedSubtasksTotal;
-    }
-
-    //TODO ticket function is not consistent with the return value Count!
-    public function getUserStoriesWithoutStoryPoints()
-    {
-        if (!isset($this->userStoriesWithoutStoryPointsTotal)) {
-            $this->userStoriesWithoutStoryPointsTotal = $this->tickets()->where('estimate', 0)->where('is_story', true)->count();
-        }
-        return $this->userStoriesWithoutStoryPointsTotal;
-    }
-
-    /**
-     * This function will return the number of US with invalid subtasks statuses
-     *
-     * TODO este ticket devuelve un count y no se entiende con el nombre de la fn
-     * @return int
-     */
-    public function getUserStoriesWithInconsistentState()
-    {
-        $completedUserStories= $this->tickets()->completed();
-        $totalTickets = $completedUserStories->count();
-        if ($totalTickets) {
-            $totalInconsistentUserStories = 0;
-            $completedUserStories->each(function ($ticket) use (&$totalInconsistentUserStories) {
-                if (count($ticket->getInvalidStatusSubtasks()) > 0) {
-                    $totalInconsistentUserStories ++;
-                }
-            });
-            return $totalInconsistentUserStories;
-        }
-        return 0;
-    }
-
-    /**
-     * Returns the total amount of completed story points
-     *
-     * TODO este ticket devuelve un count y no se entiende con el nombre de la fn
-     * @deprecated use getTotalCompletedEstimate instead
-     * @return mixed
-     */
-    public function getCompletedStoryPoints()
-    {
-        if (!isset($this->completedStoryPointsTotal)) {
-            $this->completedStoryPointsTotal = $this->getCompletedTickets()->sum('estimate');
-        }
-        return $this->completedStoryPointsTotal;
-    }
-
-    /**
-     * @deprecated use getTotalEstimate instead
-     * @return mixed
-     */
-    public function getTotalStoryPoints()
-    {
-        if (!isset($this->totalStoryPoints)) {
-            $this->totalStoryPoints = $this->tickets()->sum('estimate');
-        }
-        return $this->totalStoryPoints;
-    }
-
-    public function getTotalCompletedEstimate()
-    {
-        if (!isset($this->totalCompletedEstimate)) {
-            $this->totalCompletedEstimate = $this->getCompletedTickets()->sum('estimate');
-        }
-        return $this->totalCompletedEstimate;
-    }
-
-    public function getTotalEstimate()
-    {
-        if (!isset($this->totalEstimate)) {
-            $this->totalEstimate = $this->tickets()->sum('estimate');
-        }
-        return $this->totalEstimate;
-    }
-
-    public function getTotalRemainingEstimate()
-    {
-        return $this->getTotalEstimate() - $this->getTotalCompletedEstimate();
-    }
-
-    /**
-     * @deprecated use getTotalCompletedEstimatePercentage
-     * @return int|string
-     */
-    public function getPercentCompletedStoryPoints()
-    {
-        if ($this->getTotalStoryPoints() == 0)
-            return 0;
-
-        return number_format(($this->getCompletedStoryPoints() / $this->getTotalStoryPoints()) * 100, 2);
-    }
-
-    public function getTotalCompletedEstimatePercentage($decimals = 0)
-    {
-        if ($this->getTotalEstimate() == 0)
-            return 0;
-
-        return number_format(($this->getTotalCompletedEstimate() / $this->getTotalEstimate()) * 100, $decimals);
-    }
-
-    public function getPercentCompletedStories($decimals = 0)
-    {
-        if ($this->getTotalStories() == 0)
-            return 0;
-
-        return number_format(($this->getCompletedStories() / $this->getTotalStories()) * 100, $decimals);
-    }
-
-    public function getPercentCompletedSubtasks($decimals = 0)
-    {
-        if ($this->getTotalSubtasks() == 0)
-            return 0;
-
-        return number_format($this->getCompletedSubtasks()/$this->getTotalSubtasks()*100, $decimals);
-
     }
 
     /**
@@ -441,15 +203,16 @@ class Sprint extends Model
             ->groupBy('type')
             ->get();
 
-        $totalStories = $this->getTotalStories();
-        $totalWorkedHours = $this->getTotalWorkedHours();
+        $ticketsMetrics = $this->getTicketsMetricsInstance();
+        $storiesCount = $ticketsMetrics->getStoriesCount();
+        $totalWorkedHours = $ticketsMetrics->getTotalWorkedHours();
 
         //dd($types);
         $result = array();
         foreach ($typesUsCount as $type) {
             $label = ($type->type)? $type->type: 'Empty';
 
-            $countPercentage = (floatval($totalStories) !== 0.0 )?number_format(($type->total / $totalStories) * 100, 2):0;
+            $countPercentage = (floatval($storiesCount) !== 0.0 )?number_format(($type->total / $storiesCount) * 100, 2):0;
 
             $result[$label] = [
                 'label' => $label,
@@ -479,34 +242,6 @@ class Sprint extends Model
 
 
         return $result;
-    }
-
-    public function getAverageLeadTime()
-    {
-        $completedTickets = $this->getCompletedTickets();
-        $totalTickets = $completedTickets->count();
-        if ($totalTickets) {
-            $totalLeadTime = 0;
-            $completedTickets->each(function ($ticket) use (&$totalLeadTime) {
-                $totalLeadTime += $ticket->getLeadTime();
-            });
-
-            return number_format($totalLeadTime/$totalTickets, 2);
-        }
-    }
-
-    public function getAverageCycleTime()
-    {
-        $completedTickets = $this->tickets()->started()->completed();
-        $totalTickets = $completedTickets->count();
-        if ($totalTickets) {
-            $totalCycleTime = 0;
-            $completedTickets->each(function ($ticket) use (&$totalCycleTime) {
-                $totalCycleTime += $ticket->getCycleTime();
-            });
-
-            return number_format($totalCycleTime/$totalTickets, 2);
-        }
     }
 
     public function getTimeReport()

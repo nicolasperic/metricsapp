@@ -117,8 +117,8 @@ class SprintTest extends TestCase
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC]);
 
-        $this->assertEquals(3, $sprint->getTotalTickets());
-        $this->assertEquals(26, $sprint->getTotalStoryPoints());
+        $this->assertEquals(3, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
+        $this->assertEquals(26, $sprint->getTicketsMetricsInstance()->getTotalEstimate());
     }
 
     /** @test */
@@ -138,9 +138,9 @@ class SprintTest extends TestCase
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC]);
 
-        $this->assertEquals(3, $sprint->getTotalTickets());
-        $this->assertEquals(26, $sprint->getTotalStoryPoints());
-        $this->assertEquals(13, $sprint->getCompletedStoryPoints());
+        $this->assertEquals(3, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
+        $this->assertEquals(26, $sprint->getTicketsMetricsInstance()->getTotalEstimate());
+        $this->assertEquals(13, $sprint->getTicketsMetricsInstance()->getTotalCompletedEstimate());
     }
 
     /** @test */
@@ -166,8 +166,8 @@ class SprintTest extends TestCase
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC, $ticketD, $ticketE]);
 
-        $this->assertEquals(5, $sprint->getTotalTickets());
-        $this->assertEquals(2, $sprint->getCompletedStories());
+        $this->assertEquals(5, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
+        $this->assertEquals(2, $sprint->getTicketsMetricsInstance()->getCompletedStoriesCount());
     }
 
     /** @test */
@@ -193,8 +193,8 @@ class SprintTest extends TestCase
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC, $ticketD, $ticketE]);
 
-        $this->assertEquals(5, $sprint->getTotalTickets());
-        $this->assertEquals(1, $sprint->getCompletedSubtasks());
+        $this->assertEquals(5, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
+        $this->assertEquals(1, $sprint->getTicketsMetricsInstance()->getCompletedSubtasksCount());
     }
 
     /** @test */
@@ -214,9 +214,9 @@ class SprintTest extends TestCase
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC]);
 
-        $this->assertEquals(3, $sprint->getTotalTickets());
-        $this->assertEquals(21, $sprint->getTotalStoryPoints());
-        $this->assertEquals(61.9, $sprint->getPercentCompletedStoryPoints());
+        $this->assertEquals(3, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
+        $this->assertEquals(21, $sprint->getTicketsMetricsInstance()->getTotalEstimate());
+        $this->assertEquals(61.9, $sprint->getTicketsMetricsInstance()->getTotalCompletedEstimatePercentage(2));
     }
 
     /** @test */
@@ -243,8 +243,8 @@ class SprintTest extends TestCase
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC, $ticketD]);
 
-        $this->assertEquals(4, $sprint->getTotalTickets());
-        $this->assertEquals(11.67, $sprint->getAverageLeadTime());
+        $this->assertEquals(4, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
+        $this->assertEquals(11.67, $sprint->getTicketsMetricsInstance()->getAverageLeadTime());
     }
 
     /** @test */
@@ -271,8 +271,8 @@ class SprintTest extends TestCase
 
         $sprint->tickets()->saveMany([$ticketA, $ticketB, $ticketC, $ticketD]);
 
-        $this->assertEquals(4, $sprint->getTotalTickets());
-        $this->assertEquals(12.33, $sprint->getAverageCycleTime());
+        $this->assertEquals(4, $sprint->getTicketsMetricsInstance()->getAllTicketsCount());
+        $this->assertEquals(12.33, $sprint->getTicketsMetricsInstance()->getAverageCycleTime());
     }
 
 }
