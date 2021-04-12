@@ -10928,8 +10928,10 @@ a.text-dark:focus {
   }
 }
 
-.sprint-container .user-story-type-stats {
-  padding-left: 16px;
+.sprint-container {
+  /*.user-story-type-stats {
+      padding-left: 16px;
+  }*/
 }
 
 .sprint-container .card-body.hours-per-user-table-container {

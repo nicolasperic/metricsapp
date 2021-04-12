@@ -10,13 +10,18 @@ Chart.defaults.global.defaultFontColor = '#858796';
 if (typeof timeReport !== 'undefined' && typeof percentages!== 'undefined') {
 
 
-    let usTypesLabels = [];
+    //datasets
     let countPercent = [];
-    let countTotal = [];
     let hoursPercent = [];
-    let hoursTotal = [];
+    //labels
+    let usTypesLabels = [];
+    //colors for datasets
     let backgroundColor = [];
     let hoverColor = [];
+    //info for labels
+    let countTotal = [];
+    let hoursTotal = [];
+
     jQuery.each(percentages, function (index, value) {
         usTypesLabels.push(value['label']);
         countPercent.push(value['count_percentage']);

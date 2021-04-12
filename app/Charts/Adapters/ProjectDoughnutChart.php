@@ -81,7 +81,7 @@ class ProjectDoughnutChart
             $colors[] = $this->doughnutChart->getNextColor();
         }
 
-        $this->doughnutChart->addDataset($this->createDataset('Horas', $data,$hoursValues, $colors));
+        $this->doughnutChart->addDataset($this->createDataset('Horas','horas', $data,$hoursValues, $colors));
 
 
 
@@ -91,6 +91,7 @@ class ProjectDoughnutChart
     private function getProjectStats($project, $rangeType, $month, $year)
     {
         $hours = null;
+        $updatedAt = false;
 
         $projectStat = $project->stats()
             ->where('range_type', $rangeType)
@@ -102,15 +103,16 @@ class ProjectDoughnutChart
         if ($projectStat !== null) {
             $this->doughnutChart->setHasInformation(true);
             $hours = $projectStat->worked_hours;
+            $updatedAt = $projectStat->updated_at;
         }
 
         return [
             'hours' => $hours,
-            'updated_at' => $projectStat->updated_at
+            'updated_at' => $updatedAt
         ];
     }
 
-    private function createDataset($label, $data, $hourValues, $color)
+    private function createDataset($label, $dataLabel, $data, $hourValues, $color)
     {
         $dataset = [
             'label' => $label,
@@ -119,6 +121,7 @@ class ProjectDoughnutChart
             'hoverBackgroundColor' => $color,//how to handle this? similar color
             'hoverBorderColor' => "rgba(234, 236, 244, 1)",
             'realValues' => $hourValues,
+            'dataLabel' => $dataLabel
         ];
 
         return $dataset;

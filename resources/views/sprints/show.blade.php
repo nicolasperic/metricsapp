@@ -3,6 +3,9 @@
 $project = $sprint->projects->first();
 /** @var \App\Models\Metrics\Sprint\TicketsMetrics $ticketsMetrics */
 $ticketsMetrics = $sprint->getTicketsMetricsInstance();
+
+/** @var \App\Models\Metrics\Sprint\TasksMetrics $tasksMetrics */
+$tasksMetrics = $sprint->getTasksMetricsInstance();
 ?>
 @section('breadcrumbs',  Breadcrumbs::render('sprints.show', $project, $sprint))
 
@@ -10,7 +13,7 @@ $ticketsMetrics = $sprint->getTicketsMetricsInstance();
 @section('container-class','sprint-container')
 @section('content')
     <?php
-        $timeReport = $sprint->getTimeReport();
+        $timeReport = $tasksMetrics->getTimeReport();
         $percentCompletedStories = $ticketsMetrics->getTotalCompletedStoriesPercentage();
         $percentCompletedSubtasks = $ticketsMetrics->getTotalCompletedSubtasksPercentage();
         $completedTicketsCount = $ticketsMetrics->getCompletedTicketsCount();
@@ -408,78 +411,9 @@ $ticketsMetrics = $sprint->getTicketsMetricsInstance();
             });
         </script>
 
-        <!-- Pie Chart -->
-        <div class="col-xl-6 col-lg-6">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">User Stories Types</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Dropdown Header:</div>
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- US Type Body -->
-                <div class="card-body">
-                    <div class="col-xl-6 col-lg-6" style="float: left;">
-                        <div class="chart-pie pt-4 pb-2">
-                            <canvas id="usTypeCount"></canvas>
-                        </div>
-                        <div class="text-center small">
-                            <span>External: amount of US for each type</span><br>
-                            <span>Internal: amount of hours for each type</span>
-                        </div>
-                    </div>
-                    <div class="col-xl-6 col-lg-6" style="float: right; padding-right: 0px;">
-                        <div class="user-stories-types mt-2 small">
-                            @foreach($sprint->getUserStoriesTypePercentages() as $i => $usType)
-                                <div class="user-story-type">
-                                    <i class="fas fa-circle" style="color: {{$usType['color']['main']}}"></i>
-                                    <span class="type-label">{{$usType['label']}}</span>
-                                    <div class="user-story-type-stats">
-                                        <span class="count">{{($usType['total']>1)? $usType['total'].' user stories': $usType['total'].' user story'}}  ({{$usType['count_percentage']}}%)</span>
-                                        <span class="hours">{{$usType['total_invested_hours']}} hours ({{$usType['hours_percentage']}}%)</span>
-                                    </div>
 
-                                </div>
-
-
-                            <style>
-                                .user-story-type {
-
-                                }
-                                .type-label {
-                                    text-transform: uppercase;
-                                    font-weight: bold;
-                                    font-size: 1.2em;
-                                }
-                                .count, .hours {
-                                    display: block;
-                                }
-                            </style>
-
-
-
-
-                                <!-- span class="mr-2">
-                                <i class="fas fa-circle" style="color: {{$usType['color']['main']}}"></i> {{$usType['label']}}
-                            </span -->
-                            @endforeach
-                        </div>
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
+        <?php $doughnutChartAdapter = new \App\Charts\Adapters\SprintDoughnutChart();?>
+        @include('charts.partials.doughnut', ['chart' => $doughnutChartAdapter->generateStoriesTypesChartFor($sprint)])
     </div>
 
 
@@ -561,7 +495,8 @@ $ticketsMetrics = $sprint->getTicketsMetricsInstance();
         var sprintName = "{!! $sprint->name !!}";
         var percentages = {!! json_encode($sprint->getUserStoriesTypePercentages()) !!};
         var timeReport = {!! json_encode($timeReport) !!};
-        console.log(timeReport);
+        //console.log(timeReport);
+        //console.log(percentages);
     </script>
 
     @endif

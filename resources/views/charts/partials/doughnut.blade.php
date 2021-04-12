@@ -1,6 +1,6 @@
 @if($chart->hasInformation())
 
-        <div class="col-xl-12 col-lg-12">
+        <div class="col-xl-{{$chart->getWidth()}} col-lg-{{$chart->getWidth()}}">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -10,9 +10,15 @@
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="col-xl-6 col-lg-6" style="float: left;">
-                        <div class="chart-area">
+                        <div class="chart-pie">
                             <canvas id="{{$chart->getElementId()}}"></canvas>
                         </div>
+                        @if(count($chart->getDatasets()) > 1)
+                            <div class="text-center small">
+                                <span>External: amount of US for each type</span><br>
+                                <span>Internal: amount of hours for each type</span>
+                            </div>
+                        @endif
                     </div>
 
 
@@ -21,24 +27,44 @@
 
 
                             <?php $dataset = $chart->getDatasets()[0]; $labels = $chart->getLabels();?>
-                            <?php arsort($dataset['data']); $totalHours = 0;?>
+                            <?php arsort($dataset['data']); $totalHours = 0; $totalDatasetTwo = 0;?>
                             @foreach($dataset['data'] as $i => $percentage)
                                     <div class="user-story-type">
                                         <i class="fas fa-circle" style="color: {{$dataset['backgroundColor'][$i]}}"></i>
                                         <span class="type-label">{{$labels[$i]}}</span>
                                         <div class="user-story-type-stats">
-                                            <span class="hours">{{($dataset['realValues'][$i])? $dataset['realValues'][$i]: 0}} hours ({{$percentage}}%)</span>
+                                            <span class="dataset-stats">{{($dataset['realValues'][$i])? $dataset['realValues'][$i]: 0}} {{$dataset['dataLabel']}} ({{$percentage}}%)</span>
+                                            @if(count($chart->getDatasets()) > 1)
+                                                <?php
+                                                    $secondDataset = $chart->getDatasets()[1];
+                                                    $totalDatasetTwo += $secondDataset['realValues'][$i]
+                                                ?>
+                                                <span class="dataset-stats">{{($secondDataset['realValues'][$i])? $secondDataset['realValues'][$i]: 0}} {{$secondDataset['dataLabel']}} ({{$secondDataset['data'][$i]}}%)</span>
+                                            @endif
                                         </div>
                                     </div>
                                 <?php $totalHours += $dataset['realValues'][$i]; ?>
                             @endforeach
-                                <div class="user-story-type">
-                                    <i class="fas fa-circle" style="color: black"></i>
-                                    <span class="type-label">Total Hours</span>
-                                    <div class="user-story-type-stats">
-                                        <span class="hours">{{$totalHours}}</span>
+
+                                @if(count($chart->getDatasets()) == 1)
+                                    <div class="user-story-type">
+                                        <i class="fas fa-circle" style="color: black"></i>
+                                        <span class="type-label">Total Hours</span>
+                                        <div class="user-story-type-stats">
+                                            <span class="dataset-stats">{{$totalHours}}</span>
+                                        </div>
                                     </div>
-                                </div>
+                                @elseif(count($chart->getDatasets()) == 2)
+                                    <div class="user-story-type">
+                                        <i class="fas fa-circle" style="color: black"></i>
+                                        <span class="type-label">Totals</span>
+                                        <div class="user-story-type-stats">
+                                            <span class="dataset-stats">{{$totalHours}} {{$dataset['dataLabel']}}</span>
+                                            <span class="dataset-stats">{{$totalDatasetTwo}} {{$secondDataset['dataLabel']}}</span>
+                                        </div>
+                                    </div>
+                                @endif
+
                                 <style>
                                     .user-story-type {
 
@@ -48,7 +74,7 @@
                                         font-weight: bold;
                                         font-size: 1.2em;
                                     }
-                                    .hours {
+                                    .dataset-stats {
                                         display: block;
                                         margin-left: 17px;
                                     }
@@ -120,6 +146,7 @@
                     callbacks: {
                         afterTitle: function() {
                             window.total = 0;
+                            window.datasetlabel = '';
                         },
                         label: function (tooltipItem, chart) {
                             var dataset = chart.datasets[tooltipItem.datasetIndex];
@@ -134,10 +161,12 @@
                                 }
                             }
 
+                            window.datasetlabel = chart.datasets[tooltipItem.datasetIndex]["dataLabel"];
+
                             var total = meta.total;
                             var currentValue = dataset.data[tooltipItem.index];
                             var percentage = parseFloat((currentValue/total*100).toFixed(1));
-                            var realValue = chart.datasets[tooltipItem.datasetIndex]["realValues"][tooltipItem.index] + " horas";
+                            var realValue = chart.datasets[tooltipItem.datasetIndex]["realValues"][tooltipItem.index] + " "+ chart.datasets[tooltipItem.datasetIndex]["dataLabel"];
                             return realValue + ' (' + percentage + '%)';
 
                             return percentage + "%";
@@ -148,8 +177,7 @@
 
                         },
                         footer: function() {
-
-                            return "Total: " + number_format(window.total, 2) + " hours";
+                            return "Total: " + number_format(window.total, 2) + " " + window.datasetlabel
                         }
                     }
                 },
