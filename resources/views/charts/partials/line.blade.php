@@ -151,14 +151,6 @@
         }
         });
 
-        var data = 10.75;
-
-        monthlyHoursChart.data.labels.push('Mayo 2021');
-        monthlyHoursChart.data.datasets.forEach((dataset) => {
-            //console.log(dataset);
-            //dataset.data.push(data);
-        });
-        monthlyHoursChart.update();
     </script>
 @endif
 
