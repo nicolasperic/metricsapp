@@ -2,6 +2,15 @@
     /*.user-story-type-stats {
         padding-left: 16px;
     }*/
+    #flip-card {
+        .card {
+            table.hours-per-user-table {
+                td {
+                    padding: 0.57rem 0.55rem 0.75rem 0.55rem;
+                }
+            }
+        }
+    }
 
     .card-body.hours-per-user-table-container {
         padding-top: 0px;

@@ -12,14 +12,14 @@ $tasksMetrics = $sprint->getTasksMetricsInstance();
 @section('container-title', $project->name. " | $sprint->name")
 @section('container-class','sprint-container')
 @section('content')
-    <?php
-        $timeReport = $tasksMetrics->getTimeReport();
-        $percentCompletedStories = $ticketsMetrics->getTotalCompletedStoriesPercentage();
-        $percentCompletedSubtasks = $ticketsMetrics->getTotalCompletedSubtasksPercentage();
-        $completedTicketsCount = $ticketsMetrics->getCompletedTicketsCount();
-        $totalTickets = $ticketsMetrics->getAllTicketsCount();
-        $percentCompletedTickets = Helper::getPercentageValue($completedTicketsCount, $totalTickets);
-    ?>
+<?php
+$timeReport = $tasksMetrics->getTimeReport();
+$percentCompletedStories = $ticketsMetrics->getTotalCompletedStoriesPercentage();
+$percentCompletedSubtasks = $ticketsMetrics->getTotalCompletedSubtasksPercentage();
+$completedTicketsCount = $ticketsMetrics->getCompletedTicketsCount();
+$totalTickets = $ticketsMetrics->getAllTicketsCount();
+$percentCompletedTickets = Helper::getPercentageValue($completedTicketsCount, $totalTickets);
+?>
 
     <div class="actions" style="position: relative; top: -55px; width: 80%;">
         <a href="{{ route('tickets.sync', $sprint->sprint_assembla_id) }}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Sync Tickets</a>
@@ -292,7 +292,7 @@ $tasksMetrics = $sprint->getTasksMetricsInstance();
                 <div class="card shadow mb-4 flip-card-back">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Hours per user Raw data</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Hours per user <i>(raw data)</i></h6>
                         <div class="dropdown no-arrow">
                             <a class="flip-card" href="javascript:;" id="flip-card-btn-turn-to-front">
                                 <i class="fas fa-sync fa-sm fa-fw text-gray-400"></i>
@@ -318,7 +318,12 @@ $tasksMetrics = $sprint->getTasksMetricsInstance();
                                     </td>
                                     <td>{{$user['label']}}</td>
                                     <td>{{$user['total_hours']}} hours ({{ Helper::getPercentageValue($user['total_hours'], $totalWorkedHours, $decimals = 2) }}%)</td>
-                                    <td>{{$user['total_tasks']}} tasks</td>
+                                    <td>{{$user['total_tasks']}} tasks ({{$user['tasks_percentage']}}%)
+                                        @if($user['total_hours'] != 0)
+                                            <br>
+                                            {{number_format($user['total_tasks']/$user['total_hours'], 2)}} tasks/hour
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                             <tbody>
@@ -493,10 +498,8 @@ $tasksMetrics = $sprint->getTasksMetricsInstance();
 
     <script type="text/javascript">
         var sprintName = "{!! $sprint->name !!}";
-        var percentages = {!! json_encode($sprint->getUserStoriesTypePercentages()) !!};
         var timeReport = {!! json_encode($timeReport) !!};
         //console.log(timeReport);
-        //console.log(percentages);
     </script>
 
     @endif

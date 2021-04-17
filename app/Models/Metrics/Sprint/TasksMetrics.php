@@ -23,6 +23,9 @@ class TasksMetrics {
     private $weeklyHours;
     private $userHours;
 
+    private $totalHours;
+    private $totalTasks;
+
 
     /**
      * @var Sprint
@@ -51,12 +54,15 @@ class TasksMetrics {
             //$ticketTimes = TicketTime::where('ticket_assembla_id', $ticket->ticket_assembla_id)->get();
 
             foreach ($ticket->ticketTimes as $ticketTime) {
+                $this->totalHours += $ticketTime->hours;
+                $this->totalTasks++;
                 $this->_trackTime($ticketTime, $users, $tickets);
             }
 
 
         }
 
+        //dd("Total hours $this->totalHours - Total tasks $this->totalTasks");
 
 
         ksort($this->weeklyHours);
@@ -235,8 +241,16 @@ class TasksMetrics {
 
                 }
             }
+        }
 
+        foreach($this->userHours as $userId => $userData) {
+            if ($this->totalHours) {
+                $this->userHours[$userId]['hours_percentage'] = number_format($userData['total_hours']/$this->totalHours*100, 2);
+            }
 
+            if ($this->totalTasks) {
+                $this->userHours[$userId]['tasks_percentage'] = number_format($userData['total_tasks']/$this->totalTasks*100, 2);
+            }
         }
 
     }

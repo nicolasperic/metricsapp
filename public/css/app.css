@@ -10934,6 +10934,10 @@ a.text-dark:focus {
   }*/
 }
 
+.sprint-container #flip-card .card table.hours-per-user-table td {
+  padding: 0.57rem 0.55rem 0.75rem 0.55rem;
+}
+
 .sprint-container .card-body.hours-per-user-table-container {
   padding-top: 0px;
   overflow-x: scroll;
