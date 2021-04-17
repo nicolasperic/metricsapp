@@ -27,34 +27,35 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         //$schedule->command('weekly:report')->weeklyOn(1, '8:00');
-        $schedule->command('weekly:report')->everyMinute()->when(function (){
-            //workaround for Heroku scheduler
-            $today = new Carbon();
 
+        /** @var \Carbon\Carbon $now */
+        $now = new Carbon();
+        $schedule->command('weekly:report')->everyMinute()->when(function () use($now) {
+            //workaround for Heroku scheduler
             //$decimMin = (strlen($today->minute) > 1)? substr($today->minute, 0, 1): 0;
-            return $today->dayOfWeek == Carbon::MONDAY
-                && $today->hour == 8; //&& $decimMin == 1;
+            return $now->dayOfWeek == Carbon::MONDAY
+                && $now->hour == 8; //&& $decimMin == 1;
         });
 
-        $schedule->command('assembla:sync')->everyMinute()->when(function (){
+        $schedule->command('assembla:sync')->everyMinute()->when(function () use($now) {
             //workaround for Heroku scheduler
-            $now = new Carbon();
             return $now->hour % 6 == 0;//every six hours
         });
 
-        $now = new Carbon();
-        $schedule->command("projectsstats:sync --year=$now->year --month=$now->month")->everyMinute()->when(function (){
+        $schedule->command("projectsstats:sync --year=$now->year --month=$now->month")
+            ->everyMinute()->when(function () use($now) {
             //workaround for Heroku scheduler
-            $now = new Carbon();
             return $now->hour % 3 == 0;//every 3 hours
         });
 
-        /*$schedule->command('sprintiteration:iterate')->everyMinute()->when(function (){
-            //workaround for Heroku scheduler
-            $today = new Carbon();
-            return $today->hour == 8;//every day at 8AM
-        });*/
-
+        //tracking last month hours only on the first 5 days of the month
+        if ($now->day <= 5) {
+            $schedule->command("projectsstats:sync --year=$now->year --month=".$now->subMonth()->month)
+                ->everyMinute()->when(function () use($now) {
+                    //workaround for Heroku scheduler
+                    return $now->hour % 3 == 0;//every 3 hours
+                });
+        }
 
     }
 
