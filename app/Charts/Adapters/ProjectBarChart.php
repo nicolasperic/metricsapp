@@ -60,9 +60,11 @@ class ProjectBarChart
                     }
                 }
                 $updatedAt = $projectStats->updated_at;
-                $olderUpdatedAt = ($olderUpdatedAt === false || $updatedAt < $olderUpdatedAt)? $updatedAt: $olderUpdatedAt;
+                if ($updatedAt)
+                    $olderUpdatedAt = ($olderUpdatedAt === false || $updatedAt < $olderUpdatedAt)? $updatedAt: $olderUpdatedAt;
             }
         }
+
 
         usort($usersHours, function ($a, $b){
             return $a['total_hours'] < $b['total_hours'];
@@ -96,7 +98,7 @@ class ProjectBarChart
 
         $this->barChart->setLabels($labels);
         $this->barChart->addDataset($this->createDataset('hours', $hoursValues, $backgroundColors, $borderColors));
-        $this->barChart->setLastUpdated($projectStats->updated_at);
+        $this->barChart->setLastUpdated($olderUpdatedAt);
         $this->barChart->setWidth(4);
 
         return $this->barChart;

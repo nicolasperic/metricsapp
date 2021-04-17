@@ -57,7 +57,8 @@ class ProjectDoughnutChart
             $hoursValues[] = $projectStats['hours'];
             $totalHours += $projectStats['hours'];
 
-            $olderUpdatedAt = ($olderUpdatedAt === false || $projectStats['updated_at'] < $olderUpdatedAt)?$projectStats['updated_at']: $olderUpdatedAt;
+            if ($projectStats['updated_at'])
+                $olderUpdatedAt = ($olderUpdatedAt === false || $projectStats['updated_at'] < $olderUpdatedAt)?$projectStats['updated_at']: $olderUpdatedAt;
 
             //$i++;
         }
@@ -90,7 +91,7 @@ class ProjectDoughnutChart
     private function getProjectStats($project, $rangeType, $month, $year)
     {
         $hours = null;
-        $updatedAt = false;
+        $updatedAt = null;
 
         $projectStat = $project->stats()
             ->where('range_type', $rangeType)
