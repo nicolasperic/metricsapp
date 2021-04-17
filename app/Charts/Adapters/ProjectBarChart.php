@@ -47,6 +47,10 @@ class ProjectBarChart
             if ($projectStats !== null) {
                 $projectUsersHours = json_decode($projectStats->users_hours, true);
 
+                if (!isset($projectUsersHours) || count($projectUsersHours) == 0) {
+                    continue;
+                }
+
                 foreach ($projectUsersHours as $userAssemblaId => $userHours) {
                     if (array_key_exists($userAssemblaId, $usersHours)) {
                         $usersHours[$userAssemblaId]['total_hours'] += $userHours['total_hours'];
