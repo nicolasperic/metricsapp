@@ -421,7 +421,6 @@ $percentCompletedTickets = Helper::getPercentageValue($completedTicketsCount, $t
         @include('charts.partials.doughnut', ['chart' => $doughnutChartAdapter->generateStoriesTypesChartFor($sprint)])
     </div>
 
-
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card shadow mb-4">

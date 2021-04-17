@@ -2,6 +2,7 @@
 
 namespace App\Importer;
 
+use App\AssemblaUser;
 use App\Dto\Mapper\ProjectMapper;
 use App\Dto\ProjectDto;
 use App\Dto\TicketTimeDto;
@@ -12,7 +13,6 @@ use App\Project;
 use App\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use PHPUnit\Framework\Exception;
 
 class ProjectImporter
 {
@@ -22,6 +22,10 @@ class ProjectImporter
     private $user;
     /** @var AssemblaGateway  */
     private $assemblaGateway;
+
+    private $usersNamesById = [];
+    private $usersHours = [];
+
 
     /**
      * @param User $user
@@ -98,6 +102,11 @@ class ProjectImporter
         Log::info('[Projects Importer] Finished in '.$minutes.' minutes');
     }
 
+    /**
+     * @param $project
+     * @param $year
+     * @param $month
+     */
     public function calculateAndStoreProjectStatsFor($project, $year, $month)
     {
         //we need to calculate the start and end dates for the given month
@@ -107,6 +116,9 @@ class ProjectImporter
 
         $totalHours = null;
         $totalTasks = null;
+
+        $this->usersHours = [];// [user_assembla_id] => ['label'=>'Martin', 'total_hours'=> 17.5,'hours_percentage'=>32.5];
+        $this->usersNamesById = $project->assemblaUsers()->pluck('name', 'user_assembla_id')->toArray();
 
         try {
             $page = 1;
@@ -125,10 +137,10 @@ class ProjectImporter
                         $totalHours += $task->getHours();
                         $totalTasks++;
 
+                        //keeping track of hours grouped by users
+                        $this->_trackUsersData($task);
                     }
                 }
-
-
 
                 if (count($tasks) === AssemblaRequest::PER_PAGE) {
                     $page++;
@@ -138,11 +150,13 @@ class ProjectImporter
             Log::info($e->getMessage());
         }
 
+        if (isset($totalHours) && $totalHours !== 0) {
+            $this->_calculatePercentages($totalHours);
+        }
 
         //Here we will update the project stat
         $projectStat = ProjectStat::where('project_id', $project->id)->where('month', $month)->where('year', $year)->first();
         if ($projectStat == null) {
-
             ProjectStat::create([
                 'project_id' => $project->id,
                 'from_date' => $firstDayOfMonth,
@@ -151,17 +165,47 @@ class ProjectImporter
                 'month' => $month,
                 'worked_hours' => $totalHours,
                 'total_tasks' => $totalTasks,
+                'users_hours' => json_encode($this->usersHours),
                 'range_type' => ProjectStat::MONTH_RANGE_TYPE
             ]);
         } else {
-
             $projectStat->from_date = $firstDayOfMonth;
             $projectStat->to_date = $lastDayOfMonth;
             $projectStat->worked_hours = $totalHours;
             $projectStat->total_tasks = $totalTasks;
+            $projectStat->users_hours = json_encode($this->usersHours);
             $projectStat->save();
         }
 
         Log::info("$project->wikiname hours: $totalHours tasks: $totalTasks for $year $month in $page pages");
+    }
+
+    private function _trackUsersData(TicketTimeDto $task)
+    {
+        $userAssemblaId = $task->getUserAssemblaId();
+        if (!array_key_exists($userAssemblaId, $this->usersHours)) {
+
+            if (array_key_exists($userAssemblaId, $this->usersNamesById)) {
+                $userName = $this->usersNamesById[$userAssemblaId];
+            } else {
+                $assemblaUser = AssemblaUser::getUserByAssemblaId($userAssemblaId);
+                $userName  = ($assemblaUser)? $assemblaUser->name : 'User '.$userAssemblaId;
+            }
+
+            $this->usersHours[$userAssemblaId] = [
+                'label' => $userName,
+                'total_hours' => 0,
+                'hours_percentage' => 0,
+            ];
+        }
+
+        $this->usersHours[$userAssemblaId]['total_hours'] += $task->getHours();
+     }
+
+    private function _calculatePercentages($totalHours)
+    {
+        foreach ($this->usersHours as $userAssemblaId => $userData) {
+            $this->usersHours[$userAssemblaId]['hours_percentage'] = number_format($userData['total_hours']/$totalHours*100,2);
+        }
     }
 }

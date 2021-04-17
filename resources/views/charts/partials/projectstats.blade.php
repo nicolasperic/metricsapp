@@ -1,19 +1,19 @@
-@if($chart->hasInformation())
+@if($doughnutChart->hasInformation())
 
-        <div class="col-xl-{{$chart->getWidth()}} col-lg-{{$chart->getWidth()}}">
+        <div class="col-xl-{{$doughnutChart->getWidth()}} col-lg-{{$doughnutChart->getWidth()}}">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">{{ $chart->getChartTitle() }}</h6>
-                    <i class="last-sync" style="font-size: 11px;">Stats from {{Helper::getTimeDiff($chart->getLastUpdated())}}</i>
+                    <h6 class="m-0 font-weight-bold text-primary">{{ $doughnutChart->getChartTitle() }}</h6>
+                    <i class="last-sync" style="font-size: 11px;">Stats from {{Helper::getTimeDiff($doughnutChart->getLastUpdated())}}</i>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <div class="col-xl-6 col-lg-6" style="float: left;">
+                    <div class="col-xl-4 col-lg-4" style="float: left;">
                         <div class="chart-pie">
-                            <canvas id="{{$chart->getElementId()}}"></canvas>
+                            <canvas id="{{$doughnutChart->getElementId()}}"></canvas>
                         </div>
-                        @if(count($chart->getDatasets()) > 1)
+                        @if(count($doughnutChart->getDatasets()) > 1)
                             <div class="text-center small">
                                 <span>External: amount of US for each type</span><br>
                                 <span>Internal: amount of hours for each type</span>
@@ -21,12 +21,19 @@
                         @endif
                     </div>
 
+                    <div class="col-xl-5 col-lg-5" style="float: right; padding-right: 0px;">
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="{{$barChart->getElementId()}}"></canvas>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div class="col-xl-6 col-lg-6" style="float: right; padding-right: 0px;">
+                    <div class="col-xl-3 col-lg-3" style="float: right; padding-right: 0px;">
                         <div class="user-stories-types mt-2 small">
 
 
-                            <?php $dataset = $chart->getDatasets()[0]; $labels = $chart->getLabels();?>
+                            <?php $dataset = $doughnutChart->getDatasets()[0]; $labels = $doughnutChart->getLabels();?>
                             <?php arsort($dataset['data']); $totalHours = 0; $totalDatasetTwo = 0;?>
                             @foreach($dataset['data'] as $i => $percentage)
                                     <div class="user-story-type">
@@ -34,9 +41,9 @@
                                         <span class="type-label">{{$labels[$i]}}</span>
                                         <div class="user-story-type-stats">
                                             <span class="dataset-stats">{{($dataset['realValues'][$i])? $dataset['realValues'][$i]: 0}} {{$dataset['dataLabel']}} ({{$percentage}}%)</span>
-                                            @if(count($chart->getDatasets()) > 1)
+                                            @if(count($doughnutChart->getDatasets()) > 1)
                                                 <?php
-                                                    $secondDataset = $chart->getDatasets()[1];
+                                                    $secondDataset = $doughnutChart->getDatasets()[1];
                                                     $totalDatasetTwo += $secondDataset['realValues'][$i]
                                                 ?>
                                                 <span class="dataset-stats">{{($secondDataset['realValues'][$i])? $secondDataset['realValues'][$i]: 0}} {{$secondDataset['dataLabel']}} ({{$secondDataset['data'][$i]}}%)</span>
@@ -46,7 +53,7 @@
                                 <?php $totalHours += $dataset['realValues'][$i]; ?>
                             @endforeach
 
-                                @if(count($chart->getDatasets()) == 1)
+                                @if(count($doughnutChart->getDatasets()) == 1)
                                     <div class="user-story-type">
                                         <i class="fas fa-circle" style="color: black"></i>
                                         <span class="type-label">Total Hours</span>
@@ -54,7 +61,7 @@
                                             <span class="dataset-stats">{{$totalHours}}</span>
                                         </div>
                                     </div>
-                                @elseif(count($chart->getDatasets()) == 2)
+                                @elseif(count($doughnutChart->getDatasets()) == 2)
                                     <div class="user-story-type">
                                         <i class="fas fa-circle" style="color: black"></i>
                                         <span class="type-label">Totals</span>
@@ -82,6 +89,8 @@
 
                         </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -121,14 +130,14 @@
 
         
 
-        var ctx = document.getElementById("{!! $chart->getElementId() !!}");
+        var ctx = document.getElementById("{!! $doughnutChart->getElementId() !!}");
 
 
         var usTypeCount = new Chart(ctx, {
-            type: '{!! $chart->getChartType() !!}',
+            type: '{!! $doughnutChart->getChartType() !!}',
             data: {
-                labels: {!! json_encode($chart->getLabels()) !!},
-                datasets: {!! json_encode($chart->getDatasets()) !!}
+                labels: {!! json_encode($doughnutChart->getLabels()) !!},
+                datasets: {!! json_encode($doughnutChart->getDatasets()) !!}
             },
             options: {
                 maintainAspectRatio: false,
@@ -186,6 +195,32 @@
                 },
                 cutoutPercentage: 30,
             },
+        });
+
+
+
+        var element = document.getElementById("{!! $barChart->getElementId() !!}");
+
+
+        var barChart = new Chart(element,{
+            "type": '{!! $barChart->getChartType() !!}',
+            "data":{
+                labels: {!! json_encode($barChart->getLabels()) !!},
+        datasets: {!! json_encode($barChart->getDatasets()) !!}
+        },
+        "options":{
+            "scales":{
+                "xAxes":[{
+                    "ticks":{
+                        "beginAtZero":true
+                    }
+                }]
+            },
+            legend: {
+                display: false
+            },
+            maintainAspectRatio: false
+        }
         });
     </script>
 @endif

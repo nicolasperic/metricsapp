@@ -13,8 +13,6 @@ class ProjectDoughnutChart
 
     /** @var  DoughnutChart */
     private $doughnutChart;
-    
-    private $statsAvailable = false;
 
     public function generateStarredProjectsCurrentMonthHoursChart()
     {
@@ -88,6 +86,7 @@ class ProjectDoughnutChart
         return $this->doughnutChart;
     }
 
+    //TODO move this ProjectStats method to a ProjectStats service layer
     private function getProjectStats($project, $rangeType, $month, $year)
     {
         $hours = null;
@@ -126,13 +125,4 @@ class ProjectDoughnutChart
 
         return $dataset;
     }
-
-    /**
-     * @return boolean
-     */
-    public function statsAvailable()
-    {
-        return $this->statsAvailable;
-    }
-
 }

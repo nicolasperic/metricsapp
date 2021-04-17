@@ -13,8 +13,6 @@ class SprintDoughnutChart
 
     /** @var  DoughnutChart */
     private $doughnutChart;
-    
-    private $statsAvailable = false;
 
     public function generateStoriesTypesChartFor($sprint)
     {
@@ -151,13 +149,5 @@ class SprintDoughnutChart
         ];
 
         return $dataset;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function statsAvailable()
-    {
-        return $this->statsAvailable;
     }
 }

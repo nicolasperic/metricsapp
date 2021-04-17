@@ -14,8 +14,6 @@ class ProjectLineChart
 
     /** @var  LineChart */
     private $lineChart;
-    
-    private $statsAvailable = false;
 
     /**
      * @param $chartTitle string
@@ -225,14 +223,6 @@ class ProjectLineChart
         ksort($projectMonths);
         $projectMonths = array_values($projectMonths);
         return $projectMonths;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function statsAvailable()
-    {
-        return $this->statsAvailable;
     }
 
     private function getLabels($allMonths)

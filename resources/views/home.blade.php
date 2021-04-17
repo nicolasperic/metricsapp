@@ -32,9 +32,18 @@
         <?php $lineChart = new \App\Charts\Adapters\ProjectLineChart();?>
         @include('charts.partials.line', ['chart' => $lineChart->generateStarredProjectsMonthlyHoursChart()])
 
-        <?php $doughnutChart = new \App\Charts\Adapters\ProjectDoughnutChart();?>
-        @include('charts.partials.doughnut', ['chart' => $doughnutChart->generateStarredProjectsCurrentMonthHoursChart()])
-        @include('charts.partials.doughnut', ['chart' => $doughnutChart->generateStarredProjectsLastMonthHoursChart()])
+        <?php
+            $doughnutChart = new \App\Charts\Adapters\ProjectDoughnutChart();
+            $barChart = new \App\Charts\Adapters\ProjectBarChart();
+        ?>
+        @include('charts.partials.projectstats', [
+            'doughnutChart' => $doughnutChart->generateStarredProjectsCurrentMonthHoursChart(),
+            'barChart' => $barChart->generateHoursPerUserBarChartForCurrentMonth(),
+        ])
+        @include('charts.partials.projectstats', [
+            'doughnutChart' => $doughnutChart->generateStarredProjectsLastMonthHoursChart(),
+            'barChart' => $barChart->generateHoursPerUserBarChartForLastMonth(),
+        ])
 
 
 
