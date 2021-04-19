@@ -150,7 +150,7 @@ abstract class AbstractChart
             '#A5DF00',//verde manzana
         ];
 
-        if (count($colors) >= $this->colorIndex) {
+        if (count($colors) > $this->colorIndex) {
             $nextColor = $colors[$this->colorIndex];
         } else {
             $nextColor =  $this->randomColor();
