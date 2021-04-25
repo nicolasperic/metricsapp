@@ -69,7 +69,10 @@ class ProjectDoughnutChart
 
 
 
-        $colors = [];
+        $colors = [
+            'backgroundColor' => [],
+            'hoverBackgroundColor' => []
+        ];
         $data = [];
         foreach ($hoursValues as $hours) {
 
@@ -77,7 +80,11 @@ class ProjectDoughnutChart
 
 
             $data[] = $hoursPercentage;
-            $colors[] = $this->doughnutChart->getNextColor();
+
+
+            $color = $this->doughnutChart->getNextColor();
+            $colors['backgroundColor'][] = $color;
+            $colors['hoverBackgroundColor'][] = $this->doughnutChart->adjustBrightness($color, -0.2);
         }
 
         $this->doughnutChart->addDataset($this->createDataset('Horas','horas', $data,$hoursValues, $colors));
@@ -117,8 +124,8 @@ class ProjectDoughnutChart
         $dataset = [
             'label' => $label,
             'data' => $data,//percentages
-            'backgroundColor' => $color,
-            'hoverBackgroundColor' => $color,//how to handle this? similar color
+            'backgroundColor' => $color['backgroundColor'],
+            'hoverBackgroundColor' => $color['hoverBackgroundColor'],
             'hoverBorderColor' => "rgba(234, 236, 244, 1)",
             'realValues' => $hourValues,
             'dataLabel' => $dataLabel

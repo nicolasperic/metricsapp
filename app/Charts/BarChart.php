@@ -6,6 +6,8 @@ class BarChart extends AbstractChart
 {
     const CHART_TYPE = 'horizontalBar';//bar > vertical
 
+    private $barsCount;
+
     function __construct($chartTitle, $elementId)
     {
         $this->setChartType(self::CHART_TYPE);
@@ -37,4 +39,19 @@ class BarChart extends AbstractChart
 
         parent::addDataset($dataset);
     }
+
+    public function maintainAspectRatio()
+    {
+        return $this->barsCount >= 12;
+    }
+
+    /**
+     * @param mixed $barsCount
+     */
+    public function setBarsCount($barsCount)
+    {
+        $this->barsCount = $barsCount;
+    }
+
+
 }

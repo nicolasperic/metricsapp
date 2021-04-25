@@ -15,17 +15,13 @@ class ProjectBarChart
     public function generateHoursPerUserBarChartForCurrentMonth()
     {
         $date = Carbon::now();
-        $month = $date->month;
-        $year = $date->year;
-        return $this->_generateHoursPerUserBarChartFor($month, $year);
+        return $this->_generateHoursPerUserBarChartFor($date->month, $date->year);
     }
 
     public function generateHoursPerUserBarChartForLastMonth()
     {
         $date = Carbon::now()->subMonth();
-        $month = $date->month;
-        $year = $date->year;
-        return $this->_generateHoursPerUserBarChartFor($month, $year);
+        return $this->_generateHoursPerUserBarChartFor($date->month, $date->year);
     }
 
     /**
@@ -36,6 +32,114 @@ class ProjectBarChart
      * @return BarChart
      */
     private function _generateHoursPerUserBarChartFor($month, $year)
+    {
+        $starredProjects = Auth::user()->starredProjects;
+
+        $olderUpdatedAt = false;
+        $usersHours = [];
+        foreach ($starredProjects as $project) {
+            $projectStats = $this->getProjectStats($project, ProjectStat::MONTH_RANGE_TYPE, $month, $year);
+
+            if ($projectStats !== null) {
+                $projectUsersHours = json_decode($projectStats->users_hours, true);
+
+                if (!isset($projectUsersHours) || count($projectUsersHours) == 0) {
+                    continue;
+                }
+
+                foreach ($projectUsersHours as $userAssemblaId => $userHours) {
+                    if (array_key_exists($userAssemblaId, $usersHours)) {
+                        $usersHours[$userAssemblaId]['total_hours'] += $userHours['total_hours'];
+                    } else {
+                        $usersHours[$userAssemblaId]['total_hours'] = $userHours['total_hours'];
+                        $usersHours[$userAssemblaId]['label'] = $userHours['label'];
+                    }
+                    $usersHours[$userAssemblaId][$project->wikiname] = $userHours['total_hours'];
+                }
+                $updatedAt = $projectStats->updated_at;
+                if ($updatedAt)
+                    $olderUpdatedAt = ($olderUpdatedAt === false || $updatedAt < $olderUpdatedAt)? $updatedAt: $olderUpdatedAt;
+            }
+        }
+
+
+
+        usort($usersHours, function ($a, $b){
+            return $a['total_hours'] < $b['total_hours'];
+        });
+
+
+
+        $elementId = 'hoursPerUserBarChart'.$month.'_'.$year;
+        $this->barChart = new BarChart('Hours per user', $elementId);
+
+
+        $labels = [];
+        $hoursValues = [];
+        $hoursPercentage = [];
+
+        $backgroundColors = [];
+        $borderColors = [];
+
+        //a dataset per project with users hours keeping the same order//Elina, Nico, Foco, Barbi (de mayor a menor horas)
+
+        /*
+            datasets: [{
+                label: 'SommierCenter',
+                data: [48.5,0, 66],
+                backgroundColor: "#4e73df",
+            }
+         */
+        foreach ($usersHours as $userHours) {
+            $labels[] = $userHours['label'];
+        }
+        foreach($starredProjects as $project) {
+            $projectUsersHours = [];
+
+            $color = $this->barChart->getNextColor();
+            $borderColors = $this->barChart->adjustBrightness($color, -0.2);
+            $backgroundColors = $color;
+            foreach ($usersHours as $userHours) {
+
+                $userHoursForProject = 0;
+                if (array_key_exists($project->wikiname, $userHours)) {
+                    $userHoursForProject = $userHours[$project->wikiname];
+                }
+                $projectUsersHours[] = $userHoursForProject;
+
+
+                //$hoursValues[] = $userHours['total_hours'];
+                //$hoursPercentage[] = $userHours['hours_percentage'];
+
+            }
+
+            $this->barChart->addDataset($this->createDataset($project->wikiname, $projectUsersHours, $backgroundColors, $borderColors));
+        }
+
+
+        if (count($usersHours)) {
+            $this->barChart->setHasInformation(true);
+            $this->barChart->setBarsCount(count($usersHours));
+        }
+
+
+        $this->barChart->setLabels($labels);
+
+
+        $this->barChart->setLastUpdated($olderUpdatedAt);
+        $this->barChart->setWidth(4);
+
+        return $this->barChart;
+    }
+
+    /**
+     *
+     * @param $month
+     * @param $year
+     *
+     * @return BarChart
+     */
+    private function __generateHoursPerUserBarChartFor($month, $year)
     {
         $starredProjects = Auth::user()->starredProjects;
 
@@ -121,7 +225,6 @@ class ProjectBarChart
     {
         return $project->stats()
             ->where('range_type', $rangeType)
-            ->orderBy('from_date')
             ->where('month', $month)
             ->where('year', $year)
             ->first();
