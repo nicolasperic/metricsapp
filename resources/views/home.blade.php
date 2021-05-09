@@ -37,12 +37,28 @@
             $barChart = new \App\Charts\Adapters\ProjectBarChart();
         ?>
         @include('charts.partials.projectstats', [
-            'doughnutChart' => $doughnutChart->generateStarredProjectsCurrentMonthHoursChart(),
-            'barChart' => $barChart->generateHoursPerUserBarChartForCurrentMonth(),
+            'doughnutChart' => $doughnutChart->generateStarredProjectHoursChartForSubMonths(0),
+            'barChart' => $barChart->generateHoursPerUserBarChartForSubMonths(0),
         ])
         @include('charts.partials.projectstats', [
-            'doughnutChart' => $doughnutChart->generateStarredProjectsLastMonthHoursChart(),
-            'barChart' => $barChart->generateHoursPerUserBarChartForLastMonth(),
+            'doughnutChart' => $doughnutChart->generateStarredProjectHoursChartForSubMonths(1),
+            'barChart' => $barChart->generateHoursPerUserBarChartForSubMonths(1),
+        ])
+        @include('charts.partials.projectstats', [
+            'doughnutChart' => $doughnutChart->generateStarredProjectHoursChartForSubMonths(2),
+            'barChart' => $barChart->generateHoursPerUserBarChartForSubMonths(2),
+        ])
+        @include('charts.partials.projectstats', [
+            'doughnutChart' => $doughnutChart->generateStarredProjectHoursChartForSubMonths(3),
+            'barChart' => $barChart->generateHoursPerUserBarChartForSubMonths(3),
+        ])
+        @include('charts.partials.projectstats', [
+            'doughnutChart' => $doughnutChart->generateStarredProjectHoursChartForSubMonths(4),
+            'barChart' => $barChart->generateHoursPerUserBarChartForSubMonths(4),
+        ])
+        @include('charts.partials.projectstats', [
+            'doughnutChart' => $doughnutChart->generateStarredProjectHoursChartForSubMonths(5),
+            'barChart' => $barChart->generateHoursPerUserBarChartForSubMonths(5),
         ])
 
 

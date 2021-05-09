@@ -73,10 +73,15 @@ class SyncSpaceCurrentMilestone implements ShouldQueue, ShouldBeUnique
         //this jobs needs to listen SYncSpaceMilestones
         try {
             $this->sprint = $this->project->refresh()->getCurrentSprint();
-            Log::info('SyncSpaceCurrentMilestone executing for '.$this->sprint->title);
-            $ticketImporter = new TicketImporter($this->user);
-            $ticketImporter->importMilestoneTickets($this->sprint);
-            Log::info('SyncSpaceCurrentMilestone ended for '.$this->sprint->title);
+            if ($this->sprint) {
+                Log::info('SyncSpaceCurrentMilestone executing for '.$this->sprint->title);
+                $ticketImporter = new TicketImporter($this->user);
+                $ticketImporter->importMilestoneTickets($this->sprint);
+                Log::info('SyncSpaceCurrentMilestone ended for '.$this->sprint->title);
+            } else {
+                Log::info('SyncSpaceCurrentMilestone project has no current milestone '.$this->project->wikiname);
+            }
+
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());

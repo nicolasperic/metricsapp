@@ -14,24 +14,16 @@ class ProjectDoughnutChart
     /** @var  DoughnutChart */
     private $doughnutChart;
 
-    public function generateStarredProjectsCurrentMonthHoursChart()
+    public function generateStarredProjectHoursChartForSubMonths($subMonths)
     {
-        $date = Carbon::now();
+        $date = Carbon::now()->subMonths($subMonths);
         $monthLabel = $date->monthName;
         $month = $date->month;
         $year = $date->year;
-        $chartTitle = "Starred Projects Hours for current month ($monthLabel $year)";
+        $monthSequences = [0 => 'for current month', 1 => 'for last month'];
+        $monthSequence  = ($subMonths < 2)?$monthSequences[$subMonths]:'';
 
-        return $this->generateStarredProjectsMonthlyHoursChart($chartTitle, $month, $year);
-    }
-
-    public function generateStarredProjectsLastMonthHoursChart()
-    {
-        $date = Carbon::now()->subMonth();
-        $monthLabel = $date->monthName;
-        $month = $date->month;
-        $year = $date->year;
-        $chartTitle = "Starred Projects Hours for last month ($monthLabel $year)";
+        $chartTitle = "Starred Projects Hours $monthSequence ($monthLabel $year)";
 
         return $this->generateStarredProjectsMonthlyHoursChart($chartTitle, $month, $year);
     }

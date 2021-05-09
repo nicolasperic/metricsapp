@@ -11,16 +11,10 @@ class ProjectBarChart
 {
     /** @var  BarChart */
     private $barChart;
-
-    public function generateHoursPerUserBarChartForCurrentMonth()
+    
+    public function generateHoursPerUserBarChartForSubMonths($subMonths)
     {
-        $date = Carbon::now();
-        return $this->_generateHoursPerUserBarChartFor($date->month, $date->year);
-    }
-
-    public function generateHoursPerUserBarChartForLastMonth()
-    {
-        $date = Carbon::now()->subMonth();
+        $date = Carbon::now()->subMonths($subMonths);
         return $this->_generateHoursPerUserBarChartFor($date->month, $date->year);
     }
 

@@ -205,7 +205,10 @@ class ProjectImporter
     private function _calculatePercentages($totalHours)
     {
         foreach ($this->usersHours as $userAssemblaId => $userData) {
-            $this->usersHours[$userAssemblaId]['hours_percentage'] = number_format($userData['total_hours']/$totalHours*100,2);
+            if ($totalHours !== 0) {
+                $this->usersHours[$userAssemblaId]['hours_percentage'] = number_format($userData['total_hours']/$totalHours*100,2);
+            }
+
         }
     }
 }
