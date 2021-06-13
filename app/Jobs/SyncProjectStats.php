@@ -11,7 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class SyncProjectStats implements ShouldQueue
+class SyncProjectStats implements ShouldQueue, ShouldBeUnique
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     /**
@@ -70,6 +70,6 @@ class SyncProjectStats implements ShouldQueue
      */
     public function uniqueId()
     {
-        return $this->project->project_assembla_id;
+        return $this->project->project_assembla_id.'_'.$this->year.'_'.$this->month;
     }
 }

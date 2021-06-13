@@ -53,7 +53,7 @@ class Kernel extends ConsoleKernel
             $schedule->command("projectsstats:sync --year=$now->year --month=".$now->subMonth()->month)
                 ->everyMinute()->when(function () use($now) {
                     //workaround for Heroku scheduler
-                    return $now->hour % 3 == 0;//every 3 hours
+                    return $now->hour % 4 == 0;//every 4 hours
                 });
         }
 

@@ -59,7 +59,7 @@ class SyncProjectsStats extends Command
             return;
 
         //workaround to prevent scheduling more than one autosync batch of jobs! (this is for Heroku since the CRON does not awake the worker)
-        $unprocessedBatches = DB::table('job_batches')->where('name','=','SyncProjectStats')->where('pending_jobs','>','0')->count();
+        $unprocessedBatches = DB::table('job_batches')->where('name','=','SyncProjectsStats')->where('pending_jobs','>','0')->count();
         if ($unprocessedBatches !== 0) {
             return;
         }
