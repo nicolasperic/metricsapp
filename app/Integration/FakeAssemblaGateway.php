@@ -45,7 +45,7 @@ class FakeAssemblaGateway
             'id' => 'cvixt811Gr4PBcacwqjQYw',
             'login' => 'nicoperic',
             'name' => 'Nicolás Peric',
-            'email' => 'nperic@summasolutions.net'
+            'email' => 'nperic@example.com'
 
         ];
 

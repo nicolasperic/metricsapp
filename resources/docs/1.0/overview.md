@@ -11,7 +11,7 @@
 ## Documentation
 
 Each section and feature of the application will be described in depth here. For any doubts access the [FAQ's](/{{route}}/{{version}}/faqs) page
-or contact <a href="mailto:{{ config('support.email', 'nicolasperic+assembla-metrics-support@gmail.com') }}">support</a>
+or contact <a href="mailto:{{ config('support.email', 'support@example.com') }}">support</a>
 
 <br>
 Docs Information is organized on the left index covering the following items:

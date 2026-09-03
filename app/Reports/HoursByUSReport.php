@@ -490,7 +490,6 @@ class HoursByUSReport extends Report implements ReportInterface
     public function getRequestDataFormatted()
     {
         $requestData = $this->request_data;
-
         $requestDataFormatted = $requestData['wikiname'];
 
         if (is_array($requestData) &&  array_key_exists('from_date', $requestData) && array_key_exists('to_date', $requestData)) {

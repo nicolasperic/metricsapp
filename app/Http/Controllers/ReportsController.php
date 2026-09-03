@@ -15,9 +15,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ReportsController extends Controller
 {
-    const APPLICATION_KEY = 'a5aa5632989ec768d71d';//https://app.assembla.com/user/edit/manage_clients
-    const APPLICATION_SECRET = '497e452c605c29f8971aeb367e6c15a872749efe';
-
     public function index()
     {
         $user = Auth::user();

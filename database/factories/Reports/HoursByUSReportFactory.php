@@ -25,7 +25,7 @@ class HoursByUSReportFactory extends Factory
     {
         return [
             'user_id' => 1,
-            'request_data' => serialize(['wikiname' => 'Grassi', 'from_date' => '2020/11/30', 'to_date' => '2020/12/13']),
+            'request_data' => ['wikiname' => 'Grassi', 'space_id' => 'test_space', 'from_date' => '2020/11/30 00:00', 'to_date' => '2020/12/13 23:59'],
             'title' => 'Hours by User Story',
         ];
     }

@@ -26,7 +26,7 @@ class UserTest
         /** @var AssemblaUserDto $userDto */
         $userDto = $assemblaGateway->getAuthenticatedUser();
         $this->assertEquals('nicoperic', $userDto->getLogin());
-        $this->assertEquals('nperic@summasolutions.net', $userDto->getEmail());
+        $this->assertEquals('nperic@example.com', $userDto->getEmail());
     }
 
     /** @test */
@@ -43,7 +43,7 @@ class UserTest
         /** @var AssemblaUserDto $userDto */
         $userDto = $assemblaGateway->getAuthenticatedUser();
         $this->assertEquals('nicoperic', $userDto->getLogin());
-        $this->assertEquals('nperic@summasolutions.net', $userDto->getEmail());
+        $this->assertEquals('nperic@example.com', $userDto->getEmail());
     }
 
     /** @test */
@@ -64,7 +64,7 @@ class UserTest
         $userDto= $assemblaGateway->getUser('cvixt811Gr4PBcacwqjQYw');
 
         $this->assertEquals('nicoperic', $userDto->getLogin());
-        $this->assertEquals('nperic@summasolutions.net', $userDto->getEmail());
+        $this->assertEquals('nperic@example.com', $userDto->getEmail());
     }
 
     /** @test */
